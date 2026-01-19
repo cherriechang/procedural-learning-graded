@@ -6,7 +6,7 @@ const EXPERIMENT_CONFIG = {
 	transition_matrix: null, // To be set based on assigned matrix size
 	sequence: [], // Full sequence for all blocks
 	key_mapping: null, // To be set based on assigned matrix size
-	n_blocks: 7,
+	n_blocks: 1,
 	trials_per_block: null, // 10x matrix size for sufficient learning
 	practice_trials: null, // 2x matrix size for practice
 	rsi: 120, // ms
@@ -222,7 +222,7 @@ const instructions = {
 			.join(" ");
 
 		return [
-						`<div class="instruction-text">
+			`<div class="instruction-text">
                 <h1>Welcome!</h1>
                 <p>Thank you for participating in this study.</p>
                 <p>Please make sure you:</p>
@@ -234,44 +234,28 @@ const instructions = {
                 </ul>
                 <p><strong>Click 'Next' to continue.</strong></p>
             </div>`,
-
 			`<div class="instruction-text">
-                    <h1>Instructions</h1>
-                    <p>In this task, you will see ${size} boxes on the screen.</p>
-                    <p>On each trial, a mole <img src="mole.png" class="mole-image" alt="mole" style="vertical-align: middle;"> will appear in one of the boxes.</p>
-                    <p>Your job is to press the corresponding key as quickly and accurately as possible.</p>
-                    <p><strong>The keys you'll use are: ${keyElements}</strong></p>
-                    <p>Try to respond as fast as you can while staying accurate.</p>
-                </div>`,
-
-			`<div class="instruction-text">
-                    <h2>Key Mapping</h2>
-                    <p>Here's which key corresponds to each position:</p>
-                    <div class="key-mapping">
-                        ${Array.from(
-													{length: size},
-													(_, i) =>
-														`<div class="key-mapping-item">${KEY_MAPPINGS[size][i].toUpperCase()}</div>`,
-												).join("")}
-                    </div>
-                    <p>Rest your fingers on these keys throughout the task.</p>
-                    <p><strong>Tip:</strong> The positions correspond to a natural left-to-right hand position on the keyboard.</p>
+                    <h2>Instructions</h2>
+					<p>In each trial, you will see ${EXPERIMENT_CONFIG.matrix_size} boxes arranged in a horizontal line on the screen.</p>
+					<p>One of the boxes will have a mole  <img src="assets/mole.png" class="mole-image" alt="mole" style="vertical-align: middle;"> appear in it.</p>
+					<p>Your task is to respond to the appearance of the mole by pressing a corresponding key on your keyboard as quickly and accurately as possible.</p>
+					<p>The set of keys you will use to respond are: ${keyElements}.</p>
+					<p>These keys correspond to the boxes on the screen in a left-to-right order. So, if the mole appears in the leftmost box, you would press the leftmost key <span class="inline-key">${KEY_MAPPINGS[size][0]}</span>; if it appears in the second box from the left, you would press <span class="inline-key">${KEY_MAPPINGS[size][1]}</span>, and so on.</p>
+                    <img src="assets/key-mappings-${EXPERIMENT_CONFIG.matrix_size}pos.gif" alt="Key Mapping" class="key-mapping-image" />
+                    <p>The keys match the horizontal order of the boxes on the screen while following a natural left-to-right hand position on the keyboard.</p>
+					<p><strong>Please rest your fingers on these keys throughout the task, as demonstrated above.</strong></p>
                 </div>`,
 
 			`<div class="instruction-text">
                     <h2>Feedback</h2>
-                    <p>After each response, you'll see brief feedback:</p>
-                    <ul>
-                        <li><span style="color: #4CAF50;">✓ Green checkmark</span> = Correct response</li>
-                        <li><span style="color: #f44336;">✗ Red X + beep + "Try again!"</span> = Incorrect response</li>
-                    </ul>
-                    <p>If you make an error, the task will pause briefly, then automatically continue.</p>
+                    <p>After each response, you will be given feedback on whether you pressed the right key.</p>
+                    <p>If you made an error, you will be told to try again until you press the correct key.</p>
                     <p>Just try to stay focused and respond as quickly as possible!</p>
                 </div>`,
 
 			`<div class="instruction-text">
                     <h2>Practice</h2>
-                    <p>You'll start with ${EXPERIMENT_CONFIG.practice_trials} practice trials to get familiar with the task.</p>
+                    <p>You wil start with ${EXPERIMENT_CONFIG.practice_trials} practice trials to get familiar with the task.</p>
                     <p><strong>Ready to practice?</strong></p>
                 </div>`,
 		];
@@ -461,7 +445,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 // Block break with feedback
 function createBlockBreak(blockNum) {
 	return {
-		type: jsPsychHtmlKeyboardResponse,
+		type: jsPsychHtmlButtonResponse,
 		stimulus: function () {
 			// Calculate block statistics
 			const blockTrials = experimentState.trialData.filter((t) => t.block === blockNum - 1);
@@ -489,15 +473,15 @@ function createBlockBreak(blockNum) {
 
 				previousStats = `
                         <p><strong>Previous Block:</strong></p>
-                        <p>Accuracy: ${prevAccuracy}% | Mean RT: ${prevMeanRT}ms</p>
+                        <p>You got ${prevAccuracy}% of the trials correct.</p>
                     `;
 			}
 
 			// Adaptive feedback
 			let feedback = "";
-			if (accuracy < 85) {
+			if (accuracy < 50) {
 				feedback = '<p style="color: #f44336;"><strong>Try to be more accurate.</strong></p>';
-			} else if (meanRT > 500) {
+			} else if (meanRT > 1000) {
 				feedback = '<p style="color: #2196F3;"><strong>Try to respond faster!</strong></p>';
 			} else {
 				feedback = '<p style="color: #4CAF50;"><strong>Great job! Keep it up!</strong></p>';
@@ -508,25 +492,94 @@ function createBlockBreak(blockNum) {
 			return `
                     <div class="block-feedback">
                         <h2>Block ${blockNum} of ${EXPERIMENT_CONFIG.n_blocks} Complete!</h2>
-                        
+
                         <div class="progress-bar-container">
                             <div class="progress-bar" style="width: ${progress}%"></div>
                         </div>
-                        
+
                         <p><strong>Current Block:</strong></p>
-                        <p>Accuracy: ${accuracy}% | Mean RT: ${meanRT}ms</p>
-                        
+                        <p>You got ${accuracy}% of the trials correct.</p>
+
                         ${previousStats}
-                        
+
                         ${feedback}
-                        
-                        <p style="margin-top: 30px;">Take a 15-second break.</p>
-                        <p style="font-size: 14px; color: #666;">The next block will start automatically.</p>
+
+                        <p style="margin-top: 30px;">Feel free to take a break.</p>
+                        <p style="font-size: 14px; color: #666;">Click the button below when you're ready to continue.</p>
                     </div>
                 `;
 		},
-		choices: "NO_KEYS",
-		trial_duration: EXPERIMENT_CONFIG.block_break_duration,
+		choices: ["Continue"],
+	};
+}
+
+// Final feedback after last block
+function createFinalFeedback() {
+	return {
+		type: jsPsychHtmlButtonResponse,
+		stimulus: function () {
+			// Calculate final block statistics
+			const finalBlock = EXPERIMENT_CONFIG.n_blocks - 1;
+			const blockTrials = experimentState.trialData.filter((t) => t.block === finalBlock);
+			const accuracy = (
+				(blockTrials.filter((t) => t.correct).length / blockTrials.length) *
+				100
+			).toFixed(1);
+			const meanRT = (
+				blockTrials.filter((t) => t.correct).reduce((sum, t) => sum + t.rt, 0) /
+				blockTrials.filter((t) => t.correct).length
+			).toFixed(0);
+
+			// Get previous block stats
+			let previousStats = "";
+			if (finalBlock > 0) {
+				const prevBlockTrials = experimentState.trialData.filter((t) => t.block === finalBlock - 1);
+				const prevAccuracy = (
+					(prevBlockTrials.filter((t) => t.correct).length / prevBlockTrials.length) *
+					100
+				).toFixed(1);
+				const prevMeanRT = (
+					prevBlockTrials.filter((t) => t.correct).reduce((sum, t) => sum + t.rt, 0) /
+					prevBlockTrials.filter((t) => t.correct).length
+				).toFixed(0);
+
+				previousStats = `
+                        <p><strong>Previous Block:</strong></p>
+                        <p>You got ${prevAccuracy}% of the trials correct.</p>
+                    `;
+			}
+
+			// Adaptive feedback
+			let feedback = "";
+			if (accuracy < 85) {
+				feedback = '<p style="color: #f44336;"><strong>Try to be more accurate.</strong></p>';
+			} else if (meanRT > 1000) {
+				feedback = '<p style="color: #2196F3;"><strong>Try to respond faster!</strong></p>';
+			} else {
+				feedback = '<p style="color: #4CAF50;"><strong>Great job! Keep it up!</strong></p>';
+			}
+
+			return `
+                    <div class="block-feedback">
+                        <h2>All Blocks Complete!</h2>
+
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 100%"></div>
+                        </div>
+
+                        <p><strong>Final Block:</strong></p>
+                        <p>You got ${accuracy}% of the trials correct.</p>
+
+                        ${previousStats}
+
+                        ${feedback}
+
+                        <p style="margin-top: 30px;">Thank you for completing all the trials!</p>
+                        <p style="font-size: 14px; color: #666;">Click continue to proceed to a few final questions.</p>
+                    </div>
+                `;
+		},
+		choices: ["Continue"],
 	};
 }
 
@@ -694,7 +747,23 @@ async function runExperiment() {
 	const subject_id = jsPsych.randomization.randomID(10);
 	const filename = `${subject_id}.csv`;
 
+	// Preload media files
+	const size = EXPERIMENT_CONFIG.matrix_size;
+	const preload = {
+		type: jsPsychPreload,
+		images: [
+			"assets/key-white.png",
+			"assets/key-black.png",
+			"assets/key-mole.png",
+			`assets/key-mappings-${size}pos.gif`,
+		],
+		message: "Please wait while the experiment loads...",
+		show_progress_bar: true,
+		error_message: "The experiment failed to load. Please refresh the page.",
+	};
+
 	// Add components to timeline
+	timeline.push(preload);
 	timeline.push(instructions);
 
 	// Practice block - ensure all positions are sampled exactly twice
@@ -727,10 +796,10 @@ async function runExperiment() {
 			return `
                 <div class="instruction-text">
                     <h2>Practice Complete!</h2>
-                    <p>Your accuracy: ${accuracy}%</p>
+                    <p>You got ${accuracy}% of the trials correct.</p>
                     <p>Remember: Respond as quickly and accurately as possible.</p>
 					<p>Now, you will complete ${EXPERIMENT_CONFIG.n_blocks} blocks of ${EXPERIMENT_CONFIG.trials_per_block} trials.</p>
-                    <p>Between blocks, you'll get a 15-second break to rest.</p>
+                    <p>Between blocks, you will get a 15-second break to rest.</p>
                     <p>The entire task takes about ${Math.ceil((EXPERIMENT_CONFIG.n_blocks * EXPERIMENT_CONFIG.trials_per_block * (EXPERIMENT_CONFIG.estimated_trial_duration + EXPERIMENT_CONFIG.rsi) + EXPERIMENT_CONFIG.n_blocks * 15000) / 60000)} minutes.</p>
                     <p><strong>The main task will now begin.</strong></p>
                 </div>
@@ -754,6 +823,9 @@ async function runExperiment() {
 		}
 	}
 
+	// Final feedback after all blocks complete
+	timeline.push(createFinalFeedback());
+
 	// Post-task questionnaire
 	timeline.push(q1_open_probe);
 	timeline.push(q2_noticed_regularity);
@@ -763,11 +835,11 @@ async function runExperiment() {
 	timeline.push(q4_forced_description);
 	timeline.push(q4b_confidence_guess);
 
+	// Data saving (after questionnaire, before debrief)
+	timeline.push(save_data(filename));
+
 	// Debrief
 	timeline.push(debrief);
-
-	// Data saving
-	timeline.push(save_data(filename));
 
 	// Run the experiment
 	jsPsych.run(timeline);
