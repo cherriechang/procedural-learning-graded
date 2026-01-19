@@ -6,7 +6,7 @@ const EXPERIMENT_CONFIG = {
 	transition_matrix: null, // To be set based on assigned matrix size
 	sequence: [], // Full sequence for all blocks
 	key_mapping: null, // To be set based on assigned matrix size
-	n_blocks: 1,
+	n_blocks: 7,
 	trials_per_block: null, // 10x matrix size for sufficient learning
 	practice_trials: null, // 2x matrix size for practice
 	rsi: 120, // ms
@@ -14,7 +14,7 @@ const EXPERIMENT_CONFIG = {
 	error_tone_duration: 100,
 	correct_feedback_duration: 200,
 	block_break_duration: 15000,
-	estimated_trial_duration: 400, // ms (for estimating total experiment time)
+	estimated_trial_duration: 500, // ms (for estimating total experiment time)
 	start_time: null, // To be set at experiment start
 };
 
