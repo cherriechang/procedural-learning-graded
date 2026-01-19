@@ -6,7 +6,7 @@ const EXPERIMENT_CONFIG = {
 	transition_matrix: null, // To be set based on assigned matrix size
 	sequence: [], // Full sequence for all blocks
 	key_mapping: null, // To be set based on assigned matrix size
-	n_blocks: 0,
+	n_blocks: 7,
 	trials_per_block: null, // 10x matrix size for sufficient learning
 	practice_trials: null, // 2x matrix size for practice
 	rsi: 120, // ms
@@ -14,6 +14,7 @@ const EXPERIMENT_CONFIG = {
 	error_tone_duration: 100,
 	correct_feedback_duration: 200,
 	block_break_duration: 15000,
+	estimated_trial_duration: 400, // ms (for estimating total experiment time)
 	start_time: null, // To be set at experiment start
 };
 
@@ -218,7 +219,6 @@ const welcome = {
 			`<div class="instruction-text">
                 <h1>Welcome!</h1>
                 <p>Thank you for participating in this study.</p>
-                <p>This experiment will take approximately ${Math.ceil(EXPERIMENT_CONFIG.total_trials / 60)} minutes to complete.</p>
                 <p>Please make sure you:</p>
                 <ul>
                     <li>Are in a quiet environment</li>
@@ -226,7 +226,7 @@ const welcome = {
                     <li>Can use a physical keyboard (not touchscreen)</li>
                     <li>Have your sound on</li>
                 </ul>
-                <p>Click 'Next' to continue.</p>
+                <p><strong>Click 'Next' to continue.</strong></p>
             </div>`,
 		];
 	},
@@ -280,9 +280,6 @@ const instructions = {
 			`<div class="instruction-text">
                     <h2>Practice</h2>
                     <p>You'll start with ${EXPERIMENT_CONFIG.practice_trials} practice trials to get familiar with the task.</p>
-                    <p>After that, you'll complete ${EXPERIMENT_CONFIG.n_blocks} blocks of ${EXPERIMENT_CONFIG.trials_per_block} trials.</p>
-                    <p>Between blocks, you'll get a 15-second break to rest.</p>
-                    <p>The entire task takes about 7 minutes.</p>
                     <p><strong>Ready to practice?</strong></p>
                 </div>`,
 		];
@@ -709,11 +706,18 @@ async function runExperiment() {
 	timeline.push(welcome);
 	timeline.push(instructions);
 
-	// Practice block
-	const practiceSequence = generateSequence(
-		EXPERIMENT_CONFIG.transition_matrix,
-		EXPERIMENT_CONFIG.practice_trials,
-	);
+	// Practice block - ensure all positions are sampled exactly twice
+	let practiceSequence = [];
+	const nPositions = EXPERIMENT_CONFIG.matrix_size;
+
+	// Create array with each position appearing exactly twice
+	for (let pos = 0; pos < nPositions; pos++) {
+		practiceSequence.push(pos);
+		practiceSequence.push(pos);
+	}
+
+	// Shuffle the practice sequence
+	practiceSequence = jsPsych.randomization.shuffle(practiceSequence);
 
 	for (let i = 0; i < EXPERIMENT_CONFIG.practice_trials; i++) {
 		timeline.push(createPracticeTrial(practiceSequence[i], i));
@@ -734,7 +738,10 @@ async function runExperiment() {
                     <h2>Practice Complete!</h2>
                     <p>Your accuracy: ${accuracy}%</p>
                     <p>Remember: Respond as quickly and accurately as possible.</p>
-                    <p>The main task will now begin.</p>
+					<p>Now, you will complete ${EXPERIMENT_CONFIG.n_blocks} blocks of ${EXPERIMENT_CONFIG.trials_per_block} trials.</p>
+                    <p>Between blocks, you'll get a 15-second break to rest.</p>
+                    <p>The entire task takes about ${Math.ceil((EXPERIMENT_CONFIG.n_blocks * EXPERIMENT_CONFIG.trials_per_block * EXPERIMENT_CONFIG.estimated_trial_duration) / 60000)} minutes.</p>
+                    <p><strong>The main task will now begin.</strong></p>
                 </div>
             `;
 		},
