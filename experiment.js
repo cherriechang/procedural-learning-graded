@@ -230,6 +230,10 @@ const instructions = {
                     <li>Are in a quiet environment</li>
                     <li>Will not be interrupted</li>
                     <li>Can use a physical keyboard (not touchscreen)</li>
+					<li><strong>Are using a standard QWERTY keyboard</strong></li>
+					<ul>
+						<li>If you are using a different keyboard layout (e.g., AZERTY, DVORAK), please consider quitting the experiment or switching to a QWERTY keyboard as it might affect your performance.</li>
+					</ul>
                     <li>Have your sound on</li>
                 </ul>
                 <p><strong>Click 'Next' to continue.</strong></p>
