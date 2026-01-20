@@ -1,2 +1,9 @@
 .DS_Store
 node_modules/
+.Rproj.user
+*/key-mappings-4pos/*
+*/key-mappings-5pos/*
+*/key-mappings-6pos/*
+*/key-mappings-7pos/*
+*/key-mappings-8pos/*
+data/
