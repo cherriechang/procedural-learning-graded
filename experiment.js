@@ -91,10 +91,18 @@ function createStimulusDisplay(
 	}
 	html += "</div>";
 
+	// Determine the split point between left and right hands
+	// Left hand: A, S, D, F (max 4 keys)
+	// Right hand: J, K, L, ; (max 4 keys)
+	// 4: 2L|2R, 5: 3L|2R, 6: 3L|3R, 7: 4L|3R, 8: 4L|4R
+	const leftHandCount = Math.ceil(matrixSize / 2);
+	const lastLeftIndex = leftHandCount - 1;
+
 	html += '<div class="stimulus-container">';
 	for (let i = 0; i < matrixSize; i++) {
 		const active = i === position ? "active" : "";
-		html += `<div class="position-wrapper">`;
+		const gapClass = i === lastLeftIndex ? "hand-gap" : "";
+		html += `<div class="position-wrapper ${gapClass}">`;
 		if (showKeys) {
 			html += `<div class="key-label">${KEY_MAPPINGS[matrixSize][i].toUpperCase()}</div>`;
 		}

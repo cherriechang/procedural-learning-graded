@@ -15,6 +15,10 @@
 	position: relative;
 }
 
+.position-wrapper.hand-gap {
+	margin-right: 60px; /* Triple the normal margin (30px * 3) */
+}
+
 .key-label {
 	font-size: 24px;
 	font-weight: bold;
