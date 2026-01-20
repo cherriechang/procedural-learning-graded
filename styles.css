@@ -4,7 +4,9 @@
 	justify-content: center;
 	align-items: center;
 	height: 300px;
-	margin: 50px 0;
+	margin-top: 5vh; /* Fixed position from top, 15% of viewport height */
+	margin-bottom: 0;
+	position: relative;
 }
 
 .position-wrapper {
@@ -16,7 +18,22 @@
 }
 
 .position-wrapper.hand-gap {
-	margin-right: 60px; /* Triple the normal margin (30px * 3) */
+	margin-right: 60px; /* Double the normal margin (30px * 2) */
+}
+
+.finger-diagram-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	bottom: 0vh;
+	left: 0;
+	right: 0;
+}
+
+.finger-diagram {
+	width: 1600px;
+	height: auto;
 }
 
 .key-label {
@@ -63,7 +80,8 @@
 
 .feedback-message {
 	text-align: center;
-	margin-bottom: 20px;
+	margin-top: 0;
+	margin-bottom: 0px;
 	height: 80px;
 	display: flex;
 	align-items: center;

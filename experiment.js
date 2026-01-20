@@ -84,12 +84,21 @@ function createStimulusDisplay(
 	matrixSize,
 	showKeys = false,
 	feedbackMessage = "",
+	blockNum = 0, // TEMPORARY: Add block number parameter for testing
 ) {
 	let html = '<div class="feedback-message">';
 	if (feedbackMessage) {
 		html += feedbackMessage;
 	}
 	html += "</div>";
+
+	// TEMPORARY: Testing conditions
+	// Practice (blockNum = -1): no gap, no finger diagram
+	// Block 0: no gap, no finger diagram
+	// Block 1: gap, no finger diagram
+	// Block 2: no gap, finger diagram
+	const showGap = blockNum === 1;
+	const showFingerDiagram = blockNum === 2;
 
 	// Determine the split point between left and right hands
 	// Left hand: A, S, D, F (max 4 keys)
@@ -101,7 +110,7 @@ function createStimulusDisplay(
 	html += '<div class="stimulus-container">';
 	for (let i = 0; i < matrixSize; i++) {
 		const active = i === position ? "active" : "";
-		const gapClass = i === lastLeftIndex ? "hand-gap" : "";
+		const gapClass = i === lastLeftIndex && showGap ? "hand-gap" : "";
 		html += `<div class="position-wrapper ${gapClass}">`;
 		if (showKeys) {
 			html += `<div class="key-label">${KEY_MAPPINGS[matrixSize][i].toUpperCase()}</div>`;
@@ -110,6 +119,13 @@ function createStimulusDisplay(
 		html += "</div>";
 	}
 	html += "</div>";
+
+	// Add finger diagram below the boxes (only for block 2)
+	if (showFingerDiagram) {
+		html += `<div class="finger-diagram-container">
+			<img src="assets/finger-diagrams/finger-diagram-${matrixSize}pos.png" alt="Finger position guide" class="finger-diagram" />
+		</div>`;
+	}
 
 	return html;
 }
@@ -167,10 +183,13 @@ function playErrorTone() {
 }
 
 async function initializeExperiment() {
+	// TEMPORARY: Force matrix size to 7 for testing
+	EXPERIMENT_CONFIG.matrix_size = 7;
+
 	// Randomly assign matrix size
-	const matrixSizes = [4, 5, 6, 7, 8];
-	const condition = await jsPsychPipe.getCondition(EXPERIMENT_CONFIG.datapipe_id); // 0-4
-	EXPERIMENT_CONFIG.matrix_size = matrixSizes[condition]; // Update config with assigned matrix size
+	// const matrixSizes = [4, 5, 6, 7, 8];
+	// const condition = await jsPsychPipe.getCondition(EXPERIMENT_CONFIG.datapipe_id); // 0-4
+	// EXPERIMENT_CONFIG.matrix_size = matrixSizes[condition]; // Update config with assigned matrix size
 
 	// Load transition matrix and shuffle it
 	const originalMatrix = MATRICES[EXPERIMENT_CONFIG.matrix_size];
@@ -220,6 +239,12 @@ const jsPsych = initJsPsych({
 
 let timeline = [];
 
+// FULSCREEN
+const enter_fullscreen = {
+	type: jsPsychFullscreen,
+	fullscreen_mode: true,
+};
+
 // Instructions
 const instructions = {
 	type: jsPsychInstructions,
@@ -251,7 +276,7 @@ const instructions = {
 					<p>In each trial, you will see ${EXPERIMENT_CONFIG.matrix_size} boxes arranged in a horizontal line on the screen.</p>
 					<p>One of the boxes will have a mole  <img src="assets/mole.png" class="mole-image" alt="mole" style="vertical-align: middle;"> appear in it.</p>
 					<p>Your task is to respond to the appearance of the mole by pressing a corresponding key on your keyboard as quickly and accurately as possible.</p>
-					<p>The set of keys you will use to respond are: ${keyElements}.</p>
+					<p>The set of keys you will use to respond are:<br>${keyElements}.</p>
 					<p>These keys correspond to the boxes on the screen in a left-to-right order. So, if the mole appears in the leftmost box, you would press the leftmost key <span class="inline-key">${KEY_MAPPINGS[size][0]}</span>; if it appears in the second box from the left, you would press <span class="inline-key">${KEY_MAPPINGS[size][1]}</span>, and so on.</p>
                     <img src="assets/key-mappings-${EXPERIMENT_CONFIG.matrix_size}pos.gif" alt="Key Mapping" class="key-mapping-image" />
                     <p>The keys match the horizontal order of the boxes on the screen while following a natural left-to-right hand position on the keyboard.</p>
@@ -287,7 +312,7 @@ function createPracticeTrial(position, trialIndex) {
 				// Practice stimulus
 				type: jsPsychHtmlKeyboardResponse,
 				stimulus: function () {
-					return createStimulusDisplay(position, size, true);
+					return createStimulusDisplay(position, size, true, "", -1); // -1 for practice
 				},
 				choices: "ALL_KEYS",
 				data: {
@@ -314,7 +339,7 @@ function createPracticeTrial(position, trialIndex) {
 					} else {
 						feedbackHTML = '<div class="feedback-error">✗<br>Try again!</div>';
 					}
-					return createStimulusDisplay(position, size, true, feedbackHTML);
+					return createStimulusDisplay(position, size, true, feedbackHTML, -1);
 				},
 				choices: "NO_KEYS",
 				trial_duration: function () {
@@ -341,7 +366,7 @@ function createPracticeTrial(position, trialIndex) {
 	const rsi = {
 		type: jsPsychHtmlKeyboardResponse,
 		stimulus: function () {
-			return createStimulusDisplay(null, size, true);
+			return createStimulusDisplay(null, size, true, "", -1);
 		},
 		choices: "NO_KEYS",
 		trial_duration: EXPERIMENT_CONFIG.rsi,
@@ -368,7 +393,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 				type: jsPsychHtmlKeyboardResponse,
 				stimulus: function () {
 					// Show keys if there was an error, otherwise hide them
-					return createStimulusDisplay(position, size, hasError);
+					return createStimulusDisplay(position, size, hasError, "", blockNum);
 				},
 				choices: "ALL_KEYS",
 				data: {
@@ -416,7 +441,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 						hasError = true; // Set error flag
 					}
 					// Show keys in feedback if there's an error
-					return createStimulusDisplay(position, size, !lastTrial.correct, feedbackHTML);
+					return createStimulusDisplay(position, size, !lastTrial.correct, feedbackHTML, blockNum);
 				},
 				choices: "NO_KEYS",
 				trial_duration: function () {
@@ -443,7 +468,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 	const rsi = {
 		type: jsPsychHtmlKeyboardResponse,
 		stimulus: function () {
-			return createStimulusDisplay(null, size, false);
+			return createStimulusDisplay(null, size, false, "", blockNum);
 		},
 		choices: "NO_KEYS",
 		trial_duration: EXPERIMENT_CONFIG.rsi,
@@ -726,6 +751,7 @@ async function runExperiment() {
 			"assets/key-black.png",
 			"assets/key-mole.png",
 			`assets/key-mappings-${size}pos.gif`,
+			`assets/finger-diagrams/finger-diagram-${size}pos.png`,
 		],
 		message: "Please wait while the experiment loads...",
 		show_progress_bar: true,
@@ -734,6 +760,7 @@ async function runExperiment() {
 
 	// Add components to timeline
 	timeline.push(preload);
+	timeline.push(enter_fullscreen);
 	timeline.push(instructions);
 
 	// Practice block - ensure all positions are sampled exactly twice
