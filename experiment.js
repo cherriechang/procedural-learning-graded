@@ -183,6 +183,9 @@ function playErrorTone() {
 }
 
 async function initializeExperiment() {
+	// Generate subject ID
+	EXPERIMENT_CONFIG.subject_id = jsPsych.randomization.randomID(10);
+
 	// TEMPORARY: Force matrix size to 7 for testing
 	EXPERIMENT_CONFIG.matrix_size = 7;
 
@@ -217,23 +220,8 @@ async function initializeExperiment() {
 
 const jsPsych = initJsPsych({
 	on_finish: function () {
-		// Add experiment configuration to all data rows
-		jsPsych.data.addProperties({
-			matrix_size: EXPERIMENT_CONFIG.matrix_size,
-			transition_matrix: JSON.stringify(EXPERIMENT_CONFIG.transition_matrix),
-			sequence: JSON.stringify(EXPERIMENT_CONFIG.sequence),
-			key_mapping: JSON.stringify(EXPERIMENT_CONFIG.key_mapping),
-			n_blocks: EXPERIMENT_CONFIG.n_blocks,
-			trials_per_block: EXPERIMENT_CONFIG.trials_per_block,
-			total_trials: EXPERIMENT_CONFIG.total_trials,
-			practice_trials: EXPERIMENT_CONFIG.practice_trials,
-			rsi: EXPERIMENT_CONFIG.rsi,
-			error_feedback_duration: EXPERIMENT_CONFIG.error_feedback_duration,
-			correct_feedback_duration: EXPERIMENT_CONFIG.correct_feedback_duration,
-			block_break_duration: EXPERIMENT_CONFIG.block_break_duration,
-			start_time: EXPERIMENT_CONFIG.start_time,
-		});
 		// Data is already saved via DataPipe, no need to display it
+		// Experiment properties are added in runExperiment() before trials start
 	},
 });
 
@@ -243,6 +231,9 @@ let timeline = [];
 const enter_fullscreen = {
 	type: jsPsychFullscreen,
 	fullscreen_mode: true,
+	data: {
+		phase: "fullscreen",
+	},
 };
 
 // Instructions
@@ -298,6 +289,9 @@ const instructions = {
 		];
 	},
 	show_clickable_nav: true,
+	data: {
+		phase: "instructions",
+	},
 };
 
 // Practice trials
@@ -316,7 +310,7 @@ function createPracticeTrial(position, trialIndex) {
 				},
 				choices: "ALL_KEYS",
 				data: {
-					phase: "practice",
+					phase: "practice_stimulus",
 					trial_index: trialIndex,
 					position: position,
 					correct_key: correctKey,
@@ -348,6 +342,9 @@ function createPracticeTrial(position, trialIndex) {
 						? EXPERIMENT_CONFIG.correct_feedback_duration
 						: EXPERIMENT_CONFIG.error_feedback_duration;
 				},
+				data: {
+					phase: "practice_feedback",
+				},
 				on_start: function () {
 					const lastTrial = jsPsych.data.get().last(1).values()[0];
 					if (!lastTrial.correct) {
@@ -370,6 +367,9 @@ function createPracticeTrial(position, trialIndex) {
 		},
 		choices: "NO_KEYS",
 		trial_duration: EXPERIMENT_CONFIG.rsi,
+		data: {
+			phase: "practice_rsi",
+		},
 	};
 
 	return {
@@ -397,7 +397,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 				},
 				choices: "ALL_KEYS",
 				data: {
-					phase: "main",
+					phase: "main_stimulus",
 					block: blockNum,
 					trial_in_block: trialInBlock,
 					overall_trial: overallTrial,
@@ -450,6 +450,9 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 						? EXPERIMENT_CONFIG.correct_feedback_duration
 						: EXPERIMENT_CONFIG.error_feedback_duration;
 				},
+				data: {
+					phase: "main_feedback",
+				},
 				on_start: function () {
 					const lastTrial = jsPsych.data.get().last(1).values()[0];
 					if (!lastTrial.correct) {
@@ -472,6 +475,9 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 		},
 		choices: "NO_KEYS",
 		trial_duration: EXPERIMENT_CONFIG.rsi,
+		data: {
+			phase: "main_rsi",
+		},
 	};
 
 	return {
@@ -526,6 +532,9 @@ function createBlockBreak(blockNum) {
                 `;
 		},
 		choices: ["Continue"],
+		data: {
+			phase: "block_break",
+		},
 	};
 }
 
@@ -534,6 +543,9 @@ function createFinalFeedback() {
 	return {
 		type: jsPsychHtmlButtonResponse,
 		stimulus: function () {
+			// Record end time when last block completes
+			EXPERIMENT_CONFIG.end_time = Date.now();
+
 			// Calculate final block statistics
 			const finalBlock = EXPERIMENT_CONFIG.n_blocks - 1;
 			const blockTrials = experimentState.trialData.filter((t) => t.block === finalBlock);
@@ -575,6 +587,15 @@ function createFinalFeedback() {
                 `;
 		},
 		choices: ["Continue"],
+		data: {
+			phase: "final_feedback",
+		},
+		on_finish: function () {
+			// Add end_time to all data rows
+			jsPsych.data.addProperties({
+				end_time: EXPERIMENT_CONFIG.end_time,
+			});
+		},
 	};
 }
 
@@ -582,17 +603,43 @@ function createFinalFeedback() {
 
 // Q1: Open probe
 const q1_open_probe = {
-	type: jsPsychSurveyText,
+	type: jsPsychSurveyMultiChoice,
 	questions: [
 		{
 			prompt: "Did you notice anything special about the task?",
 			name: "q1_open_probe",
-			rows: 4,
-			required: false,
+			options: ["No", "Yes"],
+			required: true,
 		},
 	],
 	data: {
+		phase: "questionnaire",
 		questionnaire_item: "q1_open_probe",
+	},
+};
+
+// Q1b: If yes, describe what they noticed
+const q1b_describe_special = {
+	timeline: [
+		{
+			type: jsPsychSurveyText,
+			questions: [
+				{
+					prompt: "What did you notice?",
+					name: "q1b_describe_special",
+					rows: 4,
+					required: true,
+				},
+			],
+			data: {
+				phase: "questionnaire",
+				questionnaire_item: "q1b_describe_special",
+			},
+		},
+	],
+	conditional_function: function () {
+		const lastResponse = jsPsych.data.get().last(1).values()[0];
+		return lastResponse.response.q1_open_probe === "Yes";
 	},
 };
 
@@ -608,6 +655,7 @@ const q2_noticed_regularity = {
 		},
 	],
 	data: {
+		phase: "questionnaire",
 		questionnaire_item: "q2_noticed_regularity",
 	},
 };
@@ -626,6 +674,7 @@ const q2b_describe_regularity = {
 				},
 			],
 			data: {
+				phase: "questionnaire",
 				questionnaire_item: "q2b_describe_regularity",
 			},
 		},
@@ -650,6 +699,7 @@ const q2c_confidence = {
 				},
 			],
 			data: {
+				phase: "questionnaire",
 				questionnaire_item: "q2c_confidence",
 			},
 		},
@@ -662,17 +712,43 @@ const q2c_confidence = {
 
 // Q3: Strategy
 const q3_strategy = {
-	type: jsPsychSurveyText,
+	type: jsPsychSurveyMultiChoice,
 	questions: [
 		{
 			prompt: "Did you use any strategy to help you respond faster?",
 			name: "q3_strategy",
-			rows: 4,
-			required: false,
+			options: ["No", "Yes"],
+			required: true,
 		},
 	],
 	data: {
+		phase: "questionnaire",
 		questionnaire_item: "q3_strategy",
+	},
+};
+
+// Q3b: If yes, describe the strategy
+const q3b_describe_strategy = {
+	timeline: [
+		{
+			type: jsPsychSurveyText,
+			questions: [
+				{
+					prompt: "Can you describe the strategy?",
+					name: "q3b_describe_strategy",
+					rows: 4,
+					required: true,
+				},
+			],
+			data: {
+				phase: "questionnaire",
+				questionnaire_item: "q3b_describe_strategy",
+			},
+		},
+	],
+	conditional_function: function () {
+		const lastResponse = jsPsych.data.get().last(1).values()[0];
+		return lastResponse.response.q3_strategy === "Yes";
 	},
 };
 
@@ -688,6 +764,7 @@ const q4_forced_description = {
 		},
 	],
 	data: {
+		phase: "questionnaire",
 		questionnaire_item: "q4_forced_description",
 	},
 };
@@ -704,6 +781,7 @@ const q4b_confidence_guess = {
 		},
 	],
 	data: {
+		phase: "questionnaire",
 		questionnaire_item: "q4b_confidence_guess",
 	},
 };
@@ -721,6 +799,7 @@ const q5_technical = {
 		},
 	],
 	data: {
+		phase: "questionnaire",
 		questionnaire_item: "technical_difficulties",
 	},
 };
@@ -738,6 +817,9 @@ const debrief = {
                 <p>Thank you for your participation!</p>
             </div>`,
 	choices: ["Close Window"],
+	data: {
+		phase: "debrief",
+	},
 	on_finish: function () {
 		window.close();
 	},
@@ -750,18 +832,27 @@ const save_data = (filename) => ({
 	experiment_id: "Sz1Mxzs1KPOg",
 	filename: filename,
 	data_string: () => jsPsych.data.get().csv(),
+	data: {
+		phase: "save_data",
+	},
 });
 
 // Run experiment (async wrapper to handle initialization)
 async function runExperiment() {
 	// Initialize experiment (this is async because it calls jsPsychPipe.getCondition)
 	await initializeExperiment();
-	const subject_id = jsPsych.randomization.randomID(10);
-	const filename = `${subject_id}.csv`;
+	const filename = `${EXPERIMENT_CONFIG.subject_id}.csv`;
 
-	// Add subject_id to all data rows
+	// Add experiment configuration to all data rows (must be done before trials run)
 	jsPsych.data.addProperties({
-		subject_id: subject_id,
+		subject_id: EXPERIMENT_CONFIG.subject_id,
+		matrix_size: EXPERIMENT_CONFIG.matrix_size,
+		transition_matrix: JSON.stringify(EXPERIMENT_CONFIG.transition_matrix),
+		sequence: JSON.stringify(EXPERIMENT_CONFIG.sequence),
+		trials_per_block: EXPERIMENT_CONFIG.trials_per_block,
+		total_trials: EXPERIMENT_CONFIG.total_trials,
+		practice_trials: EXPERIMENT_CONFIG.practice_trials,
+		start_time: EXPERIMENT_CONFIG.start_time,
 	});
 
 	// Preload media files
@@ -778,6 +869,9 @@ async function runExperiment() {
 		message: "Please wait while the experiment loads...",
 		show_progress_bar: true,
 		error_message: "The experiment failed to load. Please refresh the page.",
+		data: {
+			phase: "preload",
+		},
 	};
 
 	// Add components to timeline
@@ -825,6 +919,9 @@ async function runExperiment() {
             `;
 		},
 		choices: ["Start Main Task"],
+		data: {
+			phase: "practice_end",
+		},
 	});
 
 	// Main task blocks
@@ -847,10 +944,12 @@ async function runExperiment() {
 
 	// Post-task questionnaire
 	timeline.push(q1_open_probe);
+	timeline.push(q1b_describe_special);
 	timeline.push(q2_noticed_regularity);
 	timeline.push(q2b_describe_regularity);
 	timeline.push(q2c_confidence);
 	timeline.push(q3_strategy);
+	timeline.push(q3b_describe_strategy);
 	timeline.push(q4_forced_description);
 	timeline.push(q4b_confidence_guess);
 	timeline.push(q5_technical);
