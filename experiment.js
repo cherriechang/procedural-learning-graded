@@ -234,6 +234,7 @@ const enter_fullscreen = {
 	fullscreen_mode: true,
 	data: {
 		phase: "fullscreen",
+		experiment_trial_type: "fullscreen",
 	},
 };
 
@@ -268,7 +269,7 @@ const instructions = {
 					<p>In each trial, you will see ${EXPERIMENT_CONFIG.matrix_size} boxes arranged in a horizontal line on the screen.</p>
 					<p>One of the boxes will have a mole  <img src="assets/mole.png" class="mole-image" alt="mole" style="vertical-align: middle;"> appear in it.</p>
 					<p>Your task is to respond to the appearance of the mole by pressing a corresponding key on your keyboard as quickly and accurately as possible.</p>
-					<p>The set of keys you will use to respond are:<br>${keyElements}.</p>
+					<p>The set of keys you will use to respond are:<br>${keyElements}</p>
 					<p>These keys correspond to the boxes on the screen in a left-to-right order. So, if the mole appears in the leftmost box, you would press the leftmost key <span class="inline-key">${KEY_MAPPINGS[size][0]}</span>; if it appears in the second box from the left, you would press <span class="inline-key">${KEY_MAPPINGS[size][1]}</span>, and so on.</p>
                     <img src="assets/key-mappings-${EXPERIMENT_CONFIG.matrix_size}pos.gif" alt="Key Mapping" class="key-mapping-image" />
                     <p>The keys match the horizontal order of the boxes on the screen while following a natural left-to-right hand position on the keyboard.</p>
@@ -292,6 +293,7 @@ const instructions = {
 	show_clickable_nav: true,
 	data: {
 		phase: "instructions",
+		experiment_trial_type: "instructions",
 	},
 };
 
@@ -299,6 +301,7 @@ const instructions = {
 function createPracticeTrial(position, trialIndex) {
 	const size = EXPERIMENT_CONFIG.matrix_size;
 	const correctKey = KEY_MAPPINGS[size][position];
+	let isRetry = false; // Track if this is a retry attempt
 
 	// Correction loop - repeats until correct response
 	const correctionLoop = {
@@ -310,17 +313,23 @@ function createPracticeTrial(position, trialIndex) {
 					return createStimulusDisplay(position, size, true, "", -1); // -1 for practice
 				},
 				choices: "ALL_KEYS",
-				data: {
-					phase: "practice_stimulus",
-					trial_index: trialIndex,
-					position: position,
-					correct_key: correctKey,
+				data: function () {
+					return {
+						phase: "practice",
+						experiment_trial_type: isRetry ? "retry" : "stimulus",
+						trial_index: trialIndex,
+						position: position,
+						correct_key: correctKey,
+					};
 				},
 				on_load: function () {
 					setupKeyPressHandlers(size);
 				},
 				on_finish: function (data) {
 					data.correct = data.response === correctKey;
+					if (!data.correct) {
+						isRetry = true; // Mark next attempt as retry
+					}
 				},
 			},
 			{
@@ -344,7 +353,8 @@ function createPracticeTrial(position, trialIndex) {
 						: EXPERIMENT_CONFIG.error_feedback_duration;
 				},
 				data: {
-					phase: "practice_feedback",
+					phase: "practice",
+					experiment_trial_type: "feedback",
 				},
 				on_start: function () {
 					const lastTrial = jsPsych.data.get().last(1).values()[0];
@@ -369,7 +379,8 @@ function createPracticeTrial(position, trialIndex) {
 		choices: "NO_KEYS",
 		trial_duration: EXPERIMENT_CONFIG.rsi,
 		data: {
-			phase: "practice_rsi",
+			phase: "practice",
+			experiment_trial_type: "rsi",
 		},
 	};
 
@@ -385,6 +396,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 
 	// Track whether an error has occurred
 	let hasError = false;
+	let isRetry = false; // Track if this is a retry attempt
 
 	// Correction loop - repeats until correct response
 	const correctionLoop = {
@@ -397,20 +409,26 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 					return createStimulusDisplay(position, size, hasError, "", blockNum);
 				},
 				choices: "ALL_KEYS",
-				data: {
-					phase: "main_stimulus",
-					block: blockNum,
-					trial_in_block: trialInBlock,
-					overall_trial: overallTrial,
-					position: position,
-					correct_key: correctKey,
-					matrix_size: size,
+				data: function () {
+					return {
+						phase: "main",
+						experiment_trial_type: isRetry ? "retry" : "stimulus",
+						block: blockNum,
+						trial_in_block: trialInBlock,
+						overall_trial: overallTrial,
+						position: position,
+						correct_key: correctKey,
+						matrix_size: size,
+					};
 				},
 				on_load: function () {
 					setupKeyPressHandlers(size);
 				},
 				on_finish: function (data) {
 					data.correct = data.response === correctKey;
+					if (!data.correct) {
+						isRetry = true; // Mark next attempt as retry
+					}
 
 					// Store in experiment state (only first response per trial)
 					const trialsAtThisPosition = experimentState.trialData.filter(
@@ -452,7 +470,8 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 						: EXPERIMENT_CONFIG.error_feedback_duration;
 				},
 				data: {
-					phase: "main_feedback",
+					phase: "main",
+					experiment_trial_type: "feedback",
 				},
 				on_start: function () {
 					const lastTrial = jsPsych.data.get().last(1).values()[0];
@@ -477,7 +496,8 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 		choices: "NO_KEYS",
 		trial_duration: EXPERIMENT_CONFIG.rsi,
 		data: {
-			phase: "main_rsi",
+			phase: "main",
+			experiment_trial_type: "rsi",
 		},
 	};
 
@@ -492,7 +512,9 @@ function createBlockBreak(blockNum) {
 		type: jsPsychHtmlButtonResponse,
 		stimulus: function () {
 			// Calculate block statistics - only use main_stimulus trials
-			const allData = jsPsych.data.get().filter({phase: "main_stimulus", block: blockNum - 1});
+			const allData = jsPsych.data
+				.get()
+				.filter({phase: "main", experiment_trial_type: "stimulus", block: blockNum - 1});
 			const blockTrials = allData.values();
 			const correctCount = blockTrials.filter((t) => t.correct).length;
 			const totalCount = blockTrials.length;
@@ -534,7 +556,8 @@ function createBlockBreak(blockNum) {
 		},
 		choices: ["Continue"],
 		data: {
-			phase: "block_break",
+			phase: "main",
+			experiment_trial_type: "block_break",
 		},
 	};
 }
@@ -549,7 +572,9 @@ function createFinalFeedback() {
 
 			// Calculate final block statistics - only use main_stimulus trials
 			const finalBlock = EXPERIMENT_CONFIG.n_blocks - 1;
-			const allData = jsPsych.data.get().filter({phase: "main_stimulus", block: finalBlock});
+			const allData = jsPsych.data
+				.get()
+				.filter({phase: "main", experiment_trial_type: "stimulus", block: finalBlock});
 			const blockTrials = allData.values();
 			const correctCount = blockTrials.filter((t) => t.correct).length;
 			const totalCount = blockTrials.length;
@@ -571,7 +596,8 @@ function createFinalFeedback() {
 		},
 		choices: ["Continue"],
 		data: {
-			phase: "final_feedback",
+			phase: "main",
+			experiment_trial_type: "final_feedback",
 		},
 		on_finish: function () {
 			// Add end_time to all data rows
@@ -597,6 +623,7 @@ const q1_open_probe = {
 	],
 	data: {
 		phase: "questionnaire",
+		experiment_trial_type: "questionnaire",
 		questionnaire_item: "q1_open_probe",
 	},
 };
@@ -616,6 +643,7 @@ const q1b_describe_special = {
 			],
 			data: {
 				phase: "questionnaire",
+				experiment_trial_type: "questionnaire",
 				questionnaire_item: "q1b_describe_special",
 			},
 		},
@@ -639,6 +667,7 @@ const q2_noticed_regularity = {
 	],
 	data: {
 		phase: "questionnaire",
+		experiment_trial_type: "questionnaire",
 		questionnaire_item: "q2_noticed_regularity",
 	},
 };
@@ -658,6 +687,7 @@ const q2b_describe_regularity = {
 			],
 			data: {
 				phase: "questionnaire",
+				experiment_trial_type: "questionnaire",
 				questionnaire_item: "q2b_describe_regularity",
 			},
 		},
@@ -683,6 +713,7 @@ const q2c_confidence = {
 			],
 			data: {
 				phase: "questionnaire",
+				experiment_trial_type: "questionnaire",
 				questionnaire_item: "q2c_confidence",
 			},
 		},
@@ -706,6 +737,7 @@ const q3_strategy = {
 	],
 	data: {
 		phase: "questionnaire",
+		experiment_trial_type: "questionnaire",
 		questionnaire_item: "q3_strategy",
 	},
 };
@@ -725,6 +757,7 @@ const q3b_describe_strategy = {
 			],
 			data: {
 				phase: "questionnaire",
+				experiment_trial_type: "questionnaire",
 				questionnaire_item: "q3b_describe_strategy",
 			},
 		},
@@ -748,6 +781,7 @@ const q4_forced_description = {
 	],
 	data: {
 		phase: "questionnaire",
+		experiment_trial_type: "questionnaire",
 		questionnaire_item: "q4_forced_description",
 	},
 };
@@ -765,6 +799,7 @@ const q4b_confidence_guess = {
 	],
 	data: {
 		phase: "questionnaire",
+		experiment_trial_type: "questionnaire",
 		questionnaire_item: "q4b_confidence_guess",
 	},
 };
@@ -783,6 +818,7 @@ const q5_technical = {
 	],
 	data: {
 		phase: "questionnaire",
+		experiment_trial_type: "questionnaire",
 		questionnaire_item: "technical_difficulties",
 	},
 };
@@ -802,6 +838,7 @@ const debrief = {
 	choices: ["Close Window"],
 	data: {
 		phase: "debrief",
+		experiment_trial_type: "debrief",
 	},
 	on_finish: function () {
 		window.close();
@@ -817,6 +854,7 @@ const save_data = (filename) => ({
 	data_string: () => jsPsych.data.get().csv(),
 	data: {
 		phase: "save_data",
+		experiment_trial_type: "save_data",
 	},
 });
 
@@ -854,6 +892,7 @@ async function runExperiment() {
 		error_message: "The experiment failed to load. Please refresh the page.",
 		data: {
 			phase: "preload",
+			experiment_trial_type: "preload",
 		},
 	};
 
@@ -890,7 +929,9 @@ async function runExperiment() {
 	timeline.push({
 		type: jsPsychHtmlButtonResponse,
 		stimulus: function () {
-			const practiceData = jsPsych.data.get().filter({phase: "practice_stimulus"});
+			const practiceData = jsPsych.data
+				.get()
+				.filter({phase: "practice", experiment_trial_type: "stimulus"});
 			const correctCount = practiceData.filter({correct: true}).count();
 			const totalCount = practiceData.count();
 
@@ -908,7 +949,8 @@ async function runExperiment() {
 		},
 		choices: ["Start Main Task"],
 		data: {
-			phase: "practice_end",
+			phase: "practice",
+			experiment_trial_type: "practice_end",
 		},
 	});
 
