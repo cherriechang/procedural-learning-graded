@@ -19,15 +19,6 @@ const EXPERIMENT_CONFIG = {
 	estimated_trial_duration: 500, // ms (for estimating total experiment time)
 };
 
-// Matrices are pre-sorted by entropy (Position 0 = lowest, Position N-1 = highest)
-const MATRICES = {
-	4: TRANSITION_MATRICES[4].matrix,
-	5: TRANSITION_MATRICES[5].matrix,
-	6: TRANSITION_MATRICES[6].matrix,
-	7: TRANSITION_MATRICES[7].matrix,
-	8: TRANSITION_MATRICES[8].matrix,
-};
-
 // Key mappings (position index -> keyboard key)
 const KEY_MAPPINGS_4 = ["d", "f", "j", "k"];
 const KEY_MAPPINGS_5 = ["s", "d", "f", "j", "k"];
