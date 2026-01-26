@@ -464,6 +464,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 						position: position,
 						correct_key: correctKey,
 						matrix_size: size,
+						conditional_entropy: EXPERIMENT_CONFIG.conditional_entropies[position],
 					};
 				},
 				on_load: function () {
