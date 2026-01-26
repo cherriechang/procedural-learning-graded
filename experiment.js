@@ -318,7 +318,6 @@ const instructions = {
 					<p>These keys correspond to the boxes on the screen in a left-to-right order. So, if the mole appears in the leftmost box, you would press the leftmost key <span class="inline-key">${KEY_MAPPINGS[size][0]}</span>; if it appears in the second box from the left, you would press <span class="inline-key">${KEY_MAPPINGS[size][1]}</span>, and so on.</p>
                     <img src="assets/key-mappings-${EXPERIMENT_CONFIG.matrix_size}pos.gif" alt="Key Mapping" class="key-mapping-image" />
                     <p>The keys match the horizontal order of the boxes on the screen while following a natural left-to-right hand position on the keyboard.</p>
-					<p><strong>Please rest your fingers on these keys throughout the task, as demonstrated above.</strong></p>
                 </div>`,
 
 			`<div class="instruction-text">
@@ -326,12 +325,6 @@ const instructions = {
                     <p>After each response, you will be given feedback on whether you pressed the right key.</p>
                     <p>If you made an error, you will be told to try again until you press the correct key.</p>
                     <p>Just try to stay focused and respond as quickly as possible!</p>
-                </div>`,
-
-			`<div class="instruction-text">
-                    <h2>Practice</h2>
-                    <p>You wil start with ${EXPERIMENT_CONFIG.practice_trials} practice trials to get familiar with the task.</p>
-                    <p><strong>Ready to practice?</strong></p>
                 </div>`,
 		];
 	},
@@ -343,6 +336,23 @@ const instructions = {
 };
 
 // Practice trials
+function createPracticeStart() {
+	return {
+		type: jsPsychHtmlKeyboardResponse,
+		stimulus: function () {
+			return `
+				<div class="instruction-text">
+					<h2>Practice</h2>
+					<p>You wil start with ${EXPERIMENT_CONFIG.practice_trials} practice trials to get familiar with the task.</p>
+					<p><strong>Ready to practice? Please rest your fingers on these keys throughout the task, as demonstrated below:</strong></p>
+					<img src="assets/key-mappings-${EXPERIMENT_CONFIG.matrix_size}pos.gif" alt="Key Mapping" class="key-mapping-image" />
+					<p style="text-align: center;">Press any key to begin the practice trials.</p>
+				</div>`;
+		},
+		choices: "ALL_KEYS",
+	};
+}
+
 function createPracticeTrial(position, trialIndex) {
 	const size = EXPERIMENT_CONFIG.matrix_size;
 	const correctKey = KEY_MAPPINGS[size][position];
@@ -596,11 +606,11 @@ function createBlockBreak(blockNum) {
                         ${feedback}
 
                         <p style="margin-top: 30px;">Feel free to take a break.</p>
-                        <p style="font-size: 14px; color: #666;">Press any key to continue.</p>
+                        <p style="font-size: 14px; color: #666;">Press spacebar to continue.</p>
                     </div>
                 `;
 		},
-		choices: "ALL_KEYS",
+		choices: " ",
 		data: {
 			phase: "main",
 			experiment_trial_type: "block_break",
@@ -939,6 +949,7 @@ async function runExperiment() {
 	timeline.push(preload);
 	timeline.push(enter_fullscreen);
 	timeline.push(instructions);
+	timeline.push(createPracticeStart());
 
 	// Practice block - sample without replacement, ensuring all positions are practiced
 	let practiceSequence = [];
@@ -966,7 +977,7 @@ async function runExperiment() {
 
 	// Practice feedback
 	timeline.push({
-		type: jsPsychHtmlButtonResponse,
+		type: jsPsychHtmlKeyboardResponse,
 		stimulus: function () {
 			const practiceData = jsPsych.data
 				.get()
@@ -982,11 +993,11 @@ async function runExperiment() {
 					<p>Now, you will complete ${EXPERIMENT_CONFIG.n_blocks} blocks of ${EXPERIMENT_CONFIG.trials_per_block} trials.</p>
                     <p>Between blocks, you will get a break to rest.</p>
                     <p>The entire task takes about ${Math.ceil(((EXPERIMENT_CONFIG.n_blocks * EXPERIMENT_CONFIG.trials_per_block * (EXPERIMENT_CONFIG.estimated_trial_duration + EXPERIMENT_CONFIG.correct_feedback_duration + EXPERIMENT_CONFIG.rsi) + EXPERIMENT_CONFIG.n_blocks * 15000) * 1.2) / 60000)} minutes.</p>
-                    <p><strong>The main task will now begin.</strong></p>
+                    <p><strong>The main task will now begin. Press the spacebar to start.</strong></p>
                 </div>
             `;
 		},
-		choices: ["Start Main Task"],
+		choices: [" "],
 		data: {
 			phase: "practice",
 			experiment_trial_type: "practice_end",
