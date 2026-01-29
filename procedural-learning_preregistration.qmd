@@ -82,6 +82,8 @@ We will recruit 50 participants for each between-subjects condition of the study
 
 ## Sample size rationale
 
+Due to the difficulty of performing a power analysis on our pilot size of 10 (2 for each condition) and this paradigm being new, we roughly estimate our sample size based on procedural learning literature that use related paradigms (ASRT/SRTT).
+
 # Variables
 
 ## Manipulated variables
