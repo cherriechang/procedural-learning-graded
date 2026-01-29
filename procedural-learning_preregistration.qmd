@@ -34,6 +34,8 @@ In this study, we use a new probabilistic paradigm to study procedural learning,
 
 > **H1b. Previous positional entropy effect.** In each run of the experiment, positions differ in their transition entropy---how many next-positions are possible and how evenly distributed the transition probabilities are among them. We predict that this influences how easily participants can predict the next position based on a given position, so participants will respond a) faster and b) more accurately on trials where the previous trial has lower entropy.
 
+> **H1c. Interaction effect between surprisal and previous positional entropy.** The effect of surprisal on rt will be modulated by entropy, such that surprisal effects are stronger at low-entropy (predictable)  positions and weaker at high-entropy (uncertain) positions. This is because entropy determines prediction confidence. In low-entropy contexts, participants form strong, specific expectations, making prediction errors (high surprisal) more costly. In high-entropy contexts, predictions are weaker and more distributed, attenuating surprisal effects. 
+
 > **H2a. Prediction error reflecting surprisal effect.** We predict that as participants implicitly learn the underlying statistical distribution, the mistakes they make reflect this learning, i.e. across blocks, the mistakes they make will be a) increasingly on low probability bigram transitions and b) the false transitions they make will increasingly be higher probability bigram transitions...
 
 > **H2b. Prediction error reflecting entropy effect.** ...and they will also be increasingly limited to higher previous positional entropy trials.
@@ -41,6 +43,8 @@ In this study, we use a new probabilistic paradigm to study procedural learning,
 *(whether it is worth it to run H2a and H2b is based on whether there are enough error trials)*
 
 > **H3. Moderation from number of positions.** We predict that the more positions there are to handle, the more difficult it is to learn the underlying statistical distribution, so participants with a larger number of positions will have a gentler learning slope, higher mean/median RT and also show worse performances/take more blocks to reach the same level of performance (in terms of both RT and accuracy) on the effects predicted in H1 (and H2).
+
+*Note: Matrix size is confounded with entropy range, so effects may reflect entropy distribution rather than number of positions per se.*
 
 # Design Plan
 
@@ -74,7 +78,7 @@ Participants will be paid \$5 for completion, which works out to an estimated \$
 
 ## Sample size
 
-We will recruit 50 participants for each between-subjects condition of the study, for a total of N=250 participants across the two conditions.
+We will recruit 50 participants for each between-subjects condition of the study, for a total of N=250 participants across the five conditions.
 
 ## Sample size rationale
 
@@ -82,7 +86,7 @@ We will recruit 50 participants for each between-subjects condition of the study
 
 ## Manipulated variables
 
-**Size of matrix.** We manipulated the size of the transition matrices used to generate the position sequence for each participant. The five levels of this categorical variable are: 4x4, 5x5, 6x6, 7x7, 8x8.
+**Size of matrix.** We manipulated the size of the transition matrices used to generate the position sequence for each participant, which is equivalent to length of matrix and also the number of total positions. The five levels of this continuous variable are: 4, 5, 6, 7, 8.
 
 **Transitional structure of matrix.** For each matrix size, we created an "original matrix" that had the following properties: 1) doubly stochastic － all row and column sums sum to 1 (±0.0001); 2) approach a uniform stationary distribution after 7 timesteps (stationary visitation for each state are within 0.001 of each other); 3) had a graded entropy structure across states (positions) － each matrix had an positional entropy range of 0.06-0.181 bits for lowest and 1.695-2.838 bits for highest, and within a matrix each position increases in entropy from the previous by 0.272-0.601 bits; and 4) avoided self loops as much as possible － all of the matrices had 0s in the diagonal up until the last two positions, and for those non-zero self loop transitions the probability does not exceed more than 1/matrix_length. These original matrices are then shuffled through a double permutation procedure to produce a new matrix for each participant while preserving the mentioned matrix properties.
 
@@ -102,11 +106,13 @@ We will recruit 50 participants for each between-subjects condition of the study
 
 > **Q4. There WAS a regularity in the sequence. What do you think it was?** (Free text response) **Q4b. How confident are you in your answer?** Response is given on a Likert scale with 5 levels, with level 1 labelled as "Not at all" and level 5 labelled as "Very confident"
 
+*Derived variables:* Surprisal = -log₂(P(current_position \| previous_position)) Entropy = -Σ P(next\|current) × log₂(P(next\|current)) Both centered across participants within each matrix_size condition
+
 # Analysis Plan
 
 ## Statistical models (required)
 
-**H0. Learning effect.**
+*Our primary confirmatory hypothesis is H1a (surprisal effect on RT). All other hypotheses are secondary/exploratory and we interpret their p-values accordingly.* **H0. Learning effect.**
 
 ```{r}
 #| label: Learning effect lmer models
@@ -125,8 +131,9 @@ m_h0_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_h0_acc <-
-  lmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
+  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
        data=data.m_h0,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -134,7 +141,7 @@ summary(m_h0_rt)
 summary(m_h0_acc)
 ```
 
-**H1 & H2. Surprisal and previous position entropy effects.** For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block (the other blocks are not relevant for H1 and H2) as follows: *(Note that the RT model is linear, whereas the correct model is binomial/bernouli)*
+**H1 & H2. Surprisal and previous position entropy effects.** For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
 
 ```{r}
 #| label: Surprisal x previous position entropy lmer models
@@ -156,10 +163,11 @@ m_surprisal_x_entropy_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_surprisal_x_entropy_acc <-
-  lmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
+  glmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
          (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
          (1 | position),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -189,9 +197,10 @@ m_surprisal_x_entropy_prune_position_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_surprisal_x_entropy_prune_position_acc <-
-  blmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
+  bglmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
          (surprisal_c * prev_entropy_c + is_repetition | subject_id),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -215,9 +224,10 @@ m_surprisal_x_entropy_prune_position_repetition_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_surprisal_x_entropy_prune_position_repetition_acc <-
-  blmer(correct ~ surprisal_c * prev_entropy_c  +
+  bglmer(correct ~ surprisal_c * prev_entropy_c  +
          (surprisal_c * prev_entropy_c | subject_id),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -243,10 +253,11 @@ m_surprisal_entropy_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_surprisal_entropy_acc <- 
-    blmer(correct ~ surprisal_c + prev_entropy_c + is_repetition +
+    bglmer(correct ~ surprisal_c + prev_entropy_c + is_repetition +
            (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
            (1 | position),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -270,10 +281,11 @@ m_surprisal_entropy_prune_position_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_surprisal_entropy_prune_position_acc <- 
-    blmer(correct ~ surprisal_c + prev_entropy_c + is_repetition +
+    bglmer(correct ~ surprisal_c + prev_entropy_c + is_repetition +
          (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
          (1 | position),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -290,17 +302,18 @@ summary(m_surprisal_entropy_prune_position_acc)
 #| include: true
 
 m_surprisal_entropy_prune_position_repetition_rt <-
-  lmer(log_rt ~ surprisal_c * prev_entropy_c +
+  blmer(log_rt ~ surprisal_c * prev_entropy_c +
          (surprisal_c * prev_entropy_c | subject_id),
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_surprisal_entropy_prune_position_repetition_acc <- 
-    lmer(correct ~ surprisal_c + prev_entropy_c  +
+    bglmer(correct ~ surprisal_c + prev_entropy_c  +
          (surprisal_c * prev_entropy_c | subject_id) +
          (1 | position),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -318,17 +331,18 @@ If that still doesn't work, we can further separate out surprisal_c and prev_ent
 #| include: true
 
 m_surprisal_rt <-
-  lmer(log_rt ~ surprisal_c +
+  blmer(log_rt ~ surprisal_c +
          (surprisal_c | subject_id),
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_surprisal_acc <- 
-    lmer(correct ~ surprisal_c +
+    bglmer(correct ~ surprisal_c +
          (surprisal_c | subject_id) +
          (1 | position),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -351,10 +365,11 @@ m_entropy_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_prev_entropy_c_acc <- 
-    blmer(correct ~ prev_entropy_c +
+    bglmer(correct ~ prev_entropy_c +
          (prev_entropy_c | subject_id) +
          (1 | position),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -379,39 +394,37 @@ m_repetition_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_repetition_acc <- 
-    blmer(correct ~ is_repetition +
+    bglmer(correct ~ is_repetition +
          (is_repetition | subject_id),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 summary(m_repetition_rt)
 summary(m_repetition_acc)
 ```
-If none of those converge, we check to see if we made an error somewhere, because at least one of them should converge!
-The model with the most random slopes that converges is now our base model (for the moment).
 
-Next, we test the significance of random slopes. We iteratively remove random slopes and check whether the result is worse (has a higher AIC). As soon as we can’t remove any random slopes without increasing AIC, that is now the random effects structure we will use.
+If none of those converge, we check to see if we made an error somewhere, because at least one of them should converge! The model with the most random slopes that converges is now our base model (for the moment).
 
-Next, we use model-comparison to determine fixed effects. Our base model is:
-`~ surprisal_c * prev_entropy_c + is_repetition + [random effects]`
+Next, we test the significance of random slopes. We iteratively remove random slopes and check whether the result is worse (has a higher AIC). As soon as we can't remove any random slopes without increasing AIC, that is now the random effects structure we will use.
 
-First, we check for a repetition effect by comparing the base model with:
-`~ surprisal_c * prev_entropy_c + [random effects]`
+Next, we use model-comparison to determine fixed effects. Our base model is: `~ surprisal_c * prev_entropy_c + is_repetition + [random effects]`
+
+First, we check for a repetition effect by comparing the base model with: `~ surprisal_c * prev_entropy_c + [random effects]`
 
 If the base model has a lower AIC, the effect of repetition is significant. (This is very, very likely). If not, our new base model is the one without the is_repetition effect. We use this base model below.
 
-We test whether there is an interaction by comparing the above with:
-`~ surprisal_c  + prev_entropy_c + is_repetition + [random effects]`
+We test whether there is an interaction by comparing the above with: `~ surprisal_c  + prev_entropy_c + is_repetition + [random effects]`
 
 If the simpler model has a higher AIC, the interaction is significant and we stop. There is a surprisal effect (H1) and an entropy effect (H2).
 
 If there is no interaction, we now compare the no-interaction model to models that lack one of the main effects of entropy or surprisal. So we compare against two models. If AIC for either of the new models is lower, then the corresponding fixed effect is not significant and can be eliminated.
 
-If both entropy and surprisal are significant (eliminating either increases AIC), we are done and interpret H1 and H2. Otherwise, we try eliminating both of these fixed effects. If that increases AIC over a model with one fixed effect, then that fixed effect is definitely significant. (Hopefully this doesn’t happen with both fixed effects, which would suggest that surprisal and entropy are so correlated that we can’t distinguish them.)
+If both entropy and surprisal are significant (eliminating either increases AIC), we are done and interpret H1 and H2. Otherwise, we try eliminating both of these fixed effects. If that increases AIC over a model with one fixed effect, then that fixed effect is definitely significant. (Hopefully this doesn't happen with both fixed effects, which would suggest that surprisal and entropy are so correlated that we can't distinguish them.)
 
-**H3. Moderation from number of positions.**
-filter(correct) %>% group_by(matrix_size, block) %>% model()
+**H3. Moderation from number of positions.** filter(correct) %\>% group_by(matrix_size, block) %\>% model()
+
 ```{r}
 #| label: Num positions effect lmer models
 #| (filter for correct trials and group by matrix_size and block)
@@ -426,8 +439,9 @@ m_matrix_size_rt <-
        control=lmerControl(optimizer="nloptwrap")) # can change
 
 m_matrix_size_acc <- 
-    blmer(correct ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
+    bglmer(correct ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
        data=data.m_h1h2,
+       family=binomial,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
 
@@ -435,33 +449,30 @@ summary(m_matrix_size_rt)
 summary(m_matrix_size_acc)
 ```
 
-For each of the fixed effects used for H1-H2, recover the effect size estimate. Now, for each fixed effect:
-`effect_size ~ matrix_size*block`
+For each of the fixed effects used for H1-H2, recover the effect size estimate. Now, for each fixed effect: `effect_size ~ matrix_size*block`
 
 Note that there are no random effects. We use `lm()` and get p-values in the normal way.
 
-Also graphing is a really good idea here.
-
+Models will be fit with ML for model comparison; final models refit with REML for inference.
 
 ## Transformations (optional)
-As described above, RT is first log-transformed and then z-scored on a per-subject basis.
+
+As described above, RT is log-transformed on a per-trial basis.
 
 ## Inference criteria (optional)
+
 See above
 
 ## Data exclusion (optional)
-Trial-level exclusions:
-1. rt > 1000 ms
-2. rt > participant's median + 3*mad (outlier)
 
-Participant-level exclusions:
-1. Outlier rate > 30%
-2. Accuracy < 90%
-3. Self-reported technical issues
+Trial-level exclusions: 1. rt \> 1000 ms 2. rt \> participant's median + 3\*mad (outlier) 3. first trial of blocks: we hypothesize that breaks between blocks may affect the participant's cognitive engagement with the first trial after a break, in terms of implicitly or explicitly treating it as a continuation of a sequence and/or following from the previous block's last trial and determined by the same underlying statistical structure.
+
+Participant-level exclusions: 1. Outlier rate \> 30% 2. Accuracy \< 90% 3. Self-reported technical issues
 
 The above may be too lenient or too stringent. We will use histograms to determine and adjust criteria if needed.
 
 ## Exploratory analysis (optional)
+
 We will look at participants who reported detecting a pattern in the questionnaire, and determine whether the detected pattern is true of the underlying statistical structure. If both are true, this would indicate possible explicit learning from the participant, which may confound with the procedural learning effect we are measuring. We will then look at how many participants correctly detect patterns explicitly for each matrix size, and whether they actually perform better in the final blocks compared to participants who did not report detecting patterns, or detected false patterns.
 
 # Other
