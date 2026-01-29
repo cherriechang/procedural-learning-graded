@@ -20,6 +20,7 @@ library(tidyr)
 library(tidyverse)
 library(zoo)
 library(jsonlite)
+library(clipr)
 ```
 
 ## Global Variables
@@ -30,13 +31,14 @@ library(jsonlite)
 #| include: false
 
 EXPERIMENT_CONFIG <- list(
-  datapipe_id = "Sz1Mxzs1KPOg",
+  datapipe_id_4x4 = "lpRUgvFf5pm4",
+  osf_id_4x4 = "5zn6u",
   key_mapping_4pos = c("d","f","j","k"),
   key_mapping_5pos = c("s","d","f","j","k"),
   key_mapping_6pos = c("s","d","f","j","k","l"),
   key_mapping_7pos = c("a","s","d","f","j","k","l"),
   key_mapping_8pos = c("a","s","d","f","j","k","l",";"),
-  n_blocks = 7,
+  n_blocks = 20,
   rsi = 120,
   error_feedback_duration = 200,
   error_tone_duration = 100,
@@ -56,9 +58,9 @@ EXPERIMENT_CONFIG <- list(
 #| echo: false
 #| include: false
 
-osf_retrieve_node("74m32") %>%
+osf_retrieve_node("5zn6u") %>%
   osf_ls_files() %>%
-  osf_download(path = "data/pilot-data", conflicts="skip")
+  osf_download(path = "data/4x4-data", conflicts="skip")
 ```
 
 ```{r}
@@ -66,7 +68,7 @@ osf_retrieve_node("74m32") %>%
 #| echo: false
 #| include: false
 
-df.raw <- list.files("data/pilot-data", full.names = TRUE) %>%
+df.raw <- list.files("data/4x4-data", full.names = TRUE) %>%
   lapply(read.csv, colClasses="character") %>%
   bind_rows()
 ```
@@ -76,7 +78,7 @@ df.raw <- list.files("data/pilot-data", full.names = TRUE) %>%
 #| label: Filter out unnecessary columns
 #| echo: false
 #| include: false
-df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, transition_matrix, sequence, trials_per_block, total_trials, practice_trials, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, questionnaire_item)) %>%
+df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, transition_matrix, sequence, conditional_entropies, trials_per_block, total_trials, practice_trials, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, questionnaire_item)) %>%
   mutate(rt = as.numeric(rt))
 ```
 
@@ -104,6 +106,18 @@ df <- df %>%
     }
   }))
 
+# Convert numeric values
+df <- df %>%
+  mutate(across(where(is.character), ~ {
+    x <- .
+    is_num <- suppressWarnings(!is.na(as.numeric(x)) | is.na(x))
+    if (all(is_num)) as.numeric(x) else x
+  }))
+
+df <- df %>%
+  mutate(conditional_entropies = map(conditional_entropies, fromJSON)) %>%
+  mutate(transition_matrix = map(transition_matrix, fromJSON))
+
 
 # Fill down overall_trial, trial_in_block and block
 df <- df %>%
@@ -129,35 +143,6 @@ df <- df %>%
     ungroup()
 ```
 
-```{r}
-#| label: Add entropy information
-#| echo: false
-#| include: false
-
-calculate_entropy <- function(probs) {
-  probs <- as.numeric(probs)
-  p <- probs[probs > 0]
-  return(-sum(p * log2(p)))
-}
-
-get_matrix_entropies <- function(matrix) {
-  return(apply(matrix, 1, calculate_entropy))
-}
-
-df <- df %>%
-  mutate(
-    matrix_entropies = case_when(
-      !is.na(transition_matrix) & !is.na(position) ~ get_matrix_entropies(fromJSON(transition_matrix)),
-      TRUE ~ NA_real_
-    )
-  )%>%
-  mutate(
-    conditional_entropy = case_when(
-      !is.na(transition_matrix) & !is.na(position) ~ matrix_entropies[position+1],
-      TRUE ~ NA_real_
-    )
-  )
-```
 
 ```{r}
 #| label: Separate practice, main and questionnaire sections 
@@ -176,8 +161,10 @@ df <- df[df$phase=="main", ]
 
 ```{r}
 #| label: Exclude subjects that:
-#| 1. Made too many mistakes (more than 45%)
-#| 2. Have too long response time (look at mean, median and spread)
+#| 1. Made too many mistakes (more than 15%)
+#| 2. Have too long response time (look at mean, median and spread):
+#| -> exclude if too slow: the subject's median_rt > 1000ms
+#| -> or if too noisy: more than 20% of their trials are 3*mad higher than the subjct's median_rt
 #| echo: false
 #| include: false
 
@@ -185,7 +172,7 @@ accuracy_excluded_subjects <- df %>%
   filter(!is.na(correct)) %>%
   group_by(subject_id) %>%
   summarize(error_rate = mean(!correct)) %>%
-  filter(error_rate > 0.45) %>%
+  filter(error_rate > 0.10) %>%
   pull(subject_id)
 
 rt_excluded_subjects <- df %>%
@@ -298,10 +285,6 @@ df <- reps_trills_removal$data
 removal_summary_per_sub <- reps_trills_removal$summary
 ```
 
-## Stats!
-
-### Isolate stimulus trials
-
 ```{r}
 #| label: Filter df down to only stimulus, non-retry trials
 #| echo: false
@@ -310,6 +293,70 @@ removal_summary_per_sub <- reps_trills_removal$summary
 df <- df %>%
   filter(experiment_trial_type=="stimulus" & !is.na(rt))
 ```
+
+```{r}
+#| label: Add entropy for each stimulus trial
+#| echo: false
+#| include: false
+
+df <- df %>%
+  mutate(entropy = map2_dbl(
+    conditional_entropies, position,
+    ~ {
+      # case 1: position is NA → skip = return NA
+      if (is.na(.y)) return(NA_real_)
+      
+      idx <- .y + 1  # convert 0-based to 1-based
+      
+      # case 2: index out of bounds → return NA
+      if (idx > length(.x) || idx < 1) return(NA_real_)
+      
+      # otherwise extract normally
+      .x[idx]
+    }
+  ))
+```
+
+```{r}
+#| label: Make a new column for previous position entropy
+#| echo: false
+#| include: false
+
+df <- df %>%
+  group_by(subject_id, block) %>%
+  mutate(previous_entropy=lag(entropy, 1))
+```
+
+```{r}
+#| label: Make a new column for log(rt)
+#| echo: false
+#| include: false
+
+df <- df %>%
+  mutate(log_rt=log(rt))
+```
+
+```{r}
+#| label: Make a new column for is_repetition
+#| echo: false
+#| include: false
+
+df <- df %>%
+  mutate(is_repetition=(position==lag(position,1)))
+```
+
+```{r}
+#| label: Remove first trial of each block
+#| echo: false
+#| include: false
+
+df <- df %>%
+  group_by(block) %>%
+  slice(2:n())
+```
+## Stats!
+
+### Power Analysis
 
 ```{r}
 #| label: Make subset of df with only correct trials
@@ -420,10 +467,7 @@ by_matrix_size_across_subs_stats <- by_matrix_size_within_subs_stats %>%
 #| include: false
 
 by_entropy_within_subs <- df %>%
-  group_by(subject_id) %>%
-  mutate(matrix_entropies = get_matrix_entropies(transition_matrix)) %>%
-  mutate(entropy=first(matrix_entropies)[position+1]) %>%
-  group_by(entropy)
+  group_by(subject_id, entropy) %>%
   summarise(
     accuracy = mean(correct),
     mean_rt = mean(rt[correct]),
@@ -434,6 +478,29 @@ by_entropy_within_subs <- df %>%
     .groups = "drop"
   ) 
   
-
-
+by_entropy_across_subs <- df %>%
+  group_by(entropy) %>%
+  summarise(
+    N = n(),
+      mean_mean_rt = mean(mean_rt),        
+      between_subs_sd_rt = sd(mean_rt),    
+      median_median_rt = median(median_rt),
+      mean_accuracy = mean(accuracy),
+      sd_accuracy = sd(accuracy)
+    )
+  )
 ```
+
+
+## Planned
+```{r}
+#| 
+#| m1 <- lmer(rt ~ factor(position) + block + (block | participant) + (1 | position))
+#| m2 <- lmer(rt ~ entropy + block + (entropy + block | participant))
+#| m3 <- lmer(rt ~ entropy + factor(position) + block + (entropy + block | participant) + (1 | position))
+
+#| anova(m1, m3)
+#| anova(m2, m3)
+```
+
+
