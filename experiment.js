@@ -882,13 +882,19 @@ const debrief = {
                 while others were more variable.</p>
                 <p>Your data will help us understand how people learn these kinds of patterns.</p>
                 <p>Thank you for your participation!</p>
-                <p><strong>You will now be redirected back to Prolific.</strong></p>
+                <p><strong>Redirecting you back to Prolific...</strong></p>
+				<p><em>If you are not redirected automatically, please use this completion code: <strong>CO8XZAGN</strong></em></p>
             </div>`,
 	choices: "NO_KEYS",
-	trial_duration: 5000,
 	data: {
 		phase: "debrief",
 		experiment_trial_type: "debrief",
+	},
+	on_load: function () {
+		// Attempt redirect after a short delay
+		setTimeout(function () {
+			window.location.href = "https://app.prolific.com/submissions/complete?cc=CO8XZAGN";
+		}, 3000);
 	},
 };
 
