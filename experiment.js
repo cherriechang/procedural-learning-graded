@@ -353,9 +353,17 @@ function createPracticeStart() {
 	};
 }
 
-function createPracticeTrial(position, trialIndex) {
+function createPracticeTrial(position, trialIndex, previousPosition = null) {
 	const size = EXPERIMENT_CONFIG.matrix_size;
 	const correctKey = KEY_MAPPINGS[size][position];
+
+	// Calculate surprisal based on previous position
+	let surprisal = null;
+	if (previousPosition !== null) {
+		const transitionProb = EXPERIMENT_CONFIG.transition_matrix[previousPosition][position];
+		surprisal = transitionProb > 0 ? -Math.log2(transitionProb) : null;
+	}
+
 	let isRetry = false; // Track if this is a retry attempt
 
 	// Correction loop - repeats until correct response
@@ -375,6 +383,8 @@ function createPracticeTrial(position, trialIndex) {
 						trial_index: trialIndex,
 						position: position,
 						correct_key: correctKey,
+						conditional_entropy: EXPERIMENT_CONFIG.conditional_entropies[position],
+						surprisal: surprisal,
 					};
 				},
 				on_load: function () {
@@ -449,6 +459,14 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 	const size = EXPERIMENT_CONFIG.matrix_size;
 	const correctKey = KEY_MAPPINGS[size][position];
 
+	// Calculate surprisal based on previous position
+	let surprisal = null;
+	if (overallTrial > 0) {
+		const previousPosition = EXPERIMENT_CONFIG.sequence[overallTrial - 1];
+		const transitionProb = EXPERIMENT_CONFIG.transition_matrix[previousPosition][position];
+		surprisal = transitionProb > 0 ? -Math.log2(transitionProb) : null;
+	}
+
 	// Track whether an error has occurred
 	let hasError = false;
 	let isRetry = false; // Track if this is a retry attempt
@@ -475,6 +493,7 @@ function createMainTrial(position, blockNum, trialInBlock, overallTrial) {
 						correct_key: correctKey,
 						matrix_size: size,
 						conditional_entropy: EXPERIMENT_CONFIG.conditional_entropies[position],
+						surprisal: surprisal,
 					};
 				},
 				on_load: function () {
@@ -953,7 +972,8 @@ async function runExperiment() {
 	practiceSequence = practiceSequence.slice(0, nPracticeTrials);
 
 	for (let i = 0; i < EXPERIMENT_CONFIG.practice_trials; i++) {
-		timeline.push(createPracticeTrial(practiceSequence[i], i));
+		const previousPosition = i > 0 ? practiceSequence[i - 1] : null;
+		timeline.push(createPracticeTrial(practiceSequence[i], i, previousPosition));
 	}
 
 	// Practice feedback
