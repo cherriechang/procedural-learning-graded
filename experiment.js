@@ -2,7 +2,7 @@ import {load} from "https://cdn.jsdelivr.net/npm/npyjs@latest/dist/index.js";
 
 const EXPERIMENT_CONFIG = {
 	datapipe_id: "Sz1Mxzs1KPOg",
-	matrix_size: null, // Will be randomly assigned: 4, 5, 6, 7, or 8
+	matrix_size: 4, // TEMPORARY: Fixed to 4x4 for testing (normally randomly assigned: 4, 5, 6, 7, or 8)
 	transition_matrix: null, // To be set based on assigned matrix size
 	conditional_entropies: null, // To be set based on assigned shuffled matrix
 	sequence: [], // Full sequence for all blocks
@@ -225,9 +225,10 @@ async function initializeExperiment() {
 	}
 
 	// Randomly assign matrix size
-	const matrixSizes = [4, 5, 6, 7, 8];
-	const condition = await jsPsychPipe.getCondition(EXPERIMENT_CONFIG.datapipe_id); // 0-4
-	EXPERIMENT_CONFIG.matrix_size = matrixSizes[condition]; // Update config with assigned matrix size
+	// TEMPORARY: Commented out for testing with fixed 4x4 matrix
+	// const matrixSizes = [4, 5, 6, 7, 8];
+	// const condition = await jsPsychPipe.getCondition(EXPERIMENT_CONFIG.datapipe_id); // 0-4
+	// EXPERIMENT_CONFIG.matrix_size = matrixSizes[condition]; // Update config with assigned matrix size
 
 	// Load transition matrix and shuffle it
 	const {data, shape} = await load(
