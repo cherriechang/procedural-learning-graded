@@ -1,8 +1,8 @@
 import {load} from "https://cdn.jsdelivr.net/npm/npyjs@latest/dist/index.js";
 
 const EXPERIMENT_CONFIG = {
-	datapipe_id: "z3ZZqntEGprl",
-	matrix_size: 6, // TEMPORARY: Fixed to 4x4 for testing (normally randomly assigned: 4, 5, 6, 7, or 8)
+	datapipe_id: "YT66SA7YaJ93",
+	matrix_size: 7, // TEMPORARY: Fixed to 4x4 for testing (normally randomly assigned: 4, 5, 6, 7, or 8)
 	transition_matrix: null, // To be set based on assigned matrix size
 	conditional_entropies: null, // To be set based on assigned shuffled matrix
 	sequence: [], // Full sequence for all blocks
