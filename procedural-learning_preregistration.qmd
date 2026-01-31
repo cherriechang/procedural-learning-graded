@@ -34,7 +34,7 @@ In this study, we use a new probabilistic paradigm to study procedural learning,
 
 > **H1b. Previous positional entropy effect.** In each run of the experiment, positions differ in their transition entropy---how many next-positions are possible and how evenly distributed the transition probabilities are among them. We predict that this influences how easily participants can predict the next position based on a given position, so participants will respond a) faster and b) more accurately on trials where the previous trial has lower entropy.
 
-> **H1c. Interaction effect between surprisal and previous positional entropy.** The effect of surprisal on rt will be modulated by entropy, such that surprisal effects are stronger at low-entropy (predictable)  positions and weaker at high-entropy (uncertain) positions. This is because entropy determines prediction confidence. In low-entropy contexts, participants form strong, specific expectations, making prediction errors (high surprisal) more costly. In high-entropy contexts, predictions are weaker and more distributed, attenuating surprisal effects. 
+> **H1c. Interaction effect between surprisal and previous positional entropy.** The effect of surprisal on rt will be modulated by entropy, such that surprisal effects are stronger at low-entropy (predictable) positions and weaker at high-entropy (uncertain) positions. This is because entropy determines prediction confidence. In low-entropy contexts, participants form strong, specific expectations, making prediction errors (high surprisal) more costly. In high-entropy contexts, predictions are weaker and more distributed, attenuating surprisal effects.
 
 > **H2a. Prediction error reflecting surprisal effect.** We predict that as participants implicitly learn the underlying statistical distribution, the mistakes they make reflect this learning, i.e. across blocks, the mistakes they make will be a) increasingly on low probability bigram transitions and b) the false transitions they make will increasingly be higher probability bigram transitions...
 
@@ -123,14 +123,14 @@ Due to the difficulty of performing a power analysis on our pilot size of 10 (2 
 #| echo: true
 #| include: true
 
-data.m_h0 <- data.correct %>%
+data.m_h0 <- df.correct %>%
   group_by(matrix_size)
 
 m_h0_rt <-
   lmer(-log_rt ~ block + is_repetition + (block | subject_id) + (1 | position),
        data=data.m_h0,
        REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
+       control=lmerControl(optimizer="bobyqa")) # can change
 
 m_h0_acc <-
   glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),

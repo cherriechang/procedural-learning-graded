@@ -1,5 +1,5 @@
 ---
-title: "procedural-learning-graded"
+title: "procedural-learning-graded-entropy-data-analysis"
 author: "Cherrie Chang"
 format: html
 editor: visual
@@ -58,12 +58,11 @@ EXPERIMENT_CONFIG <- list(
 #| echo: false
 #| include: false
 
-files <- osf_retrieve_node("5zn6u") %>%
-  osf_ls_files() 
-  map(osf_ls_files) %>%
-  bind_rows()
+osf_auth(token = "HoZsxwf02iQ5JQCs6YuMaIWQWLLIvhKNZxJjdLClW1ZbyRZNPpPuBzAcuLymvkfQM1g8MG")
 
-osf_download(path = "data/4x4-data", conflicts="skip")
+files <- osf_retrieve_node("Fraxt") %>%
+  osf_ls_files() %>%
+  osf_download(path = "data/5x5-data", conflicts="skip")
 ```
 
 ```{r}
@@ -71,7 +70,7 @@ osf_download(path = "data/4x4-data", conflicts="skip")
 #| echo: false
 #| include: false
 
-df.raw <- list.files("data/4x4-data", full.names = TRUE) %>%
+df.raw <- list.files("data/5x5-data", full.names = TRUE) %>%
   lapply(read.csv, colClasses="character") %>%
   bind_rows()
 ```
@@ -81,7 +80,7 @@ df.raw <- list.files("data/4x4-data", full.names = TRUE) %>%
 #| label: Filter out unnecessary columns
 #| echo: false
 #| include: false
-df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, transition_matrix, sequence, conditional_entropies, trials_per_block, total_trials, practice_trials, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item)) %>%
+df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, transition_matrix, conditional_entropies, trials_per_block, total_trials, practice_trials, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item)) %>%
   mutate(rt = as.numeric(rt))
 ```
 
@@ -407,7 +406,8 @@ by_entropy_across_subs <- df %>%
 #| include: true
 
 data.m_h0 <- df %>%
-  group_by(matrix_size)
+  group_by(matrix_size) %>%
+  filter(!is.infinite(log_rt))
 
 data.m_h0.correct <- df.correct %>%
   group_by(matrix_size)
@@ -416,7 +416,7 @@ m_h0_rt <-
   lmer(-log_rt ~ block + is_repetition + (block | subject_id) + (1 | position),
        data=data.m_h0,
        REML=FALSE,
-       control=glmerControl(optimizer="bobyqa")) # can change
+       control=lmerControl(optimizer="bobyqa")) # can change
 
 m_h0_acc <-
   glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
@@ -438,7 +438,7 @@ summary(m_h0_acc)
 #| include: true
 
 data.m_h1h2 <- df %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1) %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, !is.infinite(log_rt)) %>%
   group_by(matrix_size)
 
 data.m_h1h2.correct <- df.correct %>%
