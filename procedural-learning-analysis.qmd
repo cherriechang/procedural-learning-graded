@@ -21,6 +21,8 @@ library(tidyverse)
 library(zoo)
 library(jsonlite)
 library(clipr)
+library(lme4)
+library(lmerTest) # show p value in lmer
 ```
 
 ## Global Variables
@@ -61,8 +63,8 @@ EXPERIMENT_CONFIG <- list(
 osf_auth(token = "HoZsxwf02iQ5JQCs6YuMaIWQWLLIvhKNZxJjdLClW1ZbyRZNPpPuBzAcuLymvkfQM1g8MG")
 
 files <- osf_retrieve_node("Fraxt") %>%
-  osf_ls_files() %>%
-  osf_download(path = "data/5x5-data", conflicts="skip")
+  osf_ls_files(n_max = Inf) %>%
+  osf_download(path = "data/4x4-data", conflicts="skip")
 ```
 
 ```{r}
@@ -70,12 +72,13 @@ files <- osf_retrieve_node("Fraxt") %>%
 #| echo: false
 #| include: false
 
-df.raw <- list.files("data/5x5-data", full.names = TRUE) %>%
+df.raw <- list.files("data/4x4-data", full.names = TRUE) %>%
   lapply(read.csv, colClasses="character") %>%
   bind_rows()
 ```
 
 ### Data Cleanup
+
 ```{r}
 #| label: Filter out unnecessary columns
 #| echo: false
@@ -145,7 +148,6 @@ df <- df %>%
     ungroup()
 ```
 
-
 ```{r}
 #| label: Separate practice, main and questionnaire sections 
 #| echo: false
@@ -159,6 +161,7 @@ df <- df[df$phase=="main", ]
 ### Data Exclusions
 
 <!-- TODO: can consider removing subjects that didn't go fullscreen and/or preload failed..? -->
+
 <!-- TODO: used median absolute deviation instead of standard deviation for RT but not sure -->
 
 ```{r}
@@ -268,6 +271,7 @@ df <- df %>%
 df.correct <- df %>%
   filter(correct)
 ```
+
 ## Stats!
 
 ### Power Analysis
@@ -275,6 +279,7 @@ df.correct <- df %>%
 ### Descriptive stats
 
 #### Overall
+
 ```{r}
 #| label: N, total trials, mean, median overall
 #| echo: false
@@ -306,6 +311,7 @@ overall_across_subs_stats <- within_subs_stats %>%
 ```
 
 #### By Block
+
 ```{r}
 #| label: N, total trials, mean, median by block
 #| echo: false
@@ -336,6 +342,7 @@ by_block_across_subs_stats <- by_block_within_subs_stats %>%
 ```
 
 #### By Matrix Size
+
 ```{r}
 #| label: N, total trials, mean, median by matrix size
 #| echo: false
@@ -366,6 +373,7 @@ by_matrix_size_across_subs_stats <- by_matrix_size_within_subs_stats %>%
 ```
 
 #### By Entropy Level
+
 ```{r}
 #| label: N, total trials, mean, median by conditional entropy
 #| echo: false
@@ -396,8 +404,8 @@ by_entropy_across_subs <- df %>%
   )
 ```
 
-
 ## H0. Learning Effect
+
 ```{r}
 #| label: Learning effect lmer models
 #| (filter for correct trials and group by matrix_size)
@@ -428,7 +436,9 @@ summary(m_h0_rt)
 summary(m_h0_acc)
 ```
 
-**H1 & H2. Surprisal and previous position entropy effects.** For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
+## H1 & H2. Surprisal and previous position entropy effects
+
+For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
 
 ```{r}
 #| label: Surprisal x previous position entropy lmer models
@@ -465,7 +475,123 @@ summary(m_surprisal_x_entropy_rt)
 summary(m_surprisal_x_entropy_acc)
 ```
 
-We then prune the model as follows:
+```{r}
+#| label: Surprisal x previous position entropy blmer models
+#| (filter for correct trials + final block and group by matrix_size)
+#| 
+#| echo: false
+#| include: false
+
+m_surprisal_x_entropy_rt_blm <- 
+  blmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+         (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="nloptwrap")) # can change
+
+m_surprisal_x_entropy_acc_blm <-
+  bglmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
+         (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position),
+       data=data.m_h1h2,
+       family=binomial,
+       REML=FALSE,
+       control=lmerControl(optimizer="nloptwrap")) # can change
+
+summary(m_surprisal_x_entropy_rt_blm)
+summary(m_surprisal_x_entropy_acc_blm)
+
+confint(m_surprisal_x_entropy_rt_blm, method="Wald") # if CI including 0 usually indicate not significant
+```
+
+```{r}
+#| label: Surprisal x previous position entropy brm models
+#| 
+#| echo: false
+#| include: false
+
+m_surprisal_x_entropy_rt_brm <- brm(
+  log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+    (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position),
+  data = data.m_h1h2)
+
+summary(m_surprisal_x_entropy_rt_brm)
+```
+
+### Prune random slopes
+
+base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position)`
+
+result: we keep random effects: `(surprisal_c * prev_entropy_c | subject_id) + (1 | position)`
+
+
+```{r}
+#| label: Surprisal x previous position entropy lmer models
+#| Prune: remove random slopes until AIC smallest
+#| 
+#| echo: true
+#| include: true
+
+m_surprisal_x_entropy_rt_rand_slope_1 <- 
+  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="bobyqa")) # can change
+
+m_surprisal_x_entropy_rt_rand_slope_2 <- 
+  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+         (surprisal_c + prev_entropy_c + is_repetition | subject_id) + (1 | position),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="bobyqa")) # can change
+
+m_surprisal_x_entropy_rt_rand_slope_3 <- 
+  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+         (surprisal_c + prev_entropy_c + is_repetition | subject_id),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="bobyqa")) # can change
+
+AIC(m_surprisal_x_entropy_rt, m_surprisal_x_entropy_rt_rand_slope_1, m_surprisal_x_entropy_rt_rand_slope_2, m_surprisal_x_entropy_rt_rand_slope_3)
+
+# summary(m_surprisal_x_entropy_rt_rand_slope_1)
+```
+
+### Prune fixed effects
+
+base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + [random effects left in last section]`
+
+result: we have to keep the base model as the final model
+
+```{r}
+#| label: Surprisal x previous position entropy lmer models
+#| Prune: remove fixed effects until AIC smallest
+#| 
+#| echo: true
+#| include: true
+
+# base model: m_surprisal_x_entropy_rt_rand_slope_1
+
+m_surprisal_x_entropy_rt_fixed_effects_1 <- 
+  lmer(log_rt ~ surprisal_c * prev_entropy_c +
+         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="bobyqa")) # can change
+
+m_surprisal_x_entropy_rt_fixed_effects_2 <- 
+  lmer(log_rt ~ surprisal_c + prev_entropy_c + is_repetition +
+         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="bobyqa")) # can change
+
+AIC(m_surprisal_x_entropy_rt_rand_slope_1, m_surprisal_x_entropy_rt_fixed_effects_1, m_surprisal_x_entropy_rt_fixed_effects_2)
+```
+
+### previous code
+
+*We then prune the model as follows:*
 
 If the model fails to converge, we will first try blmer/bglmer to see if that addresses convergence.
 
@@ -498,8 +624,9 @@ summary(m_surprisal_x_entropy_prune_position_rt)
 summary(m_surprisal_x_entropy_prune_position_acc)
 ```
 
+
 ```{r}
-#| label: Surprisal x previous position entropy lmer models
+#| label: Surprisal x previous position entropy blmer models
 #| Prune: position, repetition
 #| (filter for correct trials + final block and group by matrix_size)
 #| 
@@ -713,7 +840,9 @@ If there is no interaction, we now compare the no-interaction model to models th
 
 If both entropy and surprisal are significant (eliminating either increases AIC), we are done and interpret H1 and H2. Otherwise, we try eliminating both of these fixed effects. If that increases AIC over a model with one fixed effect, then that fixed effect is definitely significant. (Hopefully this doesn't happen with both fixed effects, which would suggest that surprisal and entropy are so correlated that we can't distinguish them.)
 
-**H3. Moderation from number of positions.** filter(correct) %\>% group_by(matrix_size, block) %\>% model()
+## H3. Moderation from number of positions
+
+filter(correct) %\>% group_by(matrix_size, block) %\>% model()
 
 ```{r}
 #| label: Num positions effect lmer models
@@ -744,6 +873,3 @@ For each of the fixed effects used for H1-H2, recover the effect size estimate. 
 Note that there are no random effects. We use `lm()` and get p-values in the normal way.
 
 Models will be fit with ML for model comparison; final models refit with REML for inference.
-
-
-
