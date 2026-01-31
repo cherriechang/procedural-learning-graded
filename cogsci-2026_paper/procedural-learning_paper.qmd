@@ -18,31 +18,45 @@ bibliography: CogSci_Template.bib
 editor: source
 ---
 
+# Abstract
 ::: {.abstract}
 Your abstract text here. The abstract should be one paragraph. Following the abstract should be keywords.
 
-**Keywords:** your keywords; separated by; semicolons
+**Keywords:** procedural learning, implicit learning, statistical learning
 :::
 
 # Introduction
 
 Your introduction text here. You can cite references using `@NewellSimon1972a` or `[@ChalnickBillman1988a]`.
 
+# Transition Matrices
+
+## Overall Design
+
+
+## Hypothesses
+
+## Matrix Construction and Verification
+
 # Method
 
 ## Participants
 
-## Materials
+## Protocol
 
-## Procedure
+## Materials
 
 # Results
 
+## H0
+
+## H1
+
+## H2
+
+## H3
+
 # Discussion
-
-# Acknowledgments
-
-Place acknowledgments (including funding information) here.
 
 # References
 
