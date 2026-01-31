@@ -1,7 +1,0 @@
----
-title: "procedural-learning-graded-entropy-data-analysis"
-author: "Cherrie Chang, Tianyi Li, Joshua Hartshorne"
-format: html
-editor: source
----
-
