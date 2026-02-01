@@ -474,6 +474,36 @@ m_surprisal_x_entropy_acc <-
 summary(m_surprisal_x_entropy_rt)
 summary(m_surprisal_x_entropy_acc)
 ```
+solve singular fit: 
+
++ remove random slope until isSingular() is False
++ compare models AIC, and our design mainly focus on surperisal and entropy, final random slope without singular fit exclude interaction and is_repetition
+
+
+```{r}
+m_surprisal_x_entropy_rt_simple <- 
+  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+         (surprisal_c + prev_entropy_c | subject_id) +
+         (1 | position),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="bobyqa")) # can change
+
+summary(m_surprisal_x_entropy_rt_simple)
+isSingular(m_surprisal_x_entropy_rt_simple)
+
+# AIC(m_surprisal_x_entropy_rt, m_surprisal_x_entropy_rt_simple)
+
+fixef_comparison <- data.frame(
+  Complex = fixef(m_surprisal_x_entropy_rt),
+  Simple = fixef(m_surprisal_x_entropy_rt_simple),
+  Diff_pct = 100 * abs(fixef(m_surprisal_x_entropy_rt) - fixef(m_surprisal_x_entropy_rt_simple)) / 
+             abs(fixef(m_surprisal_x_entropy_rt_simple))
+)
+
+print(fixef_comparison)
+```
+
 
 ```{r}
 #| label: Surprisal x previous position entropy blmer models
@@ -519,9 +549,9 @@ summary(m_surprisal_x_entropy_rt_brm)
 
 ### Prune random slopes
 
-base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position)`
+base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c + prev_entropy_c | subject_id) + (1 | position)`
 
-result: we keep random effects: `(surprisal_c * prev_entropy_c | subject_id) + (1 | position)`
+result: we keep random effects: `(surprisal_c + prev_entropy_c | subject_id) + (1 | position)`
 
 
 ```{r}
@@ -533,27 +563,35 @@ result: we keep random effects: `(surprisal_c * prev_entropy_c | subject_id) + (
 
 m_surprisal_x_entropy_rt_rand_slope_1 <- 
   lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
+         (surprisal_c | subject_id) + (1 | position),
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="bobyqa")) # can change
 
 m_surprisal_x_entropy_rt_rand_slope_2 <- 
   lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c + prev_entropy_c + is_repetition | subject_id) + (1 | position),
+         (prev_entropy_c | subject_id) + (1 | position),
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="bobyqa")) # can change
 
 m_surprisal_x_entropy_rt_rand_slope_3 <- 
   lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c + prev_entropy_c + is_repetition | subject_id),
+         (surprisal_c + prev_entropy_c || subject_id)+ (1 | position),
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="bobyqa")) # can change
 
-AIC(m_surprisal_x_entropy_rt, m_surprisal_x_entropy_rt_rand_slope_1, m_surprisal_x_entropy_rt_rand_slope_2, m_surprisal_x_entropy_rt_rand_slope_3)
+m_surprisal_x_entropy_rt_rand_slope_4 <- 
+  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+         (surprisal_c + prev_entropy_c | subject_id),
+       data=data.m_h1h2,
+       REML=FALSE,
+       control=lmerControl(optimizer="bobyqa")) # can change
 
+AIC(m_surprisal_x_entropy_rt_simple, m_surprisal_x_entropy_rt_rand_slope_1, m_surprisal_x_entropy_rt_rand_slope_2, m_surprisal_x_entropy_rt_rand_slope_3, m_surprisal_x_entropy_rt_rand_slope_4)
+
+# anova(m_surprisal_x_entropy_rt_simple, m_surprisal_x_entropy_rt_rand_slope_2)
 # summary(m_surprisal_x_entropy_rt_rand_slope_1)
 ```
 
@@ -574,19 +612,19 @@ result: we have to keep the base model as the final model
 
 m_surprisal_x_entropy_rt_fixed_effects_1 <- 
   lmer(log_rt ~ surprisal_c * prev_entropy_c +
-         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
+         (surprisal_c + prev_entropy_c | subject_id) + (1 | position),
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="bobyqa")) # can change
 
 m_surprisal_x_entropy_rt_fixed_effects_2 <- 
   lmer(log_rt ~ surprisal_c + prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
+         (surprisal_c + prev_entropy_c | subject_id) + (1 | position),
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="bobyqa")) # can change
 
-AIC(m_surprisal_x_entropy_rt_rand_slope_1, m_surprisal_x_entropy_rt_fixed_effects_1, m_surprisal_x_entropy_rt_fixed_effects_2)
+AIC(m_surprisal_x_entropy_rt_simple, m_surprisal_x_entropy_rt_fixed_effects_1, m_surprisal_x_entropy_rt_fixed_effects_2)
 ```
 
 ### previous code
@@ -856,6 +894,12 @@ m_matrix_size_rt <-
        data=data.m_h1h2,
        REML=FALSE,
        control=lmerControl(optimizer="nloptwrap")) # can change
+
+# m_matrix_size_rt <-
+#  lmer(-log_rt ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
+#       data=data.m_h1h2,
+#       REML=FALSE,
+#       control=lmerControl(optimizer="bobyqa")) # can change
 
 m_matrix_size_acc <- 
     bglmer(correct ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
