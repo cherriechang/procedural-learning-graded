@@ -42,7 +42,7 @@ fit_pilot_models <- function(data) {
   m1 <- lmer(rt ~ block + (block | subject_id),
              data = data_correct,
              REML = FALSE,
-             control = lmerControl(optimizer = "bobyqa"))
+             control = lmerControl(optimizer = "bobyqa")) 
   
   cat("  Converged:", !any(grepl("failed to converge", m1@optinfo$conv$lme4$messages)), "\n")
   beta_block <- fixef(m1)['block']

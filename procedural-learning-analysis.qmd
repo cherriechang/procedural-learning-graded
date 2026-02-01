@@ -8,12 +8,12 @@ editor: visual
 # Data Analysis for Procedural Learning Graded Entropy Design Experiment
 
 ## Libraries
-
 ```{r}
 #| label: Load R libraries
 #| echo: false
 #| message: false
 
+library(here)
 library(osfr)
 library(dplyr)
 library(tidyr)
@@ -21,20 +21,68 @@ library(tidyverse)
 library(zoo)
 library(jsonlite)
 library(clipr)
-library(lme4)
+library(reticulate)
 library(lmerTest) # show p value in lmer
+
+np <- import("numpy")
 ```
 
-## Global Variables
+## Participants
+```{r}
+#| label: Demographic data
+#| include: false
+#| echo: false
 
+df.demographics <- list.files(here("demographic-data/"), pattern = "*.csv", full.names=TRUE) %>%
+  lapply(function(f) {
+    matrix_size <- gsub('.*_(\\dx\\d)\\.csv', '\\1', basename(f))
+    read.csv(f) %>%
+      mutate(Matrix.size = matrix_size)
+  }) %>%
+  bind_rows() %>%
+  filter(Status=="APPROVED")
+
+overall_N <- nrow(df.demographics)
+overall_mean_age <- mean(as.numeric(df.demographics$Age), na.rm=TRUE)
+overall_median_age <- median(as.numeric(df.demographics$Age), na.rm=TRUE)
+overall_sd_age <- sd(as.numeric(df.demographics$Age), na.rm=TRUE)
+overall_age_range <- range(as.numeric(df.demographics$Age), na.rm=TRUE)
+
+N_nationalities <- length(unique(df.demographics$Nationality))
+N_languages <- length(unique(df.demographics$Language))
+
+# Gender distribution
+gender_counts <- table(df.demographics$Sex)
+n_female <- gender_counts["Female"]
+n_male <- gender_counts["Male"]
+n_other <- sum(gender_counts[!names(gender_counts) %in% c("Female", "Male")], na.rm=TRUE)
+
+df.demographics.group_summary <- df.demographics %>%
+  group_by(Matrix.size) %>%
+  summarise(N = n(),
+            mean_age = mean(as.numeric(Age), na.rm=TRUE),
+            sd_age = sd(as.numeric(Age), na.rm=TRUE),
+            min_age = min(as.numeric(Age), na.rm=TRUE),
+            max_age = max(as.numeric(Age), na.rm=TRUE))
+
+group_N <- first(df.demographics.group_summary$N)
+N_5x5 <- df.demographics.group_summary %>%
+  filter(Matrix.size=="5x5") %>%
+  pull(N)
+```
+
+## Experiment Configs
 ```{r}
 #| label: Experiment configs that stay constant across participants
 #| echo: false
 #| include: false
 
 EXPERIMENT_CONFIG <- list(
-  datapipe_id_4x4 = "lpRUgvFf5pm4",
-  osf_id_4x4 = "5zn6u",
+  osf_id_4x4 = "Emfhw",
+  osf_id_5x5 = "Fraxt",
+  osf_id_6x6 = "jx48y",
+  osf_id_7x7 = "92jq7",
+  osf_id_8x8 = "Tx3h7",
   key_mapping_4pos = c("d","f","j","k"),
   key_mapping_5pos = c("s","d","f","j","k"),
   key_mapping_6pos = c("s","d","f","j","k","l"),
@@ -51,40 +99,121 @@ EXPERIMENT_CONFIG <- list(
 )
 ```
 
-## Data
-
-### Download Data
-
+## Transition Matrices and Positional Entropies
 ```{r}
-#| label: Retrieve pilot data from OSF
+#| label: Original transition matrices
 #| echo: false
 #| include: false
 
-osf_auth(token = "HoZsxwf02iQ5JQCs6YuMaIWQWLLIvhKNZxJjdLClW1ZbyRZNPpPuBzAcuLymvkfQM1g8MG")
+# Shannon entropy (bits) of a single probability vector (skip zeros)
+row_entropy <- function(prob_vec) {
+  p <- prob_vec[prob_vec > 0]
+  -sum(p * log2(p))
+}
 
-files <- osf_retrieve_node("Fraxt") %>%
-  osf_ls_files(n_max = Inf) %>%
-  osf_download(path = "data/4x4-data", conflicts="skip")
+# Calculate positional entropy for each row in a transition matrix
+positional_entropy <- function(mat) {
+  apply(mat, MARGIN=1, row_entropy)
+}
+
+transition_matrix_4x4 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_4x4.npy"))$tolist()), nrow=4, byrow=TRUE)
+transition_matrix_5x5 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_5x5.npy"))$tolist()), nrow=5, byrow=TRUE)
+transition_matrix_6x6 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_6x6.npy"))$tolist()), nrow=6, byrow=TRUE)
+transition_matrix_7x7 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_7x7.npy"))$tolist()), nrow=7, byrow=TRUE)
+transition_matrix_8x8 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_8x8.npy"))$tolist()), nrow=8, byrow=TRUE)
+all_original_matrices <- list(
+  "4x4" = transition_matrix_4x4,
+  "5x5" = transition_matrix_5x5,
+  "6x6" = transition_matrix_6x6,
+  "7x7" = transition_matrix_7x7,
+  "8x8" = transition_matrix_8x8
+)
+
+all_positional_entropies <- lapply(all_original_matrices, positional_entropy)
+all_positional_entropies_df <- lapply(names(all_positional_entropies), function(size) {
+  data.frame(
+    Matrix.size = size,
+    Position = 1:length(all_positional_entropies[[size]]),
+    Entropy = all_positional_entropies[[size]]
+  )
+}) %>%
+  bind_rows()
+
+pos_1_entropy <- all_positional_entropies_df %>%
+  group_by(Matrix.size) %>%
+  filter(Position==1) %>%
+  ungroup() %>%
+  summarize(range=range(Entropy), mean=mean(Entropy), sd=sd(Entropy))
+
+pos_n_entropy <- all_positional_entropies_df %>%
+  group_by(Matrix.size) %>%
+  filter(Position==max(Position)) %>%
+  ungroup() %>%
+  summarize(range=range(Entropy), mean=mean(Entropy), sd=sd(Entropy))
+
+entropy_gradient_summary <- all_positional_entropies_df %>%
+  group_by(Matrix.size) %>%
+  summarize(entropy_diffs = list(diff(Entropy))) %>%
+  ungroup() %>%
+  summarize(
+    range_diff = list(range(unlist(entropy_diffs))),
+    mean_diff = mean(unlist(entropy_diffs)),
+    sd_diff = sd(unlist(entropy_diffs))
+  )
 ```
 
+## Data download
+```{r}
+#| label: Retrieve data from OSF
+#| echo: false
+#| include: false
+#| cache: true
+
+files_4x4 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_4x4) %>%
+  osf_ls_files(n_max = Inf) %>%
+  osf_download(path = here("data/4x4-data"), conflicts="skip")
+
+files_5x5 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_5x5) %>%
+  osf_ls_files(n_max = Inf) %>%
+  osf_download(path = here("data/5x5-data"), conflicts="skip")
+
+files_6x6 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_6x6) %>%
+  osf_ls_files(n_max = Inf) %>%
+  osf_download(path = here("data/6x6-data"), conflicts="skip")
+
+files_7x7 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_7x7) %>%
+  osf_ls_files(n_max = Inf) %>%
+  osf_download(path = here("data/7x7-data"), conflicts="skip")
+
+files_8x8 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_8x8) %>%
+  osf_ls_files(n_max = Inf) %>%
+  osf_download(path = here("data/8x8-data"), conflicts="skip")
+
+# But there is some bug in osfr that causes one file name to be duplicated and one file name to be skipped, so alternatively just download manually from OSF and put in data/ folder:
+files_4x4 <- list.files("data/4x4-data")
+files_5x5 <- list.files("data/5x5-data")
+files_6x6 <- list.files("data/6x6-data")
+files_7x7 <- list.files("data/7x7-data")
+files_8x8 <- list.files("data/8x8-data")
+```
 ```{r}
 #| label: Bind all data together
 #| echo: false
 #| include: false
-
-df.raw <- list.files("data/4x4-data", full.names = TRUE) %>%
-  lapply(read.csv, colClasses="character") %>%
+#| cache: true
+df.raw <- list.files(here("data/"), pattern = "*.csv", full.names=TRUE, recursive=TRUE) %>%
+  .[!grepl("pilot-data", .)] %>%
+  lapply(read.csv) %>%
   bind_rows()
 ```
 
-### Data Cleanup
-
+## Data cleanup
 ```{r}
 #| label: Filter out unnecessary columns
 #| echo: false
 #| include: false
-df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, transition_matrix, conditional_entropies, trials_per_block, total_trials, practice_trials, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item)) %>%
-  mutate(rt = as.numeric(rt))
+#| cache: true
+df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, trials_per_block, total_trials, practice_trials, transition_matrix, conditional_entropies, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item))
 ```
 
 ```{r}
@@ -122,9 +251,12 @@ df <- df %>%
 df <- df %>%
   mutate(conditional_entropies = map(conditional_entropies, fromJSON)) %>%
   mutate(transition_matrix = map(transition_matrix, fromJSON))
-
-
-# Fill down overall_trial, trial_in_block and block
+```
+```{r}
+#| label: Fill down overall_trial, trial_in_block and block
+#| echo: false
+#| include: false
+#| cache: true
 df <- df %>%
  group_by(subject_id) %>%
     arrange(subject_id, row_number()) %>%
@@ -147,7 +279,43 @@ df <- df %>%
     ) %>%
     ungroup()
 ```
+```{r}
+#| label: Sanity check for unique subject_ids, matrix size, total number of trials, practice trials, transition matrices, conditional entropies and sequences across subjects and conditions
+#| echo: false
+#| include: false
+#| cache: true
 
+unique_subjects <- unique(df$subject_id)
+
+# Per-subject constants grouped by matrix_size
+df %>%
+  distinct(matrix_size, subject_id, total_trials, practice_trials, transition_matrix, conditional_entropies) %>%
+  group_by(matrix_size) %>%
+  summarize(
+    n_subjects = n_distinct(subject_id),
+    total_trials = unique(total_trials),
+    practice_trials = unique(practice_trials),
+    transition_matrix = list(unique(transition_matrix)),
+    conditional_entropies = list(unique(conditional_entropies))
+  )
+
+# Unique position sequences per matrix_size
+df %>%
+  group_by(matrix_size, subject_id) %>%
+  summarize(
+    sequence = paste(position, collapse = ","),
+    .groups = "drop"
+  ) %>%
+  group_by(matrix_size) %>%
+  summarize(
+    n_subjects = n_distinct(subject_id),
+    n_unique_sequences = n_distinct(sequence)
+  )
+
+df <- df[, !(names(df) %in% c("transition_matrix", "conditional_entropies"))]
+
+# Shows only 1 unique transition matrix and conditional entropies for conditions 6x6, 7x7 and 8x8 because of an error in data collection for those conditions after removing row by row log of the transition matrix and conditional entropies from the data files to save space. However, the code to shuffle those matrices and corresponding conditional entropies are still the same, so we believe participants are still each seeing a shuffled matrix and a different sequence in these conditions.
+```
 ```{r}
 #| label: Separate practice, main and questionnaire sections 
 #| echo: false
@@ -159,21 +327,20 @@ df <- df[df$phase=="main", ]
 ```
 
 ### Data Exclusions
-
-<!-- TODO: can consider removing subjects that didn't go fullscreen and/or preload failed..? -->
-
-<!-- TODO: used median absolute deviation instead of standard deviation for RT but not sure -->
-
 ```{r}
-#| label: Exclude subjects that:
-#| 1. Made too many mistakes (more than 15%)
-#| 2. Have too long response time (look at mean, median and spread):
-#| -> exclude if too slow: the subject's median_rt > 1000ms
-#| -> or if too noisy: more than 20% of their trials are 3*mad higher than the subjct's median_rt
+#| label: exclude-subjects
 #| echo: false
 #| include: false
+#| cache: true
+
+# Exclude subjects that
+# 1. Made too many mistakes (more than 15%)
+# 2. Have too long response time (look at mean, median and spread)
+# -> exclude if too slow--the subject's median_rt > 1000ms
+# -> or if too noisy--more than 20% of their trials are 3*mad higher than the subject's median_rt
 
 accuracy_excluded_subjects <- df %>%
+  filter(matrix_size==8) %>%
   filter(!is.na(correct)) %>%
   group_by(subject_id) %>%
   summarize(error_rate = mean(!correct)) %>%
@@ -195,7 +362,6 @@ rt_excluded_subjects <- df %>%
 df <- df %>%
   filter(!subject_id %in% accuracy_excluded_subjects & !subject_id %in% rt_excluded_subjects)
 ```
-
 ```{r}
 #| label: Filter df down to only stimulus, non-retry trials
 #| echo: false
@@ -204,65 +370,34 @@ df <- df %>%
 df <- df %>%
   filter(experiment_trial_type=="stimulus" & !is.na(rt))
 ```
-
 ```{r}
-#| label: Make a new column for log(rt)
+#| label: Remove first trial of each block and rows with infinite log_rt (rt==0)
 #| echo: false
 #| include: false
+#| cache: true
 
 df <- df %>%
-  mutate(log_rt=log(rt))
-```
-
-```{r}
-#| label: Make a new column for previous position entropy
-#| echo: false
-#| include: false
-
-df <- df %>%
-  group_by(subject_id, block) %>%
-  mutate(previous_entropy=lag(conditional_entropy, 1))
-```
-
-```{r}
-#| label: Make a new column for prev_entropy_c
-#| echo: false
-#| include: false
-
-df <- df %>%
-  group_by(matrix_size) %>%
-  mutate(prev_entropy_c=previous_entropy-mean(previous_entropy, na.rm=TRUE))
-```
-
-```{r}
-#| label: Make a new column for surprisal_c
-#| echo: false
-#| include: false
-
-df <- df %>%
-  group_by(matrix_size) %>%
-  mutate(surprisal_c=surprisal-mean(surprisal, na.rm=TRUE))
-```
-
-```{r}
-#| label: Make a new column for is_repetition
-#| echo: false
-#| include: false
-
-df <- df %>%
-  mutate(is_repetition=(position==lag(position,1)))
-```
-
-```{r}
-#| label: Remove first trial of each block
-#| echo: false
-#| include: false
-
-df <- df %>%
+  filter(!is.infinite(log_rt)) %>%
   group_by(block, subject_id) %>%
   slice(2:n())
 ```
+```{r}
+#| label: Make a new column for log(rt), previous position entropy, prev_entropy_c, surprisal_c, is_repetition
+#| echo: false
+#| include: false
+#| cache: true
 
+df <- df %>%
+  mutate(log_rt=log(rt)) %>%
+  mutate(is_repetition=(position==lag(position,1))) %>%
+  group_by(subject_id, block) %>%
+  mutate(previous_entropy=lag(conditional_entropy, 1)) %>%
+  ungroup() %>%
+  group_by(matrix_size) %>%
+  mutate(prev_entropy_c=previous_entropy-mean(previous_entropy, na.rm=TRUE)) %>%
+  mutate(surprisal_c=surprisal-mean(surprisal, na.rm=TRUE)) %>%
+  ungroup()
+```
 ```{r}
 #| label: Make subset of df with only correct trials
 #| echo: false
@@ -272,170 +407,35 @@ df.correct <- df %>%
   filter(correct)
 ```
 
-## Stats!
-
-### Power Analysis
-
-### Descriptive stats
-
-#### Overall
-
-```{r}
-#| label: N, total trials, mean, median overall
-#| echo: false
-#| include: false
-
-# Within subjects
-overall_within_subs_stats <- df %>%
-  group_by(subject_id) %>%
-  summarise(
-    accuracy = mean(correct),
-    mean_rt = mean(rt[correct]),
-    median_rt = median(rt[correct]),
-    sd_rt = sd(rt[correct]),
-    n_correct_trials = sum(correct),
-    n_trials = n(),
-    .groups = "drop"
-  )
-
-# Across subjects
-overall_across_subs_stats <- within_subs_stats %>%
-  summarise(
-    N = n(),
-    mean_mean_rt = mean(mean_rt),        # Mean of means
-    between_subs_sd_rt = sd(mean_rt),    # Between-subject SD
-    median_median_rt = median(median_rt),# Median of medians
-    mean_accuracy = mean(accuracy),
-    sd_accuracy = sd(accuracy)
-  )
-```
-
-#### By Block
-
-```{r}
-#| label: N, total trials, mean, median by block
-#| echo: false
-#| include: false
-
-by_block_within_subs_stats <- df %>%
-  group_by(subject_id, block) %>%
-  summarise(
-    accuracy = mean(correct),
-    mean_rt = mean(rt[correct]),
-    median_rt = median(rt[correct]),
-    sd_rt = sd(rt[correct]),
-    n_correct_trials = sum(correct),
-    n_trials = n(),
-    .groups = "drop"
-  )
-
-by_block_across_subs_stats <- by_block_within_subs_stats %>%
-  group_by(block) %>%
-  summarize(
-    N = n(),
-    mean_mean_rt = mean(mean_rt),        
-    between_subs_sd_rt = sd(mean_rt),    
-    median_median_rt = median(median_rt),
-    mean_accuracy = mean(accuracy),
-    sd_accuracy = sd(accuracy)
-  )
-```
-
-#### By Matrix Size
-
-```{r}
-#| label: N, total trials, mean, median by matrix size
-#| echo: false
-#| include: false
-
-by_matrix_size_within_subs_stats <- df %>%
-  group_by(subject_id, matrix_size) %>%
-  summarise(
-    accuracy = mean(correct),
-    mean_rt = mean(rt[correct]),
-    median_rt = median(rt[correct]),
-    sd_rt = sd(rt[correct]),
-    n_correct_trials = sum(correct),
-    n_trials = n(),
-    .groups = "drop"
-  )
-
-by_matrix_size_across_subs_stats <- by_matrix_size_within_subs_stats %>%
-  group_by(matrix_size) %>%
-  summarize(
-    N = n(),
-    mean_mean_rt = mean(mean_rt),        
-    between_subs_sd_rt = sd(mean_rt),    
-    median_median_rt = median(median_rt),
-    mean_accuracy = mean(accuracy),
-    sd_accuracy = sd(accuracy)
-  )
-```
-
-#### By Entropy Level
-
-```{r}
-#| label: N, total trials, mean, median by conditional entropy
-#| echo: false
-#| include: false
-
-by_entropy_within_subs <- df %>%
-  group_by(subject_id, entropy) %>%
-  summarise(
-    accuracy = mean(correct),
-    mean_rt = mean(rt[correct]),
-    median_rt = median(rt[correct]),
-    sd_rt = sd(rt[correct]),
-    n_correct_trials = sum(correct),
-    n_trials = n(),
-    .groups = "drop"
-  ) 
-  
-by_entropy_across_subs <- df %>%
-  group_by(entropy) %>%
-  summarise(
-    N = n(),
-      mean_mean_rt = mean(mean_rt),        
-      between_subs_sd_rt = sd(mean_rt),    
-      median_median_rt = median(median_rt),
-      mean_accuracy = mean(accuracy),
-      sd_accuracy = sd(accuracy)
-    )
-  )
-```
-
-## H0. Learning Effect
-
+# Model - H0
 ```{r}
 #| label: Learning effect lmer models
 #| (filter for correct trials and group by matrix_size)
-#| 
 #| echo: true
 #| include: true
 
-data.m_h0 <- df %>%
-  group_by(matrix_size) %>%
-  filter(!is.infinite(log_rt))
-
-data.m_h0.correct <- df.correct %>%
+df.m_h0 <- df %>%
   group_by(matrix_size)
 
 m_h0_rt <-
   lmer(-log_rt ~ block + is_repetition + (block | subject_id) + (1 | position),
-       data=data.m_h0,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-m_h0_acc <-
-  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
-       data=data.m_h0,
-       family=binomial,
-       control=glmerControl(optimizer="bobyqa")) # can change
+  data=df.m_h0,
+  REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")) # can change
 
 summary(m_h0_rt)
+
+df.m_h0.correct <- df.correct %>%
+  group_by(matrix_size)
+  
+m_h0_acc <-
+  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
+  data=df.m_h0,
+  family=binomial,
+ control=glmerControl(optimizer="bobyqa")) # can change
+
 summary(m_h0_acc)
 ```
-
 ## H1 & H2. Surprisal and previous position entropy effects
 
 For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*

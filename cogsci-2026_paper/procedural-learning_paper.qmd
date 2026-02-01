@@ -49,6 +49,8 @@ Your abstract text here. The abstract should be one paragraph. Following the abs
 
 Your introduction text here. You can cite references using `@NewellSimon1972a` or `[@ChalnickBillman1988a]`.
 
+## Hypotheses
+We make the following predictions. First, participants will show a basic learning effect: RT will decrease and accuracy will increase across blocks (H0). Second, within the learned statistical structure, trial-level RT and accuracy will be predicted by surprisal — the negative log probability of the observed transition — such that higher-surprisal (less predictable) transitions elicit slower and less accurate responses (H1). Third, previous positional entropy — the entropy of the transition distribution from the preceding position — will modulate performance independently, with higher-entropy (more uncertain) preceding positions leading to slower and less accurate responses (H2). We further predict that surprisal effects will be stronger at low-entropy positions, where predictions are more confident and prediction errors more costly, yielding a surprisal × entropy interaction. Finally, these effects will be attenuated as the number of positions increases, reflecting greater difficulty in learning more complex statistical structures (H3). Note that number of positions is confounded with entropy range in our design, so H3 effects may partially reflect differences in entropy distributions across conditions
 # Method
 
 ## Participants
@@ -124,11 +126,12 @@ EXPERIMENT_CONFIG <- list(
 	rt_threshold = 1000
 )
 ```
+
 Like other serial reaction time task designs, our experiment tasks participants to respond to a visual stimulus that appears in one of several evenly-spaced positions on screen as quickly and accurately as possible by pressing a corresponding key on the keyboard. In our implementation, this visual stimulus is a mole garbed in a bright red bib and matching sunglasses (@fig-example-trial-screen); and a schematic of each position-to-keyboard mapping for each condition is shown in (Table). Participants were evenly divided into 5 groups of `r group_N` per condition, with the conditions differing in the number of positions (4, 5, 6, 7, 8) the mole can appear in.
 
 ![An example trial screen in the 8-position condition of the experiment]("../assets/example-trial-screen.png"){#fig-example-trial-screen width=100%}
 
-A participant is first given a text-based tutorial accompanied by an animated demonstration on which key to press in response to each position, then instructed to work through a set of practice trials where each position is visited twice in random order. After the practice section, the participant moves on to complete `r EXPERIMENT_CONFIG$n_blocks` blocks of trials, each separated with a self-paced break. Each block consists of trials 10x the number of positions in the participant's assigned condition. This design choice results in longer blocks for conditions with more positions, but ensures each position is visited an equal number of times on average across conditions. In both practice and main trials, participants are given feedback on correctness via a pop-up short message (a checkmark vs. "Try again!" + an error tone), and allowed to retry each failed trial until they respond correctly. Following standard SRTT protocol, there is also a 120ms response-stimulus interval (RSI) between trials [CITE]. We find during piloting that allowing retries, combined with the `r EXPERIMENT_CONFIG$rsi`ms RSI, prevents participants from making compensatory errors, where they unintentionally press the wrong key in the next trial in an attempt to correct their current trial. We record response time, keyboard response and correctness for each trial. After each block, participants are given adaptive feedback based on their accuracy and speed. At the end of the experiment, participants complete a brief questionnaire probing their explicit awareness of any patterns in the mole's appearances (Table).
+A participant is first given a text-based tutorial accompanied by an animated demonstration on which key to press in response to each position, then instructed to work through a set of practice trials where each position is visited twice in random order. After the practice section, the participant moves on to complete `r EXPERIMENT_CONFIG$n_blocks` blocks of trials, each separated with a self-paced break. Each block consists of 10 trials per position. This design choice results in longer blocks for conditions with more positions, but ensures each position is visited an equal number of times on average across conditions. In both practice and main trials, participants are given feedback on correctness via a pop-up short message (a checkmark vs. "Try again!" + an error tone), and allowed to retry each failed trial until they respond correctly. Following standard SRTT protocol, there is also a 120ms response-stimulus interval (RSI) between trials [CITE]. We find during piloting that allowing retries, combined with the `r EXPERIMENT_CONFIG$rsi`ms RSI, prevents participants from making compensatory errors, where they unintentionally press the wrong key in the next trial in an attempt to correct their current trial. We record response time, keyboard response and correctness for each trial. After each block, participants are given adaptive feedback based on their accuracy and speed. At the end of the experiment, participants complete a brief questionnaire probing their explicit awareness of any patterns in the mole's appearances (Table).
 
 In addition to our dapper mole, a number of design choices were made to facilitate participant understanding and engagement. During the practice phase, each position on screen is labelled with its corresponding key character (e.g. "A", "S", "D") to help familiarize participants with the keyboard mappings. These key labels disappear in the main trials to prevent explicitly encoding of the sequence of positions via their character labels, but reappear during retry of failed trials. To make the correspondence between the positions on screen and keyboard keys as automatic and intuitive as possible, we chose to use conventional QWERTY-based finger layouts for the key mappings across conditions (Table). We found during piloting that while this decision helped reduce cognitive load from learning novel finger placements, the larger gap between keys "F" and "J" on the keyboard introduced a discrepancy between the evenly-spaced on-screen positions and the unevenly spaced keyboard keys. This made participants more prone to making errors in the positions towards the middle of the screen compared to those on the outer edges, especially when number of positions increases [TODO: maybe run stats on pilot to find this effect]; and was not mitigated by shifting either hand's placement to close the extra gap, because the positions were still corresponding half to one hand and half to the other. After further piloting testing different visual aids, we settled on adding two hands visually to the bottom of the screen, each finger aligned with its target position (Figure). We received verbal feedback that this visual aid helped participants better map the spatial layout of the on-screen positions to their corresponding keys. Lastly, the visual design of the "positions" on screen mimicked blank 3D keyboard keys that light up in pink when the mole appears on top, and look visibly "pressed down" when the participant presses the corresponding keyboard key. This design choice links the on-screen positions diegetically to the physical keyboard keys to maximally reduce mental distance between the two. This is important to enforce as much learning via implicit motor memory as possible, rather than via visual-spatial memory of the on-screen positions.
 
@@ -203,23 +206,6 @@ Strictly satisfying all these constraints at once turned out to be not only non-
 
 The five original matrices we constructed using this algorithm had these properties: 1) near fully doubly stochastic—all row and column sums sum to 1 (±0.0001) [TODO: consider not hardcoding]; 2) approach a uniform stationary distribution after 7 timesteps [TODO: consider not hardcoding] where the stationary visitation for each state (position) are within 0.001 of each other; 3) had a graded entropy structure across states—each matrix had a positional entropy range of `r round(pos_1_entropy$range[1], 3)`-`r round(pos_1_entropy$range[2], 3)` bits for position 1 ($\mu$=`r round(pos_1_entropy$mean[1], 3)`, $\sigma$=`r round(pos_1_entropy$sd[1], 3)`), and `r round(pos_n_entropy$range[1], 3)`-`r round(pos_n_entropy$range[2], 3)` bits for position n ($\mu$=`r round(pos_n_entropy$mean[1], 3)`, $\sigma$=`r round(pos_n_entropy$sd[1], 3)`). Within a matrix each position increases in entropy from the previous by `r round(entropy_gradient_summary$range_diff[[1]][1], 3)`-`r round(entropy_gradient_summary$range_diff[[1]][2], 3)` bits ($\mu$=`r round(entropy_gradient_summary$mean_diff[1], 3)`, $\sigma$=`r round(entropy_gradient_summary$sd_diff[1], 3)`); and 4) avoided self loops as much as possible—all of the matrices had <0.08 [TODO: consider not hardcoding] probabilities in the left diagonal up until the last two positions. Within each matrix size condition, all participants experience the same underlying entropy gradient across positions, but the mapping between screen positions and entropy levels is randomized through a double permutation procedure that shuffles the original matrix (of that size) using the same random permutation. This preserves the statistical properties of the original matrix—transition probabilities and entropy values—but decouples entropy levels from specific screen positions. The position sequence for each participant is subsequently generated using their individual shuffled transition matrix, so the sequence each participant experiences is different both within and between matrix size conditions.
 
-## Hypotheses
-> **H0. Procedural learning effect.** We predict participants to show implicit learning of the statistical structure across blocks, evidenced by a) decrease in response time across blocks and b) increase in accuracy across blocks.
-
-> **H1a. Surprisal effect.** In each experiment run, positions differ in how many next-positions are possible and how evenly distributed the transition probabilities are among them, which also means different next-position/bigram combinations for a given first position yield different levels of predictability and thus surprisal to the participant. We predict that participants will respond faster and more accurately on bigram transitions that are higher probability.
-
-> **H1b. Previous positional entropy effect.** In each experiment run, positions differ in their transition entropy---how many next-positions are possible and how evenly distributed the transition probabilities are among them. We predict that this influences how easily participants can predict the next position based on a given position, so participants will respond a) faster and b) more accurately on trials where the previous trial has lower entropy.
-
-> **H1c. Interaction effect between surprisal and previous positional entropy.** The effect of surprisal on rt will be modulated by entropy, such that surprisal effects are stronger at low-entropy (predictable) positions and weaker at high-entropy (uncertain) positions. This is because entropy determines prediction confidence. In low-entropy contexts, participants form strong, specific expectations, making prediction errors (high surprisal) more costly. In high-entropy contexts, predictions are weaker and more distributed, attenuating surprisal effects.
-
-> **H2a. Prediction error reflecting surprisal effect.** We predict that as participants implicitly learn the underlying statistical distribution, the mistakes they make reflect this learning, i.e. across blocks, the mistakes they make will be a) increasingly on low probability bigram transitions and b) the false transitions they make will increasingly be higher probability bigram transitions...
-
-> **H2b. Prediction error reflecting entropy effect.** ...and they will also be increasingly limited to higher previous positional entropy trials.
-
-> **H3. Moderation from number of positions.** We predict that the more positions there are to handle, the more difficult it is to learn the underlying statistical distribution, so participants with a larger number of positions will have a gentler learning slope, higher mean/median RT and also show worse performances/take more blocks to reach the same level of performance (in terms of both RT and accuracy) on the effects predicted in H1 (and H2).
-
-*Note: Matrix size is confounded with entropy range, so effects may reflect entropy distribution rather than number of positions per se.*
-
 # Statistical Analysis
 ```{r}
 #| label: Retrieve data from OSF
@@ -246,8 +232,14 @@ files_7x7 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_7x7) %>%
 files_8x8 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_8x8) %>%
   osf_ls_files(n_max = Inf) %>%
   osf_download(path = here("data/8x8-data"), conflicts="skip")
-```
 
+# But there is some bug in osfr that causes one file name to be duplicated and one file name to be skipped, so alternatively just download manually from OSF and put in data/ folder:
+files_4x4 <- list.files("data/4x4-data")
+files_5x5 <- list.files("data/5x5-data")
+files_6x6 <- list.files("data/6x6-data")
+files_7x7 <- list.files("data/7x7-data")
+files_8x8 <- list.files("data/8x8-data")
+```
 ```{r}
 #| label: Bind all data together
 #| echo: false
@@ -299,10 +291,16 @@ df <- df %>%
     is_num <- suppressWarnings(!is.na(as.numeric(x)) | is.na(x))
     if (all(is_num)) as.numeric(x) else x
   }))
+```
 
-# Fill down overall_trial, trial_in_block and block
+```{r}
+#| label: Fill down overall_trial, trial_in_block, block
+#| echo: false
+#| include: false
+#| cache: true
+#| 
 df <- df %>%
- group_by(subject_id) %>%
+    group_by(subject_id) %>%
     arrange(subject_id, row_number()) %>%
     mutate(
       overall_trial = if_else(
@@ -332,16 +330,34 @@ df <- df %>%
 
 unique_subjects <- unique(df$subject_id)
 
+# Per-subject constants grouped by matrix_size
 df %>%
+  distinct(matrix_size, subject_id, total_trials, practice_trials, transition_matrix, conditional_entropies) %>%
   group_by(matrix_size) %>%
   summarize(
     n_subjects = n_distinct(subject_id),
     total_trials = unique(total_trials),
     practice_trials = unique(practice_trials),
     transition_matrix = list(unique(transition_matrix)),
-    conditional_entropies = list(unique(conditional_entropies)),
-    sequences = list(unique(position))
+    conditional_entropies = list(unique(conditional_entropies))
   )
+
+# Unique position sequences per matrix_size
+df %>%
+  group_by(matrix_size, subject_id) %>%
+  summarize(
+    sequence = paste(position, collapse = ","),
+    .groups = "drop"
+  ) %>%
+  group_by(matrix_size) %>%
+  summarize(
+    n_subjects = n_distinct(subject_id),
+    n_unique_sequences = n_distinct(sequence)
+  )
+
+df <- df[, !(names(df) %in% c("transition_matrix", "conditional_entropies"))]
+
+# Shows only 1 unique transition matrix and conditional entropies for conditions 6x6, 7x7 and 8x8 because of an error in data collection for those conditions after removing row by row log of the transition matrix and conditional entropies from the data files to save space. However, the code to shuffle those matrices and corresponding conditional entropies are still the same, so we believe participants are still each seeing a shuffled matrix and a different sequence in these conditions.
 ```
 
 ```{r}
@@ -372,7 +388,7 @@ accuracy_excluded_subjects <- df %>%
   filter(!is.na(correct)) %>%
   group_by(subject_id) %>%
   summarize(error_rate = mean(!correct)) %>%
-  filter(error_rate > 0.15) %>%
+  filter(error_rate > 0.10) %>%
   pull(subject_id)
 
 rt_excluded_subjects <- df %>%
@@ -390,72 +406,14 @@ rt_excluded_subjects <- df %>%
 df <- df %>%
   filter(!subject_id %in% accuracy_excluded_subjects & !subject_id %in% rt_excluded_subjects)
 ```
-
 ```{r}
-#| label: Make a new column for log(rt)
+#| label: Filter df down to only stimulus, non-retry trials
 #| echo: false
 #| include: false
-#| cache: true
 
 df <- df %>%
-  mutate(log_rt=log(rt))
+  filter(experiment_trial_type=="stimulus" & !is.na(rt))
 ```
-
-## Variables and Exclusion Criteria
-The main independent variables are surprisal and previous positional entropy. Surprisal is defined as the negative log probability of the actual next-position given the current position [TODO: math], derived from the transition matrix used to generate the sequence for that participant. Previous positional entropy is defined as the Shannon entropy of the transition probabilities from the previous position, also derived from the transition matrix [TODO: math]. Both surprisal and previous positional entropy are mean-centered within each matrix size condition to facilitate interpretation of main effects and interactions in subsequent models. We also create a binary variable indicating whether the current position is a repetition of the previous position (i.e. self-transition). This variable is included as a covariate in subsequent models to control for potential motor effects from repeating the same keypress.
-
-The main dependent variables are response time (RT) and accuracy (proportion of correct responses) on non-practice/main trials. Incorrect trials, trials with RT >1000ms RT, and trials with RTs greater than 3 median absolute deviations above the participant's median RT (outliers) are excluded. On the participant level, participants with overall accuracy below 85%, median RT >1000ms, or with outliers making up more than 30% of total trials are excluded from analysis. We also discard data from the first trial of each block to account for blocks being implicitly treated as "restarts" and not following an existing probability distribution by participants. RTs are log-transformed to reduce skewness.
-
-## Modeling Approach
-We use linear mixed effects regression (LMER) to model log-transformed RTs and generalized linear mixed effects regression (GLMER) with a binomial link function to model accuracy. Models are fit using the `lmerTest` package in R. We first test for the learning effect across blocks (H0), then examine the effects of surprisal and previous positional entropy (H1 & H2) in the final block, pruning effects where applicable to narrow in on the best-fitting effects structure before analyzing learning trajectories across blocks, and finally test for moderation by number of positions/matrix size(H3).
-
-Models are initially fit with the maximal random effects structure supported by the design: random intercepts for participant and position, and random slopes for surprisal, previous positional entropy, their interaction, and position repetition by participant. Where maximal models fail to converge, we use bounded linear mixed models (`blmer`/`bglmer`) as a first remedy. If singularity persists, we iteratively simplify the random effects structure, removing random slopes one at a time and retaining the most complex structure that converges without singularity. Among converging models, we select the one with the lowest AIC.
-
-For H1 and H2, we first establish the fixed effects structure using only the final block of trials, then extend to learning trajectories across blocks. Starting from a base model including surprisal, previous positional entropy, their interaction, and repetition as fixed effects (with the selected random effects structure), we use AIC-based model comparison to prune fixed effects. We first test whether repetition is significant by comparing the base model against one in which it is removed; if removing it does not increase AIC, we drop it from the base model. We then test whether the interaction term between surprisal and previous positional entropy is significant by comparing the current base model against one in which the interaction term is removed. If the interaction is not significant, we test each main effect individually by comparing models that omit surprisal or previous positional entropy as main effects. An effect is retained if removing it increases AIC.
-
-```{r}
-#| label: Make a new column for previous position entropy
-#| echo: false
-#| include: false
-#| cache: true
-
-df <- df %>%
-  group_by(subject_id, block) %>%
-  mutate(previous_entropy=lag(conditional_entropy, 1))
-```
-
-```{r}
-#| label: Make a new column for prev_entropy_c
-#| echo: false
-#| include: false
-#| cache: true
-
-df <- df %>%
-  group_by(matrix_size) %>%
-  mutate(prev_entropy_c=previous_entropy-mean(previous_entropy, na.rm=TRUE))
-```
-
-```{r}
-#| label: Make a new column for surprisal_c
-#| echo: false
-#| include: false
-#| cache: true
-
-df <- df %>%
-  group_by(matrix_size) %>%
-  mutate(surprisal_c=surprisal-mean(surprisal, na.rm=TRUE))
-```
-
-```{r}
-#| label: Make a new column for is_repetition
-#| echo: false
-#| include: false
-#| cache: true
-
-df <- df %>%
-  mutate(is_repetition=(position==lag(position,1)))
-```
-
 ```{r}
 #| label: Remove first trial of each block
 #| echo: false
@@ -466,7 +424,24 @@ df <- df %>%
   group_by(block, subject_id) %>%
   slice(2:n())
 ```
+```{r}
+#| label: Make a new column for log(rt), previous position entropy, prev_entropy_c, surprisal_c, is_repetition
+#| echo: false
+#| include: false
+#| cache: true
 
+df <- df %>%
+  mutate(log_rt=log(rt)) %>%
+  filter(!is.infinite(log_rt)) %>%
+  mutate(is_repetition=(position==lag(position,1))) %>%
+  group_by(subject_id, block) %>%
+  mutate(previous_entropy=lag(conditional_entropy, 1)) %>%
+  ungroup() %>%
+  group_by(matrix_size) %>%
+  mutate(prev_entropy_c=previous_entropy-mean(previous_entropy, na.rm=TRUE)) %>%
+  mutate(surprisal_c=surprisal-mean(surprisal, na.rm=TRUE)) %>%
+  ungroup()
+```
 ```{r}
 #| label: Make subset of df with only correct trials
 #| echo: false
@@ -477,7 +452,46 @@ df.correct <- df %>%
   filter(correct)
 ```
 
+## Variables and Exclusion Criteria
+The main independent variables are surprisal and previous positional entropy. Surprisal is defined as the negative log probability of the actual next-position given the current position [TODO: math], derived from the transition matrix used to generate the sequence for that participant. Previous positional entropy is defined as the Shannon entropy of the transition probabilities from the previous position, also derived from the transition matrix [TODO: math]. Both surprisal and previous positional entropy are mean-centered within each matrix size condition to facilitate interpretation of main effects and interactions in subsequent models. We also create a binary variable indicating whether the current position is a repetition of the previous position (i.e. self-transition). This variable is included as a covariate in subsequent models to control for potential motor effects from repeating the same keypress.
 
+The main dependent variables are response time (RT) and accuracy (proportion of correct responses) on non-practice/main trials. Incorrect trials, trials with RT >1000ms, and trials with RTs greater than 3 median absolute deviations above the participant's median RT (outliers) are excluded. On the participant level, participants with overall accuracy below 85%, median RT >1000ms, or with outliers making up more than 30% of total trials are excluded from analysis. We also discard data from the first trial of each block to account for blocks being implicitly treated as "restarts" and not following an existing probability distribution by participants. RTs are log-transformed to reduce skewness.
+
+## Modeling Approach
+We use linear mixed effects regression (LMER) to model log-transformed RTs and generalized linear mixed effects regression (GLMER) with a binomial link function to model accuracy. Models are fit using the `lmerTest` package in R. We first test for the learning effect across blocks (H0), then examine the effects of surprisal and previous positional entropy (H1 & H2) in the final block, pruning effects where applicable to find the best-fitting effects structure before analyzing learning trajectories across blocks, and finally test for moderation by number of positions/matrix size(H3).
+
+Models are initially fit with the maximal random effects structure supported by the design: random intercepts for participant and position, and random slopes for surprisal, previous positional entropy, their interaction, and position repetition by participant. Where maximal models fail to converge, we use bounded linear mixed models (`blmer`/`bglmer`) as a first remedy. If singularity persists, we iteratively simplify the random effects structure, removing random slopes one at a time and retaining the most complex structure that converges without singularity. Among converging models, we select the one with the lowest AIC.
+
+For H1 and H2, we first establish the fixed effects structure using only the final block of trials, then extend to learning trajectories across blocks. Starting from a base model including surprisal, previous positional entropy, their interaction, and repetition as fixed effects (with the selected random effects structure), we use AIC-based model comparison to prune fixed effects. We first test whether repetition is significant by comparing the base model against one in which it is removed; if removing it does not increase AIC, we drop it from the base model. We then test whether the interaction term between surprisal and previous positional entropy is significant by comparing the current base model against one in which the interaction term is removed. If the interaction is not significant, we test each main effect individually by comparing models that omit surprisal or previous positional entropy as main effects. An effect is retained if removing it increases AIC.
+
+```{r}
+#| label: Learning effect lmer models
+#| (filter for correct trials and group by matrix_size)
+#| echo: true
+#| include: true
+
+df.m_h0 <- df %>%
+  group_by(matrix_size)
+
+m_h0_rt <-
+  lmer(-log_rt ~ block + is_repetition + (block | subject_id) + (1 | position),
+  data=df.m_h0,
+  REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")) # can change
+
+summary(m_h0_rt)
+
+df.m_h0.correct <- df.correct %>%
+  group_by(matrix_size)
+  
+m_h0_acc <-
+  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
+  data=df.m_h0,
+  family=binomial,
+  control=glmerControl(optimizer="bobyqa")) # can change
+
+summary(m_h0_acc)
+```
 ## H0. Learning Effect
 
 # Results
