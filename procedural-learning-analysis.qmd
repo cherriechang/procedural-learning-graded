@@ -440,6 +440,78 @@ summary(m_h0_acc)
 
 For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
 
+
+```{r}
+# last block data model, for each of the matrix_size
+library(purrr)
+
+data.m_h1h2 <- df %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, !is.infinite(log_rt))
+
+data_list <- split(data.m_h1h2, data.m_h1h2$matrix_size)
+
+#names(data_list) <- unique(data.m_h1h2$matrix_size)
+
+models <- map(data_list, ~ lmer(
+  log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+    (surprisal_c * prev_entropy_c + is_repetition | subject_id),
+  data = .x
+))
+
+model_summaries <- map(models, summary)
+# model_summaries[2]
+```
+
+```{r}
+# last block data model, for each of the matrix_size: plotting fixed effects (exclude intercepts)
+library(broom.mixed)
+
+effects_df <- map_dfr(
+  names(models),
+  ~ broom.mixed::tidy(models[[.x]]) %>%
+    filter(effect == "fixed" & term != "(Intercept)") %>%
+    mutate(matrix_size = .x)
+)
+
+effects_df$matrix_size <- as.numeric(effects_df$matrix_size)
+
+ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") +
+  theme_minimal()
+```
+
+```{r}
+data_m4 <- subset(df, matrix_size == 4) # can change
+
+data_list_block <- split(data_m4, data_m4$block)
+
+models_block <- map(data_list_block, ~ lmer(
+  log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+    (surprisal_c * prev_entropy_c + is_repetition | subject_id),
+  data = .x
+))
+
+
+effects_block <- map_dfr(
+  names(models_block),
+  ~ broom.mixed::tidy(models_block[[.x]]) %>%
+    filter(effect == "fixed" & term != "(Intercept)") %>%
+    mutate(block = as.numeric(.x))
+)
+
+
+ggplot(effects_block, aes(x = block, y = estimate, color = term, group = term)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  labs(x = "Block", y = "Effect Estimate", color = "Parameter") +
+  theme_minimal()
+```
+
+
 ```{r}
 #| label: Surprisal x previous position entropy lmer models
 #| (filter for correct trials + final block and group by matrix_size)
