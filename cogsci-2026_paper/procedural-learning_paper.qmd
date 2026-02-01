@@ -33,6 +33,7 @@ library(zoo)
 library(jsonlite)
 library(clipr)
 library(reticulate)
+library(lmerTest) # show p value in lmer
 
 np <- import("numpy")
 ```
@@ -224,32 +225,34 @@ The five original matrices we constructed using this algorithm had these propert
 #| label: Retrieve data from OSF
 #| echo: false
 #| include: false
+#| cache: true
 
 files_4x4 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_4x4) %>%
   osf_ls_files(n_max = Inf) %>%
-  osf_download(path = "data/4x4-data", conflicts="skip")
+  osf_download(path = here("data/4x4-data"), conflicts="skip")
 
 files_5x5 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_5x5) %>%
   osf_ls_files(n_max = Inf) %>%
-  osf_download(path = "data/5x5-data", conflicts="skip")
+  osf_download(path = here("data/5x5-data"), conflicts="skip")
 
 files_6x6 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_6x6) %>%
   osf_ls_files(n_max = Inf) %>%
-  osf_download(path = "data/6x6-data", conflicts="skip")
+  osf_download(path = here("data/6x6-data"), conflicts="skip")
 
 files_7x7 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_7x7) %>%
   osf_ls_files(n_max = Inf) %>%
-  osf_download(path = "data/7x7-data", conflicts="skip")
+  osf_download(path = here("data/7x7-data"), conflicts="skip")
 
 files_8x8 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_8x8) %>%
   osf_ls_files(n_max = Inf) %>%
-  osf_download(path = "data/8x8-data", conflicts="skip")
+  osf_download(path = here("data/8x8-data"), conflicts="skip")
 ```
 
 ```{r}
 #| label: Bind all data together
 #| echo: false
 #| include: false
+#| cache: true
 df.raw <- list.files(here("data/"), pattern = "*.csv", full.names=TRUE, recursive=TRUE) %>%
   .[!grepl("pilot-data", .)] %>%
   lapply(read.csv) %>%
@@ -260,6 +263,7 @@ df.raw <- list.files(here("data/"), pattern = "*.csv", full.names=TRUE, recursiv
 #| label: Filter out unnecessary columns
 #| echo: false
 #| include: false
+#| cache: true
 df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, trials_per_block, total_trials, practice_trials, transition_matrix, conditional_entropies, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item))
 ```
 
@@ -267,6 +271,7 @@ df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, trials_per_b
 #| label: Clean up data formatting
 #| echo: false
 #| include: false
+#| cache: true
 
 # Convert NA values
 df <- df %>%
@@ -323,6 +328,7 @@ df <- df %>%
 #| label: Sanity check for unique subject_ids, matrix size, total number of trials, practice trials, transition matrices, conditional entropies and sequences across subjects and conditions
 #| echo: false
 #| include: false
+#| cache: true
 
 unique_subjects <- unique(df$subject_id)
 
@@ -339,9 +345,10 @@ df %>%
 ```
 
 ```{r}
-#| label: Separate practice, main and questionnaire sections 
+#| label: Separate practice, main and questionnaire sections
 #| echo: false
 #| include: false
+#| cache: true
 
 df.practice <- df[df$phase=="practice", ]
 df.questionnaire <- df[df$phase=="questionnaire", ]
@@ -349,14 +356,16 @@ df <- df[df$phase=="main", ]
 ```
 
 ```{r}
-#| label: Exclude subjects that
-#| 1. Made too many mistakes (more than 15%)
-#| 2. Have too long response time (look at mean, median and spread)
-#| -> exclude if too slow--the subject's median_rt > 1000ms
-#| -> or if too noisy--more than 20% of their trials are 3*mad higher than the subjct's median_rt
-#| 
+#| label: exclude-subjects
 #| echo: false
 #| include: false
+#| cache: true
+
+# Exclude subjects that
+# 1. Made too many mistakes (more than 15%)
+# 2. Have too long response time (look at mean, median and spread)
+# -> exclude if too slow--the subject's median_rt > 1000ms
+# -> or if too noisy--more than 20% of their trials are 3*mad higher than the subject's median_rt
 
 accuracy_excluded_subjects <- df %>%
   filter(matrix_size==8) %>%
@@ -386,6 +395,7 @@ df <- df %>%
 #| label: Make a new column for log(rt)
 #| echo: false
 #| include: false
+#| cache: true
 
 df <- df %>%
   mutate(log_rt=log(rt))
@@ -397,12 +407,17 @@ The main independent variables are surprisal and previous positional entropy. Su
 The main dependent variables are response time (RT) and accuracy (proportion of correct responses) on non-practice/main trials. Incorrect trials, trials with RT >1000ms RT, and trials with RTs greater than 3 median absolute deviations above the participant's median RT (outliers) are excluded. On the participant level, participants with overall accuracy below 85%, median RT >1000ms, or with outliers making up more than 30% of total trials are excluded from analysis. We also discard data from the first trial of each block to account for blocks being implicitly treated as "restarts" and not following an existing probability distribution by participants. RTs are log-transformed to reduce skewness.
 
 ## Modeling Approach
-We use linear mixed effects regression (LMER) to model log-transformed RTs and generalized linear mixed effects regression (GLMER) with a binomial link function to model accuracy. We start with models including random intercepts for subject, position and whether the trial is a repetition, as well as random slopes for key predictors by subject where appropriate. Models are fit using the `lmerTest` package in R. [TODO: consider adding optimizer] We first test for the learning effect across blocks (H0), then examine the effects of surprisal and previous positional entropy (H1 & H2) in the final block, pruning effects where applicable to narrow in on the best-fitting effects structure before analyzing learning trajectories across blocks, and finally test for moderation by number of positions (H3).
+We use linear mixed effects regression (LMER) to model log-transformed RTs and generalized linear mixed effects regression (GLMER) with a binomial link function to model accuracy. Models are fit using the `lmerTest` package in R. We first test for the learning effect across blocks (H0), then examine the effects of surprisal and previous positional entropy (H1 & H2) in the final block, pruning effects where applicable to narrow in on the best-fitting effects structure before analyzing learning trajectories across blocks, and finally test for moderation by number of positions/matrix size(H3).
+
+Models are initially fit with the maximal random effects structure supported by the design: random intercepts for participant and position, and random slopes for surprisal, previous positional entropy, their interaction, and position repetition by participant. Where maximal models fail to converge, we use bounded linear mixed models (`blmer`/`bglmer`) as a first remedy. If singularity persists, we iteratively simplify the random effects structure, removing random slopes one at a time and retaining the most complex structure that converges without singularity. Among converging models, we select the one with the lowest AIC.
+
+For H1 and H2, we first establish the fixed effects structure using only the final block of trials, then extend to learning trajectories across blocks. Starting from a base model including surprisal, previous positional entropy, their interaction, and repetition as fixed effects (with the selected random effects structure), we use AIC-based model comparison to prune fixed effects. We first test whether repetition is significant by comparing the base model against one in which it is removed; if removing it does not increase AIC, we drop it from the base model. We then test whether the interaction term between surprisal and previous positional entropy is significant by comparing the current base model against one in which the interaction term is removed. If the interaction is not significant, we test each main effect individually by comparing models that omit surprisal or previous positional entropy as main effects. An effect is retained if removing it increases AIC.
 
 ```{r}
 #| label: Make a new column for previous position entropy
 #| echo: false
 #| include: false
+#| cache: true
 
 df <- df %>%
   group_by(subject_id, block) %>%
@@ -413,6 +428,7 @@ df <- df %>%
 #| label: Make a new column for prev_entropy_c
 #| echo: false
 #| include: false
+#| cache: true
 
 df <- df %>%
   group_by(matrix_size) %>%
@@ -423,6 +439,7 @@ df <- df %>%
 #| label: Make a new column for surprisal_c
 #| echo: false
 #| include: false
+#| cache: true
 
 df <- df %>%
   group_by(matrix_size) %>%
@@ -433,6 +450,7 @@ df <- df %>%
 #| label: Make a new column for is_repetition
 #| echo: false
 #| include: false
+#| cache: true
 
 df <- df %>%
   mutate(is_repetition=(position==lag(position,1)))
@@ -442,6 +460,7 @@ df <- df %>%
 #| label: Remove first trial of each block
 #| echo: false
 #| include: false
+#| cache: true
 
 df <- df %>%
   group_by(block, subject_id) %>%
@@ -452,6 +471,7 @@ df <- df %>%
 #| label: Make subset of df with only correct trials
 #| echo: false
 #| include: false
+#| cache: true
 
 df.correct <- df %>%
   filter(correct)
@@ -459,474 +479,6 @@ df.correct <- df %>%
 
 
 ## H0. Learning Effect
-
-```{r}
-#| label: Learning effect lmer models
-#| (filter for correct trials and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-data.m_h0 <- df %>%
-  group_by(matrix_size) %>%
-  filter(!is.infinite(log_rt))
-
-data.m_h0.correct <- df.correct %>%
-  group_by(matrix_size)
-
-m_h0_rt <-
-  lmer(-log_rt ~ block + is_repetition + (block | subject_id) + (1 | position),
-       data=data.m_h0,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-m_h0_acc <-
-  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
-       data=data.m_h0,
-       family=binomial,
-       control=glmerControl(optimizer="bobyqa")) # can change
-
-summary(m_h0_rt)
-summary(m_h0_acc)
-```
-
-## H1 & H2. Surprisal and previous position entropy effects
-
-For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
-
-```{r}
-#| label: Surprisal x previous position entropy lmer models
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-data.m_h1h2 <- df %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, !is.infinite(log_rt)) %>%
-  group_by(matrix_size)
-
-data.m_h1h2.correct <- df.correct %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1) %>%
-  group_by(matrix_size)
-
-m_surprisal_x_entropy_rt <- 
-  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
-         (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-m_surprisal_x_entropy_acc <-
-  glmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
-         (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       control=glmerControl(optimizer="bobyqa")) # can change
-
-summary(m_surprisal_x_entropy_rt)
-summary(m_surprisal_x_entropy_acc)
-```
-
-```{r}
-#| label: Surprisal x previous position entropy blmer models
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: false
-#| include: false
-
-m_surprisal_x_entropy_rt_blm <- 
-  blmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_surprisal_x_entropy_acc_blm <-
-  bglmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_surprisal_x_entropy_rt_blm)
-summary(m_surprisal_x_entropy_acc_blm)
-
-confint(m_surprisal_x_entropy_rt_blm, method="Wald") # if CI including 0 usually indicate not significant
-```
-
-```{r}
-#| label: Surprisal x previous position entropy brm models
-#| 
-#| echo: false
-#| include: false
-
-m_surprisal_x_entropy_rt_brm <- brm(
-  log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-    (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position),
-  data = data.m_h1h2)
-
-summary(m_surprisal_x_entropy_rt_brm)
-```
-
-### Prune random slopes
-
-base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position)`
-
-result: we keep random effects: `(surprisal_c * prev_entropy_c | subject_id) + (1 | position)`
-
-
-```{r}
-#| label: Surprisal x previous position entropy lmer models
-#| Prune: remove random slopes until AIC smallest
-#| 
-#| echo: true
-#| include: true
-
-m_surprisal_x_entropy_rt_rand_slope_1 <- 
-  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-m_surprisal_x_entropy_rt_rand_slope_2 <- 
-  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c + prev_entropy_c + is_repetition | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-m_surprisal_x_entropy_rt_rand_slope_3 <- 
-  lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c + prev_entropy_c + is_repetition | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-AIC(m_surprisal_x_entropy_rt, m_surprisal_x_entropy_rt_rand_slope_1, m_surprisal_x_entropy_rt_rand_slope_2, m_surprisal_x_entropy_rt_rand_slope_3)
-
-# summary(m_surprisal_x_entropy_rt_rand_slope_1)
-```
-
-### Prune fixed effects
-
-base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + [random effects left in last section]`
-
-result: we have to keep the base model as the final model
-
-```{r}
-#| label: Surprisal x previous position entropy lmer models
-#| Prune: remove fixed effects until AIC smallest
-#| 
-#| echo: true
-#| include: true
-
-# base model: m_surprisal_x_entropy_rt_rand_slope_1
-
-m_surprisal_x_entropy_rt_fixed_effects_1 <- 
-  lmer(log_rt ~ surprisal_c * prev_entropy_c +
-         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-m_surprisal_x_entropy_rt_fixed_effects_2 <- 
-  lmer(log_rt ~ surprisal_c + prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="bobyqa")) # can change
-
-AIC(m_surprisal_x_entropy_rt_rand_slope_1, m_surprisal_x_entropy_rt_fixed_effects_1, m_surprisal_x_entropy_rt_fixed_effects_2)
-```
-
-### previous code
-
-*We then prune the model as follows:*
-
-If the model fails to converge, we will first try blmer/bglmer to see if that addresses convergence.
-
-If not, we will see if any of these random slope structures converges for subject_id (still using blmer/bglmer):
-
-```{r}
-#| label: Surprisal x previous position entropy lmer models
-#| Prune: position
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_surprisal_x_entropy_prune_position_rt <- 
-  blmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_surprisal_x_entropy_prune_position_acc <-
-  bglmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_surprisal_x_entropy_prune_position_rt)
-summary(m_surprisal_x_entropy_prune_position_acc)
-```
-
-
-```{r}
-#| label: Surprisal x previous position entropy blmer models
-#| Prune: position, repetition
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_surprisal_x_entropy_prune_position_repetition_rt <- 
-  blmer(log_rt ~ surprisal_c * prev_entropy_c +
-         (surprisal_c * prev_entropy_c | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_surprisal_x_entropy_prune_position_repetition_acc <-
-  bglmer(correct ~ surprisal_c * prev_entropy_c  +
-         (surprisal_c * prev_entropy_c | subject_id),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_surprisal_x_entropy_prune_position_repetition_rt)
-summary(m_surprisal_x_entropy_prune_position_repetition_acc)
-```
-
-And then we will try treating surprisal and previous position entropy as individual fixed effects, instead of interacting:
-
-```{r}
-#| label: Surprisal + previous position entropy lmer models
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_surprisal_entropy_rt <-
-  blmer(log_rt ~ surprisal_c + prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
-         (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_surprisal_entropy_acc <- 
-    bglmer(correct ~ surprisal_c + prev_entropy_c + is_repetition +
-           (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
-           (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_surprisal_entropy_rt)
-summary(m_surprisal_entropy_acc)
-```
-
-```{r}
-#| label: Surprisal + previous position entropy effect lmer models
-#| Prune: position
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_surprisal_entropy_prune_position_rt <-
-  blmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_surprisal_entropy_prune_position_acc <- 
-    bglmer(correct ~ surprisal_c + prev_entropy_c + is_repetition +
-         (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
-         (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_surprisal_entropy_prune_position_rt)
-summary(m_surprisal_entropy_prune_position_acc)
-```
-
-```{r}
-#| label: Surprisal + previous position entropy effect lmer models
-#| Prune: position, repetition
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_surprisal_entropy_prune_position_repetition_rt <-
-  blmer(log_rt ~ surprisal_c * prev_entropy_c +
-         (surprisal_c * prev_entropy_c | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_surprisal_entropy_prune_position_repetition_acc <- 
-    bglmer(correct ~ surprisal_c + prev_entropy_c  +
-         (surprisal_c * prev_entropy_c | subject_id) +
-         (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_surprisal_entropy_prune_position_repetition_rt)
-summary(m_surprisal_entropy_prune_position_repetition_acc)
-```
-
-If that still doesn't work, we can further separate out surprisal_c and prev_entropy_c:
-
-```{r}
-#| label: Surprisal effect lmer models
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_surprisal_rt <-
-  blmer(log_rt ~ surprisal_c +
-         (surprisal_c | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_surprisal_acc <- 
-    bglmer(correct ~ surprisal_c +
-         (surprisal_c | subject_id) +
-         (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_surprisal_rt)
-summary(m_surprisal_acc)
-```
-
-```{r}
-#| label: Previous entropy effect lmer models
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_entropy_rt <-
-  blmer(log_rt ~ prev_entropy_c +
-         (prev_entropy_c | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_prev_entropy_c_acc <- 
-    bglmer(correct ~ prev_entropy_c +
-         (prev_entropy_c | subject_id) +
-         (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_entropy_rt)
-summary(m_entropy_acc)
-```
-
-And look at what is_repetition contributes:
-
-```{r}
-#| label: Repetition effect lmer models
-#| (filter for correct trials + final block and group by matrix_size)
-#| 
-#| echo: true
-#| include: true
-
-m_repetition_rt <-
-  blmer(-log_rt ~ is_repetition +
-         (is_repetition | subject_id),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_repetition_acc <- 
-    bglmer(correct ~ is_repetition +
-         (is_repetition | subject_id),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_repetition_rt)
-summary(m_repetition_acc)
-```
-
-If none of those converge, we check to see if we made an error somewhere, because at least one of them should converge! The model with the most random slopes that converges is now our base model (for the moment).
-
-Next, we test the significance of random slopes. We iteratively remove random slopes and check whether the result is worse (has a higher AIC). As soon as we can't remove any random slopes without increasing AIC, that is now the random effects structure we will use.
-
-Next, we use model-comparison to determine fixed effects. Our base model is: `~ surprisal_c * prev_entropy_c + is_repetition + [random effects]`
-
-First, we check for a repetition effect by comparing the base model with: `~ surprisal_c * prev_entropy_c + [random effects]`
-
-If the base model has a lower AIC, the effect of repetition is significant. (This is very, very likely). If not, our new base model is the one without the is_repetition effect. We use this base model below.
-
-We test whether there is an interaction by comparing the above with: `~ surprisal_c  + prev_entropy_c + is_repetition + [random effects]`
-
-If the simpler model has a higher AIC, the interaction is significant and we stop. There is a surprisal effect (H1) and an entropy effect (H2).
-
-If there is no interaction, we now compare the no-interaction model to models that lack one of the main effects of entropy or surprisal. So we compare against two models. If AIC for either of the new models is lower, then the corresponding fixed effect is not significant and can be eliminated.
-
-If both entropy and surprisal are significant (eliminating either increases AIC), we are done and interpret H1 and H2. Otherwise, we try eliminating both of these fixed effects. If that increases AIC over a model with one fixed effect, then that fixed effect is definitely significant. (Hopefully this doesn't happen with both fixed effects, which would suggest that surprisal and entropy are so correlated that we can't distinguish them.)
-
-## H3. Moderation from number of positions
-
-filter(correct) %\>% group_by(matrix_size, block) %\>% model()
-
-```{r}
-#| label: Num positions effect lmer models
-#| (filter for correct trials and group by matrix_size and block)
-#| 
-#| echo: true
-#| include: true
-
-m_matrix_size_rt <-
-  blmer(-log_rt ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-m_matrix_size_acc <- 
-    bglmer(correct ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
-       data=data.m_h1h2,
-       family=binomial,
-       REML=FALSE,
-       control=lmerControl(optimizer="nloptwrap")) # can change
-
-summary(m_matrix_size_rt)
-summary(m_matrix_size_acc)
-```
-
-For each of the fixed effects used for H1-H2, recover the effect size estimate. Now, for each fixed effect: `effect_size ~ matrix_size*block`
-
-Note that there are no random effects. We use `lm()` and get p-values in the normal way.
-
-Models will be fit with ML for model comparison; final models refit with REML for inference.
 
 # Results
 

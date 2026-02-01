@@ -109,6 +109,8 @@
 
 \usepackage{cogsci}
 \usepackage{pslatex}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -167,12 +169,10 @@
 \author{}
 \date{}
 \begin{document}
-\author{{\large \bf Cherrie Chang (cchang@mghihp.edu)} \\
-  Advanced Analytics \& AI for Communication Science Group, Mass General Hospital Institute of Health Professions,\\Charlestown, MA, USA
-  \AND {\large \bf Tianyi Li (lidzr@bc.edu)} \\
-  Department of Psychology and Neuroscience, Boston College, Chestnut Hill, MA, USA
-  \AND {\large \bf Joshua Hartshorne (jharts@example.edu)} \\
-  Advanced Analytics \& AI for Communication Science Group, Mass General Hospital Institute of Health Professions, \\Charlestown, MA, USA}
+\author{{\bf Cherrie Chang}$^1$ \and {\bf Tianyi Li}$^2$ \and {\bf Joshua Hartshorne}$^1$ \\
+  $^1$Department of Communication Sciences and Disorders, Mass General Hospital Institute of Health Professions, Charlestown, MA, USA \\
+  $^2$Department of Psychology and Neuroscience, Boston College, Chestnut Hill, MA, USA \\
+  cherriechang@gmail.com, lidzr@bc.edu, JKHartshorne@gmail.com}
 \maketitle
 
 
@@ -193,42 +193,44 @@ Your introduction text here. You can cite references using
 
 \subsection{Participants}\label{participants}
 
-We recruited 251 participants (133 female, 118 male) on the online
-recruitment platform Prolific, screening for participants with an
-approval rating above 95\% from previous studies. Participants ranged in
-age from 18 to 75 years (\(\mu\)=35.6, Mdn=33, \(\sigma\)=11.9),
-representing 32 nationalities and 20 primary languages. Participants
-were compensated at \$12.00 per hour, with expected completion time
-varying by condition (\textasciitilde20-40 minutes). All participants
-provided informed consent prior to beginning the experiment. The study
-was approved by the Institutional Review Board at the MGH Institute of
-Health Professions.
+We recruited 251 participants (133 female, 118 male) to complete a
+web-based experiment using the online crowd-sourcing platform Prolific,
+screening for participants with an approval rating above 95\% from
+previous studies and limiting participation to be on desktop or laptop
+computers. Participants ranged in age from 18 to 75 years (\(\mu\)=35.6,
+\(\sigma\)=11.9), representing 32 nationalities and 20 primary
+languages. Participants were compensated at \$12.00 per hour, with
+median completion time varying by condition (\textasciitilde20-40
+minutes). All participants provided informed consent prior to the
+experiment. The study was approved by the Institutional Review Board at
+the MGH Institute of Health Professions.
 
 \subsection{Probabilistic Serial Reaction Time
 Task}\label{probabilistic-serial-reaction-time-task}
-
-\phantomsection\label{example-trial-screen}
-\begin{figure}[H]
-
-{\centering \includegraphics[width=0.8\linewidth,height=\textheight,keepaspectratio]{"../assets/example-trial-screen.png"}
-
-}
-
-\caption{An example trial screen in the 8-position condition of the
-experiment}
-
-\end{figure}%
 
 Like other serial reaction time task designs, our experiment tasks
 participants to respond to a visual stimulus that appears in one of
 several evenly-spaced positions on screen as quickly and accurately as
 possible by pressing a corresponding key on the keyboard. In our
 implementation, this visual stimulus is a mole garbed in a bright red
-bib and matching sunglasses (Figure); and a schematic of each
-position-to-keyboard mapping for each condition is shown in (Table).
-Participants were evenly divided into 5 groups of 50 per condition, with
-the conditions differing in the number of positions (4, 5, 6, 7, 8) the
-mole can appear in.
+bib and matching sunglasses (Figure~\ref{fig-example-trial-screen}); and
+a schematic of each position-to-keyboard mapping for each condition is
+shown in (Table). Participants were evenly divided into 5 groups of 50
+per condition, with the conditions differing in the number of positions
+(4, 5, 6, 7, 8) the mole can appear in.
+
+\begin{figure}
+
+\centering{
+
+\includegraphics[width=1\linewidth,height=\textheight,keepaspectratio]{"../assets/example-trial-screen.png"}
+
+}
+
+\caption{\label{fig-example-trial-screen}An example trial screen in the
+8-position condition of the experiment}
+
+\end{figure}%
 
 A participant is first given a text-based tutorial accompanied by an
 animated demonstration on which key to press in response to each
@@ -247,11 +249,12 @@ there is also a 120ms response-stimulus interval (RSI) between trials
 {[}CITE{]}. We find during piloting that allowing retries, combined with
 the 120ms RSI, prevents participants from making compensatory errors,
 where they unintentionally press the wrong key in the next trial in an
-attempt to correct their current trial. After each block, participants
-are given adaptive feedback based on their accuracy and speed. At the
-end of the experiment, participants complete a brief questionnaire
-probing their explicit awareness of any patterns in the mole's
-appearances (Table).
+attempt to correct their current trial. We record response time,
+keyboard response and correctness for each trial. After each block,
+participants are given adaptive feedback based on their accuracy and
+speed. At the end of the experiment, participants complete a brief
+questionnaire probing their explicit awareness of any patterns in the
+mole's appearances (Table).
 
 In addition to our dapper mole, a number of design choices were made to
 facilitate participant understanding and engagement. During the practice
@@ -298,18 +301,18 @@ the probability of transitioning from one position to another. We
 designed five different transition matrices of sizes 4x4, 5x5, 6x6, 7x7,
 and 8x8 respectively corresponding to the five conditions in our
 experiment. These ``original'' matrices were constructed to have graded
-and increasing levels of entropy across rows, such that the
-next-position-transition of the first position is the most predictable,
-followed by the second, with the last position being the least
-predictable. For example, in the 4x4 matrix, position 1 has a high
+and increasing levels of entropy across rows, such that position 1 has
+lowest entropy-having the most predictable next-position-transitions,
+followed by the second, with the last position, position n, having
+highest entropy. For example, in the 4x4 matrix, position 1 has a high
 probability (\textasciitilde0.97) of transitioning to position 2, a low
 probability (\textasciitilde0.03) of transitioning to position 1, and
 never transitions to position 3 or 4; while position 4 has a more
 uniform distribution of transition probabilities to all other positions
-(to 1: \textasciitilde(0.39)˘, to 2: \textasciitilde(0.03), to 3:
+(to 1: \textasciitilde(0.39), to 2: \textasciitilde(0.03), to 3:
 \textasciitilde(0.24), to 4: \textasciitilde(0.35)). This gives rise to
 a gradient of entropy values across the positions, which results in a
-much richer, messily distributed statistical structure underlying the
+richer, more varied distributed statistical structure underlying the
 sequence of positions the mole appears in, allowing us to investigate
 how the procedural learning system differentially picks up varying
 levels of predictability in a given statistical structure.
@@ -319,38 +322,40 @@ these original transition matrices. First, these matrices had to be
 doubly stochastic to ensure uniform visitation to each position over
 time, preventing confounding effects from position frequency on
 learning. Second, self-transitions (e.g.~position 1 to position 1)
-should have near-zero probabilities, because data from repeated trials
-have been historically thrown out from analysis in serial reaction time
-tasks to prevent confounding motor effects from repeating the same
-keypress {[}CITE{]}. Third, the graded entropy levels across the
-positions should translate to graded probabilities across bigrams as
-well, as having more fine-grained, distributed levels of transition
-probabilities is our experiment's key distinction from other SRTT tasks,
-such as the ASRT paradigm which only has 2 levels of trigram
+should have near-zero probabilities to reduce data loss, as data from
+repeated trials have been historically thrown out from analysis in
+serial reaction time tasks to prevent confounding motor effects from
+repeating the same keypress {[}CITE{]}. Third, the graded entropy levels
+across the positions should translate to graded probabilities across
+bigrams as well, as having more fine-grained, distributed levels of
+transition probabilities is our experiment's key distinction from other
+SRTT tasks, such as the ASRT paradigm which only has 2 levels of trigram
 probability. Fourth, the increase in entropy across positions
 (i.e.~rows) should be significant between one another and as linear as
 possible to ensure smooth a smooth gradient with meaningfully distinct
-levels in predictability across positions. Strictly satisfying all these
-constraints at once turned out to be not only non-trivial, but
-mathematically impossible for our range of n\_positions (i.e.~matrix
-sizes), so we wrote an optimization algorithm that explores the
-candidate space for each matrix size, treating these constraints as soft
-penalties to find a global minimum of the total constraint violation,
-balancing trade-offs among the competing constraints.
+levels in predictability across positions.
+
+Strictly satisfying all these constraints at once turned out to be not
+only non-trivial, but mathematically impossible for our range of
+n\_positions (i.e.~matrix sizes), so we wrote an optimization algorithm
+that explores the candidate space for each matrix size, treating these
+constraints as soft penalties to find a global minimum of the total
+constraint violation, balancing trade-offs among the competing
+constraints.
 
 The five original matrices we constructed using this algorithm had these
 properties: 1) near fully doubly stochastic---all row and column sums
 sum to 1 (±0.0001) {[}TODO: consider not hardcoding{]}; 2) approach a
 uniform stationary distribution after 7 timesteps {[}TODO: consider not
-hardcoding{]} where the stationary visitation for each state are within
-0.001 of each other; 3) had a graded entropy structure across states
-(positions)---each matrix had a positional entropy range of 0.061-0.181
-bits for position 1 (\(\mu\)=0.107, \(\sigma\)=0.048), and 1.695-2.835
-bits for highest (\(\mu\)=2.319, \(\sigma\)=0.451). Within a matrix each
+hardcoding{]} where the stationary visitation for each state (position)
+are within 0.001 of each other; 3) had a graded entropy structure across
+states---each matrix had a positional entropy range of 0.061-0.181 bits
+for position 1 (\(\mu\)=0.107, \(\sigma\)=0.048), and 1.695-2.835 bits
+for position n (\(\mu\)=2.319, \(\sigma\)=0.451). Within a matrix each
 position increases in entropy from the previous by 0.295-0.699 bits
 (\(\mu\)=0.442, \(\sigma\)=0.085); and 4) avoided self loops as much as
 possible---all of the matrices had \textless0.08 {[}TODO: consider not
-hardcoding{]} probabilities in the diagonal up until the last two
+hardcoding{]} probabilities in the left diagonal up until the last two
 positions. Within each matrix size condition, all participants
 experience the same underlying entropy gradient across positions, but
 the mapping between screen positions and entropy levels is randomized
@@ -359,19 +364,150 @@ through a double permutation procedure that shuffles the original matrix
 statistical properties of the original matrix---transition probabilities
 and entropy values---but decouples entropy levels from specific screen
 positions. The position sequence for each participant is subsequently
-generated using their individual, shuffled transition matrix, such that
-the sequence each participant experiences is different both within and
+generated using their individual shuffled transition matrix, so the
+sequence each participant experiences is different both within and
 between matrix size conditions.
 
 \subsection{Hypotheses}\label{hypotheses}
 
-\section{Method}\label{method-1}
+\begin{quote}
+\textbf{H0. Procedural learning effect.} We predict participants to show
+implicit learning of the statistical structure across blocks, evidenced
+by a) decrease in response time across blocks and b) increase in
+accuracy across blocks.
+\end{quote}
 
-\subsection{Participants}\label{participants-1}
+\begin{quote}
+\textbf{H1a. Surprisal effect.} In each experiment run, positions differ
+in how many next-positions are possible and how evenly distributed the
+transition probabilities are among them, which also means different
+next-position/bigram combinations for a given first position yield
+different levels of predictability and thus surprisal to the
+participant. We predict that participants will respond faster and more
+accurately on bigram transitions that are higher probability.
+\end{quote}
 
-\subsection{Protocol}\label{protocol}
+\begin{quote}
+\textbf{H1b. Previous positional entropy effect.} In each experiment
+run, positions differ in their transition entropy---how many
+next-positions are possible and how evenly distributed the transition
+probabilities are among them. We predict that this influences how easily
+participants can predict the next position based on a given position, so
+participants will respond a) faster and b) more accurately on trials
+where the previous trial has lower entropy.
+\end{quote}
 
-\subsection{Materials}\label{materials}
+\begin{quote}
+\textbf{H1c. Interaction effect between surprisal and previous
+positional entropy.} The effect of surprisal on rt will be modulated by
+entropy, such that surprisal effects are stronger at low-entropy
+(predictable) positions and weaker at high-entropy (uncertain)
+positions. This is because entropy determines prediction confidence. In
+low-entropy contexts, participants form strong, specific expectations,
+making prediction errors (high surprisal) more costly. In high-entropy
+contexts, predictions are weaker and more distributed, attenuating
+surprisal effects.
+\end{quote}
+
+\begin{quote}
+\textbf{H2a. Prediction error reflecting surprisal effect.} We predict
+that as participants implicitly learn the underlying statistical
+distribution, the mistakes they make reflect this learning, i.e.~across
+blocks, the mistakes they make will be a) increasingly on low
+probability bigram transitions and b) the false transitions they make
+will increasingly be higher probability bigram transitions\ldots{}
+\end{quote}
+
+\begin{quote}
+\textbf{H2b. Prediction error reflecting entropy effect.} \ldots and
+they will also be increasingly limited to higher previous positional
+entropy trials.
+\end{quote}
+
+\begin{quote}
+\textbf{H3. Moderation from number of positions.} We predict that the
+more positions there are to handle, the more difficult it is to learn
+the underlying statistical distribution, so participants with a larger
+number of positions will have a gentler learning slope, higher
+mean/median RT and also show worse performances/take more blocks to
+reach the same level of performance (in terms of both RT and accuracy)
+on the effects predicted in H1 (and H2).
+\end{quote}
+
+\emph{Note: Matrix size is confounded with entropy range, so effects may
+reflect entropy distribution rather than number of positions per se.}
+
+\section{Statistical Analysis}\label{statistical-analysis}
+
+\subsection{Variables and Exclusion
+Criteria}\label{variables-and-exclusion-criteria}
+
+The main independent variables are surprisal and previous positional
+entropy. Surprisal is defined as the negative log probability of the
+actual next-position given the current position {[}TODO: math{]},
+derived from the transition matrix used to generate the sequence for
+that participant. Previous positional entropy is defined as the Shannon
+entropy of the transition probabilities from the previous position, also
+derived from the transition matrix {[}TODO: math{]}. Both surprisal and
+previous positional entropy are mean-centered within each matrix size
+condition to facilitate interpretation of main effects and interactions
+in subsequent models. We also create a binary variable indicating
+whether the current position is a repetition of the previous position
+(i.e.~self-transition). This variable is included as a covariate in
+subsequent models to control for potential motor effects from repeating
+the same keypress.
+
+The main dependent variables are response time (RT) and accuracy
+(proportion of correct responses) on non-practice/main trials. Incorrect
+trials, trials with RT \textgreater1000ms RT, and trials with RTs
+greater than 3 median absolute deviations above the participant's median
+RT (outliers) are excluded. On the participant level, participants with
+overall accuracy below 85\%, median RT \textgreater1000ms, or with
+outliers making up more than 30\% of total trials are excluded from
+analysis. We also discard data from the first trial of each block to
+account for blocks being implicitly treated as ``restarts'' and not
+following an existing probability distribution by participants. RTs are
+log-transformed to reduce skewness.
+
+\subsection{Modeling Approach}\label{modeling-approach}
+
+We use linear mixed effects regression (LMER) to model log-transformed
+RTs and generalized linear mixed effects regression (GLMER) with a
+binomial link function to model accuracy. Models are fit using the
+\texttt{lmerTest} package in R. We first test for the learning effect
+across blocks (H0), then examine the effects of surprisal and previous
+positional entropy (H1 \& H2) in the final block, pruning effects where
+applicable to narrow in on the best-fitting effects structure before
+analyzing learning trajectories across blocks, and finally test for
+moderation by number of positions/matrix size(H3).
+
+Models are initially fit with the maximal random effects structure
+supported by the design: random intercepts for participant and position,
+and random slopes for surprisal, previous positional entropy, their
+interaction, and position repetition by participant. Where maximal
+models fail to converge, we use bounded linear mixed models
+(\texttt{blmer}/\texttt{bglmer}) as a first remedy. If singularity
+persists, we iteratively simplify the random effects structure, removing
+random slopes one at a time and retaining the most complex structure
+that converges without singularity. Among converging models, we select
+the one with the lowest AIC.
+
+For H1 and H2, we first establish the fixed effects structure using only
+the final block of trials, then extend to learning trajectories across
+blocks. Starting from a base model including surprisal, previous
+positional entropy, their interaction, and repetition as fixed effects
+(with the selected random effects structure), we use AIC-based model
+comparison to prune fixed effects. We first test whether repetition is
+significant by comparing the base model against one in which it is
+removed; if removing it does not increase AIC, we drop it from the base
+model. We then test whether the interaction term between surprisal and
+previous positional entropy is significant by comparing the current base
+model against one in which the interaction term is removed. If the
+interaction is not significant, we test each main effect individually by
+comparing models that omit surprisal or previous positional entropy as
+main effects. An effect is retained if removing it increases AIC.
+
+\subsection{H0. Learning Effect}\label{h0.-learning-effect}
 
 \section{Results}\label{results}
 
