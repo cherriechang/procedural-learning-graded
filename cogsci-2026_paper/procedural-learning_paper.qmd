@@ -18,8 +18,7 @@ format:
         \hyphenpenalty=1000
         \exhyphenpenalty=1000
     keep-tex: true
-    cite-method: natbib
-    natbiboptions: "authoryear"
+    csl: apa.csl
 bibliography: procedural-learning_bibliography.bib
 editor: source
 ---
@@ -186,11 +185,11 @@ positional_entropy <- function(mat) {
   apply(mat, MARGIN=1, row_entropy)
 }
 
-transition_matrix_4x4 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_4x4.npy"))$tolist()), nrow=4, byrow=TRUE)
-transition_matrix_5x5 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_5x5.npy"))$tolist()), nrow=5, byrow=TRUE)
-transition_matrix_6x6 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_6x6.npy"))$tolist()), nrow=6, byrow=TRUE)
-transition_matrix_7x7 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_7x7.npy"))$tolist()), nrow=7, byrow=TRUE)
-transition_matrix_8x8 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_8x8.npy"))$tolist()), nrow=8, byrow=TRUE)
+transition_matrix_4x4 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_4x4.npy"))), nrow=4, byrow=TRUE)
+transition_matrix_5x5 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_5x5.npy"))), nrow=5, byrow=TRUE)
+transition_matrix_6x6 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_6x6.npy"))), nrow=6, byrow=TRUE)
+transition_matrix_7x7 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_7x7.npy"))), nrow=7, byrow=TRUE)
+transition_matrix_8x8 <- matrix(unlist(np$load(here("assets/transition-matrices/matrix_8x8.npy"))), nrow=8, byrow=TRUE)
 all_original_matrices <- list(
   "4x4" = transition_matrix_4x4,
   "5x5" = transition_matrix_5x5,
@@ -547,7 +546,7 @@ For H1 and H2, we first establish the fixed effects structure using only the fin
 ```{r}
 #| label: Prepare data for H0 models
 #| echo: false
-#| eval: false
+#| eval: true
 
 df.m_h0 <- df
 df.m_h0.correct <- df.correct
@@ -555,8 +554,8 @@ df.m_h0.correct <- df.correct
 
 ```{r}
 #| label: H0 Learning effect lmer models
-#| (filter for correct trials and group by matrix_size)
 #| echo: false
+# (filter for correct trials and group by matrix_size)
 
 m_h0_rt <-
   lmer(log_rt ~ block * is_repetition + (block * is_repetition| subject_id) + (1 | position),
@@ -584,8 +583,8 @@ For H1 & H2, we analyze each block independently. First, we determine the effect
 <!-- H1 & H2: final block only; base model -->
 ```{r}
 #| label: H1H2 Effect lmer models
-#| (filter for last block only, for each matrix_size)
 #| echo: false
+# (filter for last block only, for each matrix_size)
 
 df.m_h1h2.finalblock <- df %>%
   filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1)
@@ -876,10 +875,9 @@ ggplot(effects_block, aes(x = block, y = estimate, color = term, group = term)) 
 ## H3
 ```{r}
 #| label: Num positions effect lmer models
-#| (filter for correct trials and group by matrix_size and block)
-#| 
 #| echo: true
 #| include: true
+# (filter for correct trials and group by matrix_size and block)
 
 m_matrix_size_rt <-
   blmer(-log_rt ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),

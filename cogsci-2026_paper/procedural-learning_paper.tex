@@ -64,6 +64,46 @@
 \fi
 \makeatother
 
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
@@ -92,6 +132,39 @@
 \makeatother
 
 
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 
 
@@ -103,8 +176,6 @@
 
 
  
-\usepackage[authoryear]{natbib}
-\bibliographystyle{plainnat}
 
 
 \usepackage{cogsci}
@@ -180,6 +251,29 @@
 \maketitle
 
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Load R libraries}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| message: false}
+
+\NormalTok{library(here)}
+\NormalTok{library(osfr)}
+\NormalTok{library(dplyr)}
+\NormalTok{library(tidyr)}
+\NormalTok{library(tidyverse)}
+\NormalTok{library(zoo)}
+\NormalTok{library(jsonlite)}
+\NormalTok{library(clipr)}
+\NormalTok{library(reticulate)}
+\NormalTok{library(lmerTest) \# show p value in lmer}
+\NormalTok{library(blme)}
+\NormalTok{library(purrr)}
+
+\NormalTok{np \textless{}{-} import("numpy")}
+\end{Highlighting}
+\end{Shaded}
+
 \section{Abstract}\label{abstract}
 
 Your abstract text here. The abstract should be one paragraph. Following
@@ -202,34 +296,33 @@ their finger movements at the speed of execution - this knowledge is
 expressed in the automatic motor performance of typing, not in conscious
 awareness. This implicit form of learning, where statistical
 regularities are unconsciously acquired and expressed as behavior rather
-than declared knowledge, is called procedural learning
-(\citet{squire_memory_2004}, \citet{nissen_attentional_1987}).
+than declared knowledge, is called procedural learning (Squire (2004),
+Nissen \& Bullemer (1987)).
 
 Procedural learning is not limited to typing. It underlies skill
 acquisition across many domains, from proprioceptive skills like riding
 a bike to perceptual-cognitive skills like reading mirrored text
-(\citet{kassubek_changes_2001}). More recently, procedural learning has
-been proposed to support increasingly diverse and sophisticated
-abilities, notably grammar acquisition in language
-(\citet{ullman_specific_2005}, \citet{lammertink_statistical_2017},
-\citet{lum_procedural_2014}, \citet{kidd_individual_2016}). These
-proposals invite closer scrutiny of its scalability: can the procedural
-learning system handle the large-scale, complex statistical structures
-that characterize domains like grammar? Consider a suggestive historical
-case: while QWERTY keyboards (26 letter keys) enabled fluent touch
-typing through procedural learning, Chinese typewriters (trays of 2,000+
-characters) never achieved comparable automaticity and were eventually
-abandoned (for QWERTY keyboards, among others!)
-(\citet{mullaney_chinese_2017}). This raises a fundamental question:
-does procedural learning fail beyond a certain level of statistical
-complexity and state space size? As a first step toward answering these
-questions, we examine whether procedural learning tracks fine-grained
-statistical patterns - both the predictability of individual transitions
-and the uncertainty of different states - and how it scales across state
-space sizes from 4 to 8 positions.
+(Kassubek et al. (2001)). More recently, procedural learning has been
+proposed to support increasingly diverse and sophisticated abilities,
+notably grammar acquisition in language (Ullman \& Pierpont (2005),
+Lammertink et al. (2017), Lum et al. (2014), Kidd \& Arciuli (2016)).
+These proposals invite closer scrutiny of its scalability: can the
+procedural learning system handle the large-scale, complex statistical
+structures that characterize domains like grammar? Consider a suggestive
+historical case: while QWERTY keyboards (26 letter keys) enabled fluent
+touch typing through procedural learning, Chinese typewriters (trays of
+2,000+ characters) never achieved comparable automaticity and were
+eventually abandoned (for QWERTY keyboards, among others!) (Mullaney
+(2017)). This raises a fundamental question: does procedural learning
+fail beyond a certain level of statistical complexity and state space
+size? As a first step toward answering these questions, we examine
+whether procedural learning tracks fine-grained statistical patterns -
+both the predictability of individual transitions and the uncertainty of
+different states - and how it scales across state space sizes from 4 to
+8 positions.
 
 The primary method for measuring procedural learning has been the Serial
-Reaction Time Task (SRTT; \citet{nissen_attentional_1987}). In the SRTT,
+Reaction Time Task (SRTT; Nissen \& Bullemer (1987)). In the SRTT,
 participants respond to stimuli appearing in one of four positions on
 screen using key presses. Unbeknownst to them, the sequence of positions
 follows a deterministic pattern. Over time, reaction times (RT) decrease
@@ -238,28 +331,26 @@ learning of the key press sequence corresponding to the positional
 sequence's deterministic pattern. While the SRTT provided early evidence
 for procedural learning, it suffers from a critical confound:
 participants often develop explicit awareness of the sequence, making it
-difficult to isolate implicit procedural learning effects
-(\citet{song_perceptual_2008}, \citet{lustig_transition_2022}). This has
-contributed to low test-retest reliability of the task
-(\citet{west_procedural_2018}, \citet{oliveira_reliability_2023}).
+difficult to isolate implicit procedural learning effects (Song et al.
+(2008), Lustig (2022)). This has contributed to low test-retest
+reliability of the task (West et al. (2018), Oliveira et al. (2023)).
 
-The Alternating Serial Reaction Time Task (ASRT;
-\citet{howard_jr_age_1997}) addressed these issues by introducing a
-probabilistic design. In ASRT, deterministic (d) and random (r) trials
-alternate (e.g., d-r-d-r), resulting in positional sequences with two
-levels of frequency (high vs.~low). This probabilistic design minimizes
-explicit awareness and dramatically improves reliability
-(\citet{farkas_complexity_2024}, \citet{oliveira_reliability_2023}).
-However, a key limitation of ASRT is that its bimodal frequency
+The Alternating Serial Reaction Time Task (ASRT; Howard Jr. \& Howard
+(1997)) addressed these issues by introducing a probabilistic design. In
+ASRT, deterministic (d) and random (r) trials alternate (e.g., d-r-d-r),
+resulting in positional sequences with two levels of frequency (high
+vs.~low). This probabilistic design minimizes explicit awareness and
+dramatically improves reliability (Farkas et al. (2024), Oliveira et al.
+(2023)). However, a key limitation of ASRT is that its bimodal frequency
 distribution represents an overtly simplistic statistical structure,
 lacking the graded frequency distributions found in real-world domains
 like language. Finally, across both SRTT and ASRT, experiment designs
 have mostly tested sequences with four possible positions (e.g.,
-\citet{janacsek_best_2012}, \citet{hedenius_grammar_2011}), despite
-real-world domains where procedural learning is implicated often
-involving far larger state spaces. Whether procedural learning can track
-graded statistical structures, and whether it scales to larger state
-spaces, remains untested.
+Janacsek et al. (2012), Hedenius et al. (2011)), despite real-world
+domains where procedural learning is implicated often involving far
+larger state spaces. Whether procedural learning can track graded
+statistical structures, and whether it scales to larger state spaces,
+remains untested.
 
 Here, we introduce a new paradigm that retains ASRT's probabilistic
 design but introduces a graded statistical structure with a smooth
@@ -303,19 +394,96 @@ differences in entropy distributions across conditions.
 
 \subsection{Participants}\label{participants}
 
-We recruited 251 participants (133 female, 118 male) to complete a
-web-based experiment using the online crowd-sourcing platform Prolific,
-screening for participants with an approval rating above 95\% from
-previous studies and limiting participation to be on desktop or laptop
-computers. Participants ranged in age from 18 to 75 years (\(\mu\)=35.6,
-\(\sigma\)=11.9), representing 32 nationalities and 20 primary
-languages. Participants were compensated at \$12.00 per hour, with
-median completion time varying by condition (\textasciitilde20-40
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Demographic data}
+\NormalTok{\#| echo: false}
+
+\NormalTok{df.demographics \textless{}{-} list.files(here("demographic{-}data/"), pattern = "*.csv", full.names=TRUE) \%\textgreater{}\%}
+\NormalTok{  lapply(function(f) \{}
+\NormalTok{    matrix\_size \textless{}{-} gsub(\textquotesingle{}.*\_(\textbackslash{}\textbackslash{}dx\textbackslash{}\textbackslash{}d)\textbackslash{}\textbackslash{}.csv\textquotesingle{}, \textquotesingle{}\textbackslash{}\textbackslash{}1\textquotesingle{}, basename(f))}
+\NormalTok{    read.csv(f) \%\textgreater{}\%}
+\NormalTok{      mutate(Matrix.size = matrix\_size)}
+\NormalTok{  \}) \%\textgreater{}\%}
+\NormalTok{  bind\_rows() \%\textgreater{}\%}
+\NormalTok{  filter(Status=="APPROVED")}
+
+\NormalTok{overall\_N \textless{}{-} nrow(df.demographics)}
+\NormalTok{overall\_mean\_age \textless{}{-} mean(as.numeric(df.demographics$Age), na.rm=TRUE)}
+\NormalTok{overall\_median\_age \textless{}{-} median(as.numeric(df.demographics$Age), na.rm=TRUE)}
+\NormalTok{overall\_sd\_age \textless{}{-} sd(as.numeric(df.demographics$Age), na.rm=TRUE)}
+\NormalTok{overall\_age\_range \textless{}{-} range(as.numeric(df.demographics$Age), na.rm=TRUE)}
+
+\NormalTok{N\_nationalities \textless{}{-} length(unique(df.demographics$Nationality))}
+\NormalTok{N\_languages \textless{}{-} length(unique(df.demographics$Language))}
+
+\NormalTok{\# Gender distribution}
+\NormalTok{gender\_counts \textless{}{-} table(df.demographics$Sex)}
+\NormalTok{n\_female \textless{}{-} gender\_counts["Female"]}
+\NormalTok{n\_male \textless{}{-} gender\_counts["Male"]}
+\NormalTok{n\_other \textless{}{-} sum(gender\_counts[!names(gender\_counts) \%in\% c("Female", "Male")], na.rm=TRUE)}
+
+\NormalTok{df.demographics.group\_summary \textless{}{-} df.demographics \%\textgreater{}\%}
+\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
+\NormalTok{  summarise(N = n(),}
+\NormalTok{            mean\_age = mean(as.numeric(Age), na.rm=TRUE),}
+\NormalTok{            sd\_age = sd(as.numeric(Age), na.rm=TRUE),}
+\NormalTok{            min\_age = min(as.numeric(Age), na.rm=TRUE),}
+\NormalTok{            max\_age = max(as.numeric(Age), na.rm=TRUE))}
+
+\NormalTok{group\_N \textless{}{-} first(df.demographics.group\_summary$N)}
+\NormalTok{N\_5x5 \textless{}{-} df.demographics.group\_summary \%\textgreater{}\%}
+\NormalTok{  filter(Matrix.size=="5x5") \%\textgreater{}\%}
+\NormalTok{  pull(N)}
+\end{Highlighting}
+\end{Shaded}
+
+We recruited \texttt{r\ overall\_N} participants (\texttt{r\ n\_female}
+female, \texttt{r\ n\_male} male) to complete a web-based experiment
+using the online crowd-sourcing platform Prolific, screening for
+participants with an approval rating above 95\% from previous studies
+and limiting participation to be on desktop or laptop computers.
+Participants ranged in age from \texttt{r\ overall\_age\_range{[}1{]}}
+to \texttt{r\ overall\_age\_range{[}2{]}} years
+(\(\mu\)=\texttt{r\ round(overall\_mean\_age,\ 1)},
+\(\sigma\)=\texttt{r\ round(overall\_sd\_age,\ 1)}), representing
+\texttt{r\ N\_nationalities} nationalities and \texttt{r\ N\_languages}
+primary languages. Participants were compensated at \$12.00 per hour,
+with median completion time varying by condition (\textasciitilde20-40
 minutes). All participants provided informed consent prior to the
 experiment. The study was approved by the Institutional Review Board at
 the MGH Institute of Health Professions.
 
 \subsection{Experiment Design}\label{experiment-design}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Experiment configs that stay constant across participants}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{EXPERIMENT\_CONFIG \textless{}{-} list(}
+\NormalTok{  osf\_id\_4x4 = "Emfhw",}
+\NormalTok{  osf\_id\_5x5 = "Fraxt",}
+\NormalTok{  osf\_id\_6x6 = "jx48y",}
+\NormalTok{  osf\_id\_7x7 = "92jq7",}
+\NormalTok{  osf\_id\_8x8 = "Tx3h7",}
+\NormalTok{  key\_mapping\_4pos = c("d","f","j","k"),}
+\NormalTok{  key\_mapping\_5pos = c("s","d","f","j","k"),}
+\NormalTok{  key\_mapping\_6pos = c("s","d","f","j","k","l"),}
+\NormalTok{  key\_mapping\_7pos = c("a","s","d","f","j","k","l"),}
+\NormalTok{  key\_mapping\_8pos = c("a","s","d","f","j","k","l",";"),}
+\NormalTok{  n\_blocks = 20,}
+\NormalTok{  rsi = 120,}
+\NormalTok{  error\_feedback\_duration = 200,}
+\NormalTok{  error\_tone\_duration = 100,}
+\NormalTok{  correct\_feedback\_duration = 200,}
+\NormalTok{  estimated\_trial\_duration = 500,}
+\NormalTok{  accuracy\_threshold = 0.65,}
+\NormalTok{    rt\_threshold = 1000}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{table}[t]
 \centering
@@ -356,16 +524,17 @@ several evenly-spaced positions on screen as quickly and accurately as
 possible by pressing a corresponding key on the keyboard. In our
 implementation, this visual stimulus is a mole garbed in a bright red
 bib and matching sunglasses (Figure~\ref{fig-example-trial-screen}).
-Participants were evenly divided into 5 groups of 50 per condition, with
-the conditions differing in the number of positions (4, 5, 6, 7, 8) the
-mole can appear in. \citet{tab:key-mapping} shows the position-to-key
-mapping for each condition.
+Participants were evenly divided into 5 groups of \texttt{r\ group\_N}
+per condition, with the conditions differing in the number of positions
+(4, 5, 6, 7, 8) the mole can appear in. (\textbf{tab:key-mapping?})
+shows the position-to-key mapping for each condition.
 
 A participant is first given a text-based tutorial accompanied by an
 animated demonstration on which key to press in response to each
 position, then instructed to work through a set of practice trials where
 each position is visited twice in random order. After the practice
-section, the participant moves on to complete 20 blocks of trials, each
+section, the participant moves on to complete
+\texttt{r\ EXPERIMENT\_CONFIG\$n\_blocks} blocks of trials, each
 separated with a self-paced break. Each block consists of 10 trials per
 position. This design choice results in longer blocks for conditions
 with more positions, but ensures each position is visited an equal
@@ -374,17 +543,17 @@ trials, participants are given feedback on correctness via a pop-up
 short message (a checkmark vs.~``Try again!'' + an error tone), and
 allowed to retry each failed trial until they respond correctly.
 Following standard SRTT protocol, there is also a 120ms
-response-stimulus interval (RSI) between trials
-(\citet{nissen_attentional_1987}, \citet{janacsek_best_2012},
-\citet{howard_implicit_2004}). We find during piloting that allowing
-retries, combined with the 120ms RSI, prevents participants from making
-compensatory errors, where they unintentionally press the wrong key in
-the next trial in an attempt to correct their current trial. We record
-response time, keyboard response and correctness for each trial. After
-each block, participants are given adaptive feedback based on their
-accuracy and speed. At the end of the experiment, participants complete
-a brief questionnaire probing their explicit awareness of any patterns
-in the mole's appearances (Table).
+response-stimulus interval (RSI) between trials (Nissen \& Bullemer
+(1987), Janacsek et al. (2012), Howard et al. (2004)). We find during
+piloting that allowing retries, combined with the
+\texttt{r\ EXPERIMENT\_CONFIG\$rsi}ms RSI, prevents participants from
+making compensatory errors, where they unintentionally press the wrong
+key in the next trial in an attempt to correct their current trial. We
+record response time, keyboard response and correctness for each trial.
+After each block, participants are given adaptive feedback based on
+their accuracy and speed. At the end of the experiment, participants
+complete a brief questionnaire probing their explicit awareness of any
+patterns in the mole's appearances (Table).
 
 In addition to our dapper mole, a number of design choices were made to
 facilitate participant understanding and engagement. During the practice
@@ -396,7 +565,7 @@ their character labels, but reappear during retry of failed trials. To
 make the correspondence between the positions on screen and keyboard
 keys as automatic and intuitive as possible, we chose to use
 conventional QWERTY-based finger layouts for the key mappings across
-conditions (\citet{tab:key-mapping}). We found during piloting that
+conditions ((\textbf{tab:key-mapping?})). We found during piloting that
 while this decision helped reduce cognitive load from learning novel
 finger placements, the larger gap between keys ``F'' and ``J'' on the
 keyboard introduced a discrepancy between the evenly-spaced on-screen
@@ -422,6 +591,70 @@ rather than via visual-spatial memory of the on-screen positions.
 
 \subsection{Transition Matrices}\label{transition-matrices}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Original transition matrices}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{\# Shannon entropy (bits) of a single probability vector (skip zeros)}
+\NormalTok{row\_entropy \textless{}{-} function(prob\_vec) \{}
+\NormalTok{  p \textless{}{-} prob\_vec[prob\_vec \textgreater{} 0]}
+\NormalTok{  {-}sum(p * log2(p))}
+\NormalTok{\}}
+
+\NormalTok{\# Calculate positional entropy for each row in a transition matrix}
+\NormalTok{positional\_entropy \textless{}{-} function(mat) \{}
+\NormalTok{  apply(mat, MARGIN=1, row\_entropy)}
+\NormalTok{\}}
+
+\NormalTok{transition\_matrix\_4x4 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_4x4.npy"))), nrow=4, byrow=TRUE)}
+\NormalTok{transition\_matrix\_5x5 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_5x5.npy"))), nrow=5, byrow=TRUE)}
+\NormalTok{transition\_matrix\_6x6 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_6x6.npy"))), nrow=6, byrow=TRUE)}
+\NormalTok{transition\_matrix\_7x7 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_7x7.npy"))), nrow=7, byrow=TRUE)}
+\NormalTok{transition\_matrix\_8x8 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_8x8.npy"))), nrow=8, byrow=TRUE)}
+\NormalTok{all\_original\_matrices \textless{}{-} list(}
+\NormalTok{  "4x4" = transition\_matrix\_4x4,}
+\NormalTok{  "5x5" = transition\_matrix\_5x5,}
+\NormalTok{  "6x6" = transition\_matrix\_6x6,}
+\NormalTok{  "7x7" = transition\_matrix\_7x7,}
+\NormalTok{  "8x8" = transition\_matrix\_8x8}
+\NormalTok{)}
+
+\NormalTok{all\_positional\_entropies \textless{}{-} lapply(all\_original\_matrices, positional\_entropy)}
+\NormalTok{all\_positional\_entropies\_df \textless{}{-} lapply(names(all\_positional\_entropies), function(size) \{}
+\NormalTok{  data.frame(}
+\NormalTok{    Matrix.size = size,}
+\NormalTok{    Position = 1:length(all\_positional\_entropies[[size]]),}
+\NormalTok{    Entropy = all\_positional\_entropies[[size]]}
+\NormalTok{  )}
+\NormalTok{\}) \%\textgreater{}\%}
+\NormalTok{  bind\_rows()}
+
+\NormalTok{pos\_1\_entropy \textless{}{-} all\_positional\_entropies\_df \%\textgreater{}\%}
+\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
+\NormalTok{  filter(Position==1) \%\textgreater{}\%}
+\NormalTok{  ungroup() \%\textgreater{}\%}
+\NormalTok{  summarize(range=range(Entropy), mean=mean(Entropy), sd=sd(Entropy))}
+
+\NormalTok{pos\_n\_entropy \textless{}{-} all\_positional\_entropies\_df \%\textgreater{}\%}
+\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
+\NormalTok{  filter(Position==max(Position)) \%\textgreater{}\%}
+\NormalTok{  ungroup() \%\textgreater{}\%}
+\NormalTok{  summarize(range=range(Entropy), mean=mean(Entropy), sd=sd(Entropy))}
+
+\NormalTok{entropy\_gradient\_summary \textless{}{-} all\_positional\_entropies\_df \%\textgreater{}\%}
+\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
+\NormalTok{  summarize(entropy\_diffs = list(diff(Entropy))) \%\textgreater{}\%}
+\NormalTok{  ungroup() \%\textgreater{}\%}
+\NormalTok{  summarize(}
+\NormalTok{    range\_diff = list(range(unlist(entropy\_diffs))),}
+\NormalTok{    mean\_diff = mean(unlist(entropy\_diffs)),}
+\NormalTok{    sd\_diff = sd(unlist(entropy\_diffs))}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
 Our experiment deviates from other serial reaction time tasks in how the
 sequence of positions and its probabilistic structure is constructed. In
 each run of the experiment, we use a first-order Markov process to
@@ -435,17 +668,25 @@ and increasing levels of entropy across rows, such that position 1 has
 lowest entropy-having the most predictable next-position-transitions,
 followed by the second, with the last position, position n, having
 highest entropy. For example, in the 4x4 matrix, position 1 has a high
-probability (\textasciitilde0.97) of transitioning to position 2, a low
-probability (\textasciitilde0.03) of transitioning to position 1, and
-never transitions to position 3 or 4; while position 4 has a more
-uniform distribution of transition probabilities to all other positions
-(to 1: \textasciitilde(0.39), to 2: \textasciitilde(0.03), to 3:
-\textasciitilde(0.24), to 4: \textasciitilde(0.35)). This gives rise to
-a gradient of entropy values across the positions, which results in a
-richer, more varied distributed statistical structure underlying the
-sequence of positions the mole appears in, allowing us to investigate
-how the procedural learning system differentially picks up varying
-levels of predictability in a given statistical structure.
+probability
+(\textasciitilde{}\texttt{r\ round(transition\_matrix\_4x4{[}1,2{]},\ 2)})
+of transitioning to position 2, a low probability
+(\textasciitilde{}\texttt{r\ round(transition\_matrix\_4x4{[}1,1{]},\ 2)})
+of transitioning to position 1, and never transitions to position 3 or
+4; while position 4 has a more uniform distribution of transition
+probabilities to all other positions (to 1:
+\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,1{]},\ 2)}),
+to 2:
+\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,2{]},\ 2)}),
+to 3:
+\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,3{]},\ 2)}),
+to 4:
+\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,4{]},\ 2)})).
+This gives rise to a gradient of entropy values across the positions,
+which results in a richer, more varied distributed statistical structure
+underlying the sequence of positions the mole appears in, allowing us to
+investigate how the procedural learning system differentially picks up
+varying levels of predictability in a given statistical structure.
 
 Several design criteria/constraints were imposed on the construction of
 these original transition matrices. First, these matrices had to be
@@ -455,12 +696,12 @@ learning. Second, self-transitions (e.g.~position 1 to position 1)
 should have near-zero probabilities to reduce data loss, as data from
 repeated trials have been historically thrown out from analysis in
 serial reaction time tasks to prevent confounding motor effects from
-repeating the same keypress {[}CITE{]}. Third, the graded entropy levels
-across the positions should translate to graded probabilities across
-bigrams as well, as having more fine-grained, distributed levels of
-transition probabilities is our experiment's key distinction from other
-SRTT tasks, such as the ASRT paradigm which only has 2 levels of trigram
-probability. Fourth, the increase in entropy across positions
+repeating the same keystroke {[}CITE{]}. Third, the graded entropy
+levels across the positions should translate to graded probabilities
+across bigrams as well, as having more fine-grained, distributed levels
+of transition probabilities is our experiment's key distinction from
+other SRTT tasks, such as the ASRT paradigm which only has 2 levels of
+trigram probability. Fourth, the increase in entropy across positions
 (i.e.~rows) should be significant between one another and as linear as
 possible to ensure smooth a smooth gradient with meaningfully distinct
 levels in predictability across positions.
@@ -478,25 +719,353 @@ properties: 1) near fully doubly stochastic---all row and column sums
 sum to 1 (±0.0001); 2) approach a uniform stationary distribution after
 7 timesteps where the stationary visitation for each state (position)
 are within 0.001 of each other; 3) had a graded entropy structure across
-states---each matrix had a positional entropy range of 0.061-0.181 bits
-for position 1 (\(\mu\)=0.107, \(\sigma\)=0.048), and 1.695-2.835 bits
-for position n (\(\mu\)=2.319, \(\sigma\)=0.451). Within a matrix each
-position increases in entropy from the previous by 0.295-0.699 bits
-(\(\mu\)=0.442, \(\sigma\)=0.085); and 4) avoided self loops as much as
-possible---all of the matrices had \textless0.08 probabilities in the
-left diagonal up until the last two positions. Within each matrix size
-condition, all participants experience the same underlying entropy
-gradient across positions, but the mapping between screen positions and
-entropy levels is randomized through a double permutation procedure that
-shuffles the original matrix (of that size) using the same random
-permutation. This preserves the statistical properties of the original
-matrix---transition probabilities and entropy values---but decouples
-entropy levels from specific screen positions. The position sequence for
-each participant is subsequently generated using their individual
-shuffled transition matrix, so the sequence each participant experiences
-is different both within and between matrix size conditions.
+states---each matrix had a positional entropy range of
+\texttt{r\ round(pos\_1\_entropy\$range{[}1{]},\ 3)}-\texttt{r\ round(pos\_1\_entropy\$range{[}2{]},\ 3)}
+bits for position 1
+(\(\mu\)=\texttt{r\ round(pos\_1\_entropy\$mean{[}1{]},\ 3)},
+\(\sigma\)=\texttt{r\ round(pos\_1\_entropy\$sd{[}1{]},\ 3)}), and
+\texttt{r\ round(pos\_n\_entropy\$range{[}1{]},\ 3)}-\texttt{r\ round(pos\_n\_entropy\$range{[}2{]},\ 3)}
+bits for position n
+(\(\mu\)=\texttt{r\ round(pos\_n\_entropy\$mean{[}1{]},\ 3)},
+\(\sigma\)=\texttt{r\ round(pos\_n\_entropy\$sd{[}1{]},\ 3)}). Within a
+matrix each position increases in entropy from the previous by
+\texttt{r\ round(entropy\_gradient\_summary\$range\_diff{[}{[}1{]}{]}{[}1{]},\ 3)}-\texttt{r\ round(entropy\_gradient\_summary\$range\_diff{[}{[}1{]}{]}{[}2{]},\ 3)}
+bits
+(\(\mu\)=\texttt{r\ round(entropy\_gradient\_summary\$mean\_diff{[}1{]},\ 3)},
+\(\sigma\)=\texttt{r\ round(entropy\_gradient\_summary\$sd\_diff{[}1{]},\ 3)});
+and 4) avoided self loops as much as possible---all of the matrices had
+\textless0.08 probabilities in the left diagonal up until the last two
+positions. Within each matrix size condition, all participants
+experience the same underlying entropy gradient across positions, but
+the mapping between screen positions and entropy levels is randomized
+through a double permutation procedure that shuffles the original matrix
+(of that size) using the same random permutation. This preserves the
+statistical properties of the original matrix---transition probabilities
+and entropy values---but decouples entropy levels from specific screen
+positions. The position sequence for each participant is subsequently
+generated using their individual shuffled transition matrix, so the
+sequence each participant experiences is different both within and
+between matrix size conditions.
 
 \section{Statistical Analysis}\label{statistical-analysis}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Retrieve data from OSF}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+\NormalTok{\#| eval: false}
+
+\NormalTok{\# NOTE: Set eval=true only when you need to download data from OSF for the first time.}
+\NormalTok{\# Once data is downloaded locally, keep eval=false to speed up rendering.}
+
+\NormalTok{files\_4x4 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_4x4) \%\textgreater{}\%}
+\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
+\NormalTok{  osf\_download(path = here("data/4x4{-}data"), conflicts="skip")}
+
+\NormalTok{files\_5x5 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_5x5) \%\textgreater{}\%}
+\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
+\NormalTok{  osf\_download(path = here("data/5x5{-}data"), conflicts="skip")}
+
+\NormalTok{files\_6x6 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_6x6) \%\textgreater{}\%}
+\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
+\NormalTok{  osf\_download(path = here("data/6x6{-}data"), conflicts="skip")}
+
+\NormalTok{files\_7x7 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_7x7) \%\textgreater{}\%}
+\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
+\NormalTok{  osf\_download(path = here("data/7x7{-}data"), conflicts="skip")}
+
+\NormalTok{files\_8x8 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_8x8) \%\textgreater{}\%}
+\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
+\NormalTok{  osf\_download(path = here("data/8x8{-}data"), conflicts="skip")}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: List local data files}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{\# But there is some bug in osfr that causes one file name to be duplicated and one file name to be skipped, so alternatively just download manually from OSF and put in data/ folder:}
+\NormalTok{files\_4x4 \textless{}{-} list.files("data/4x4{-}data")}
+\NormalTok{files\_5x5 \textless{}{-} list.files("data/5x5{-}data")}
+\NormalTok{files\_6x6 \textless{}{-} list.files("data/6x6{-}data")}
+\NormalTok{files\_7x7 \textless{}{-} list.files("data/7x7{-}data")}
+\NormalTok{files\_8x8 \textless{}{-} list.files("data/8x8{-}data")}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Bind all data together}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{\# Cache df.raw to speed up rendering}
+\NormalTok{df\_raw\_cache \textless{}{-} here("data/processed/df\_raw.rds")}
+
+\NormalTok{if (file.exists(df\_raw\_cache)) \{}
+\NormalTok{  df.raw \textless{}{-} readRDS(df\_raw\_cache)}
+\NormalTok{\} else \{}
+\NormalTok{  df.raw \textless{}{-} list.files(here("data/"), pattern = "*.csv", full.names=TRUE, recursive=TRUE) \%\textgreater{}\%}
+\NormalTok{    .[!grepl("pilot{-}data", .)] \%\textgreater{}\%}
+\NormalTok{    lapply(read.csv) \%\textgreater{}\%}
+\NormalTok{    bind\_rows()}
+
+\NormalTok{  \# Create processed directory if it doesn\textquotesingle{}t exist}
+\NormalTok{  dir.create(here("data/processed"), showWarnings = FALSE, recursive = TRUE)}
+\NormalTok{  saveRDS(df.raw, df\_raw\_cache)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Filter out unnecessary columns}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{df \textless{}{-} subset(df.raw, select=c(trial\_index, subject\_id, matrix\_size, trials\_per\_block, total\_trials, practice\_trials, transition\_matrix, conditional\_entropies, phase, block, experiment\_trial\_type, trial\_in\_block, overall\_trial, position, correct\_key, response, correct, rt, conditional\_entropy, surprisal, questionnaire\_item))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Clean up data formatting}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{\# Convert NA values}
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  mutate(across(where(is.character), \textasciitilde{}\{}
+\NormalTok{    x \textless{}{-} .}
+\NormalTok{    x[x \%in\% c("NA", "na", "null", "NULL", "")] \textless{}{-} NA}
+\NormalTok{    x}
+\NormalTok{  \}))}
+
+\NormalTok{\# Convert boolean values}
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  mutate(across(where(is.character), \textasciitilde{} \{}
+\NormalTok{    x \textless{}{-} tolower(.)}
+\NormalTok{    if (all(x \%in\% c("true", "false", NA))) \{}
+\NormalTok{      as.logical(x)}
+\NormalTok{    \} else \{}
+\NormalTok{      .}
+\NormalTok{    \}}
+\NormalTok{  \}))}
+
+\NormalTok{\# Convert numeric values}
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  mutate(across(where(is.character), \textasciitilde{} \{}
+\NormalTok{    x \textless{}{-} .}
+\NormalTok{    is\_num \textless{}{-} suppressWarnings(!is.na(as.numeric(x)) | is.na(x))}
+\NormalTok{    if (all(is\_num)) as.numeric(x) else x}
+\NormalTok{  \}))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Center matrix\_size and block}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  mutate(}
+\NormalTok{    matrix\_size\_c=matrix\_size{-}((max(df$matrix\_size, na.rm=TRUE)+min(df$matrix\_size, na.rm=TRUE))/2),}
+\NormalTok{    block\_c=block{-}((max(df$block, na.rm=TRUE)+min(df$block, na.rm=TRUE))/2)}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Fill down overall\_trial, trial\_in\_block, block}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{    group\_by(subject\_id) \%\textgreater{}\%}
+\NormalTok{    arrange(subject\_id, row\_number()) \%\textgreater{}\%}
+\NormalTok{    mutate(}
+\NormalTok{      overall\_trial = if\_else(}
+\NormalTok{        experiment\_trial\_type \%in\% c("feedback", "rsi"),}
+\NormalTok{        zoo::na.locf(overall\_trial, na.rm = FALSE),  \# Fill down}
+\NormalTok{        overall\_trial  \# Keep as{-}is}
+\NormalTok{      ),}
+\NormalTok{      trial\_in\_block = if\_else(}
+\NormalTok{        experiment\_trial\_type \%in\% c("feedback", "rsi"),}
+\NormalTok{        zoo::na.locf(trial\_in\_block, na.rm = FALSE), }
+\NormalTok{        trial\_in\_block}
+\NormalTok{      ),}
+\NormalTok{      block = if\_else(}
+\NormalTok{        experiment\_trial\_type \%in\% c("feedback", "rsi"),}
+\NormalTok{        zoo::na.locf(block, na.rm = FALSE), }
+\NormalTok{        block}
+\NormalTok{      )}
+\NormalTok{    ) \%\textgreater{}\%}
+\NormalTok{    ungroup()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Sanity check for unique subject\_ids, matrix size, total number of trials, practice trials, transition matrices, conditional entropies and sequences across subjects and conditions}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{unique\_subjects \textless{}{-} unique(df$subject\_id)}
+
+\NormalTok{\# Per{-}subject constants grouped by matrix\_size}
+\NormalTok{df \%\textgreater{}\%}
+\NormalTok{  distinct(matrix\_size, subject\_id, total\_trials, practice\_trials, transition\_matrix, conditional\_entropies) \%\textgreater{}\%}
+\NormalTok{  group\_by(matrix\_size) \%\textgreater{}\%}
+\NormalTok{  summarize(}
+\NormalTok{    n\_subjects = n\_distinct(subject\_id),}
+\NormalTok{    total\_trials = unique(total\_trials),}
+\NormalTok{    practice\_trials = unique(practice\_trials),}
+\NormalTok{    transition\_matrix = list(unique(transition\_matrix)),}
+\NormalTok{    conditional\_entropies = list(unique(conditional\_entropies))}
+\NormalTok{  )}
+
+\NormalTok{\# Unique position sequences per matrix\_size}
+\NormalTok{df \%\textgreater{}\%}
+\NormalTok{  group\_by(matrix\_size, subject\_id) \%\textgreater{}\%}
+\NormalTok{  summarize(}
+\NormalTok{    sequence = paste(position, collapse = ","),}
+\NormalTok{    .groups = "drop"}
+\NormalTok{  ) \%\textgreater{}\%}
+\NormalTok{  group\_by(matrix\_size) \%\textgreater{}\%}
+\NormalTok{  summarize(}
+\NormalTok{    n\_subjects = n\_distinct(subject\_id),}
+\NormalTok{    n\_unique\_sequences = n\_distinct(sequence)}
+\NormalTok{  )}
+
+\NormalTok{df \textless{}{-} df[, !(names(df) \%in\% c("transition\_matrix", "conditional\_entropies"))]}
+
+\NormalTok{\# Shows only 1 unique transition matrix and conditional entropies for conditions 6x6, 7x7 and 8x8 because of an error in data collection for those conditions after removing row by row log of the transition matrix and conditional entropies from the data files to save space. However, the code to shuffle those matrices and corresponding conditional entropies are still the same, so we believe participants are still each seeing a shuffled matrix and a different sequence in these conditions.}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Separate practice, main and questionnaire sections}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{df.practice \textless{}{-} df[df$phase=="practice", ]}
+\NormalTok{df.questionnaire \textless{}{-} df[df$phase=="questionnaire", ]}
+\NormalTok{df \textless{}{-} df[df$phase=="main", ]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: exclude{-}subjects}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{\# Exclude subjects that}
+\NormalTok{\# 1. Made too many mistakes (more than 15\%)}
+\NormalTok{\# 2. Have too long response time (look at mean, median and spread)}
+\NormalTok{\# {-}\textgreater{} exclude if too slow{-}{-}the subject\textquotesingle{}s median\_rt \textgreater{} 1000ms}
+\NormalTok{\# {-}\textgreater{} or if too noisy{-}{-}more than 20\% of their trials are 3*mad higher than the subject\textquotesingle{}s median\_rt}
+
+\NormalTok{accuracy\_excluded\_subjects \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  filter(!is.na(correct)) \%\textgreater{}\%}
+\NormalTok{  group\_by(subject\_id) \%\textgreater{}\%}
+\NormalTok{  summarize(error\_rate = mean(!correct)) \%\textgreater{}\%}
+\NormalTok{  filter(error\_rate \textgreater{} 0.10) \%\textgreater{}\%}
+\NormalTok{  pull(subject\_id)}
+
+\NormalTok{rt\_excluded\_subjects \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  filter(}
+\NormalTok{    (experiment\_trial\_type == "stimulus" | experiment\_trial\_type == "retry")}
+\NormalTok{    \& !is.na(rt)) \%\textgreater{}\% }
+\NormalTok{  group\_by(subject\_id) \%\textgreater{}\%}
+\NormalTok{  summarize(}
+\NormalTok{    median\_rt = median(rt),}
+\NormalTok{    outlier\_prop = mean(rt \textgreater{} median(rt) + 3*mad(rt))}
+\NormalTok{  ) \%\textgreater{}\%}
+\NormalTok{  filter(median\_rt \textgreater{} 1000 | outlier\_prop \textgreater{} 0.2) \%\textgreater{}\%}
+\NormalTok{  pull(subject\_id)}
+
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  filter(!subject\_id \%in\% accuracy\_excluded\_subjects \& !subject\_id \%in\% rt\_excluded\_subjects)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Filter df down to only stimulus, non{-}retry trials}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  filter(experiment\_trial\_type=="stimulus" \& !is.na(rt) \& rt != 0)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Remove first trial of each block}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  group\_by(block, subject\_id) \%\textgreater{}\%}
+\NormalTok{  slice(2:n())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Make a new column for log(rt), previous position entropy, prev\_entropy\_c, surprisal\_c, is\_repetition}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{\# Cache fully processed df}
+\NormalTok{df\_processed\_cache \textless{}{-} here("data/processed/df\_processed.rds")}
+
+\NormalTok{if (file.exists(df\_processed\_cache)) \{}
+\NormalTok{  df \textless{}{-} readRDS(df\_processed\_cache)}
+\NormalTok{\} else \{}
+\NormalTok{  df \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{    mutate(log\_rt=log(rt)) \%\textgreater{}\%}
+\NormalTok{    mutate(is\_repetition=(position==lag(position,1))) \%\textgreater{}\%}
+\NormalTok{    group\_by(subject\_id, block) \%\textgreater{}\%}
+\NormalTok{    mutate(previous\_entropy=lag(conditional\_entropy, 1)) \%\textgreater{}\%}
+\NormalTok{    ungroup() \%\textgreater{}\%}
+\NormalTok{    group\_by(matrix\_size) \%\textgreater{}\%}
+\NormalTok{    mutate(prev\_entropy\_c=previous\_entropy{-}mean(previous\_entropy, na.rm=TRUE)) \%\textgreater{}\%}
+\NormalTok{    mutate(surprisal\_c=surprisal{-}mean(surprisal, na.rm=TRUE)) \%\textgreater{}\%}
+\NormalTok{    ungroup()}
+
+\NormalTok{  saveRDS(df, df\_processed\_cache)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Make subset of df with only correct trials}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: false}
+
+\NormalTok{\# Cache correct trials df}
+\NormalTok{df\_correct\_cache \textless{}{-} here("data/processed/df\_correct.rds")}
+
+\NormalTok{if (file.exists(df\_correct\_cache)) \{}
+\NormalTok{  df.correct \textless{}{-} readRDS(df\_correct\_cache)}
+\NormalTok{\} else \{}
+\NormalTok{  df.correct \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{    filter(correct)}
+
+\NormalTok{  saveRDS(df.correct, df\_correct\_cache)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
 
 \subsection{Variables and Exclusion
 Criteria}\label{variables-and-exclusion-criteria}
@@ -514,7 +1083,7 @@ in subsequent models. We also create a binary variable indicating
 whether the current position is a repetition of the previous position
 (i.e.~self-transition). This variable is included as a covariate in
 subsequent models to control for potential motor effects from repeating
-the same keypress.
+the same keystroke.
 
 The main dependent variables are response time (RT) and accuracy
 (proportion of correct responses) on non-practice/main trials. Incorrect
@@ -568,7 +1137,43 @@ main effects. An effect is retained if removing it increases AIC.
 
 \section{Results}\label{results}
 
-\subsection{H1}\label{h1}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Prepare data for H0 models}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| eval: true}
+
+\NormalTok{df.m\_h0 \textless{}{-} df}
+\NormalTok{df.m\_h0.correct \textless{}{-} df.correct}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: H0 Learning effect lmer models}
+\NormalTok{\#| echo: false}
+\NormalTok{\# (filter for correct trials and group by matrix\_size)}
+
+\NormalTok{m\_h0\_rt \textless{}{-}}
+\NormalTok{  lmer(log\_rt \textasciitilde{} block * is\_repetition + (block * is\_repetition| subject\_id) + (1 | position),}
+\NormalTok{  data=df.m\_h0.correct,}
+\NormalTok{  REML=FALSE,}
+\NormalTok{  control=lmerControl(optimizer="bobyqa")) \# can change}
+
+\NormalTok{summary(m\_h0\_rt)}
+
+\NormalTok{df.m\_h0.correct \textless{}{-} df.correct \%\textgreater{}\%}
+\NormalTok{  group\_by(matrix\_size)}
+  
+\NormalTok{m\_h0\_acc \textless{}{-}}
+\NormalTok{  glmer(correct \textasciitilde{} block + is\_repetition + (block | subject\_id) + (1 | position),}
+\NormalTok{  data=df.m\_h0,}
+\NormalTok{  family=binomial,}
+\NormalTok{ control=glmerControl(optimizer="bobyqa")) \# can change}
+
+\NormalTok{summary(m\_h0\_acc)}
+\end{Highlighting}
+\end{Shaded}
 
 For H1 \& H2, we analyze each block independently. First, we determine
 the effects structure by analyzing only the final block as follows:
@@ -576,33 +1181,612 @@ the effects structure by analyzing only the final block as follows:
 position entropy effects has been found, we can then examine learning
 trajectories by adding block as a continuous predictor)}
 
-\subsubsection{Final block only}\label{final-block-only}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: H1H2 Effect lmer models}
+\NormalTok{\#| echo: false}
+\NormalTok{\# (filter for last block only, for each matrix\_size)}
 
-\paragraph{4x4}\label{x4}
+\NormalTok{df.m\_h1h2.finalblock \textless{}{-} df \%\textgreater{}\%}
+\NormalTok{  filter(block==EXPERIMENT\_CONFIG[["n\_blocks"]]{-}1)}
 
-solve singular fit:
+\NormalTok{data\_list \textless{}{-} split(df.m\_h1h2.finalblock, df.m\_h1h2.finalblock$matrix\_size)}
 
-\begin{itemize}
-\tightlist
-\item
-  remove random slope until isSingular() is False
-\item
-  compare models AIC, and our design mainly focus on surperisal and
-  entropy, final random slope without singular fit exclude interaction
-  and is\_repetition
-\end{itemize}
+\NormalTok{models \textless{}{-} map(data\_list, \textasciitilde{} lmer(}
+\NormalTok{  log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition +}
+\NormalTok{    (surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position),}
+\NormalTok{  data = .x, }
+\NormalTok{  REML=FALSE,}
+\NormalTok{  control=lmerControl(optimizer="bobyqa")))}
 
-\subsection{H2}\label{h2}
+\NormalTok{model\_summaries \textless{}{-} map(models, summary)}
+\NormalTok{model\_summaries[2]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_structures\_random\_slope \textless{}{-} list(}
+\NormalTok{  base = "(surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position)",}
+\NormalTok{  main = "(surprisal\_c + prev\_entropy\_c || subject\_id) + (1 | position)",}
+\NormalTok{  s\_only = "(surprisal\_c | subject\_id) + (1 | position)",}
+\NormalTok{  e\_only = "(prev\_entropy\_c | subject\_id) + (1 | position)",}
+\NormalTok{  intercept = "(1 | subject\_id) + (1 | position)"}
+\NormalTok{)}
+
+\NormalTok{all\_models\_random\_slope \textless{}{-} map(}
+\NormalTok{  model\_structures\_random\_slope,}
+\NormalTok{  \textasciitilde{} map(data\_list, function(dat) \{}
+\NormalTok{    lmer(}
+\NormalTok{      as.formula(}
+\NormalTok{        paste0("log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + ", .x)}
+\NormalTok{      ),}
+\NormalTok{      data = dat,}
+\NormalTok{      REML = FALSE,}
+\NormalTok{      control = lmerControl(optimizer = "bobyqa")}
+\NormalTok{    )}
+\NormalTok{  \})}
+\NormalTok{)}
+
+\NormalTok{aic\_table\_random\_slope \textless{}{-} map\_dfr(}
+\NormalTok{  names(all\_models\_random\_slope),}
+\NormalTok{  function(model\_name) \{}
+\NormalTok{    map\_dfr(}
+\NormalTok{      names(all\_models\_random\_slope[[model\_name]]),}
+\NormalTok{      function(cond) \{}
+\NormalTok{        m \textless{}{-} all\_models\_random\_slope[[model\_name]][[cond]]}
+\NormalTok{        data.frame(}
+\NormalTok{          model = model\_name,}
+\NormalTok{          matrix\_size = cond,}
+\NormalTok{          AIC = AIC(m),}
+\NormalTok{          isSingular = isSingular(m)}
+\NormalTok{        )}
+\NormalTok{      \}}
+\NormalTok{    )}
+\NormalTok{  \}}
+\NormalTok{)}
+
+\NormalTok{aic\_table\_random\_slope \%\textgreater{}\% }
+\NormalTok{  filter(aic\_table\_random\_slope$isSingular == FALSE) \%\textgreater{}\% }
+\NormalTok{  group\_by(model) \%\textgreater{}\%}
+\NormalTok{  summarise(total\_AIC = sum(AIC)) \%\textgreater{}\%}
+\NormalTok{  arrange(total\_AIC)}
+\NormalTok{  \#group\_by(matrix\_size) \%\textgreater{}\% }
+\NormalTok{  \#arrange(matrix\_size, AIC)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_structures\_fixed\_effect \textless{}{-} list(}
+\NormalTok{  base = "surprisal\_c * prev\_entropy\_c + is\_repetition",}
+\NormalTok{  no\_interaction = "surprisal\_c + prev\_entropy\_c + is\_repetition",}
+\NormalTok{  no\_is\_repetition = "surprisal\_c * prev\_entropy\_c",}
+\NormalTok{  only\_main = "surprisal\_c + prev\_entropy\_c",}
+\NormalTok{  surprisal\_is\_repetition = "surprisal\_c + is\_repetition",}
+\NormalTok{  entropy\_is\_repetition = "prev\_entropy\_c + is\_repetition"}
+\NormalTok{)}
+
+\NormalTok{all\_models\_fixed\_effect \textless{}{-} map(}
+\NormalTok{  model\_structures\_fixed\_effect,}
+\NormalTok{  \textasciitilde{} map(data\_list, function(dat) \{}
+\NormalTok{    lmer(}
+\NormalTok{      as.formula(}
+\NormalTok{        paste0("log\_rt \textasciitilde{} ", .x, " + (surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position)")}
+\NormalTok{      ),}
+\NormalTok{      data = dat,}
+\NormalTok{      REML = FALSE,}
+\NormalTok{      control = lmerControl(optimizer = "bobyqa")}
+\NormalTok{    )}
+\NormalTok{  \})}
+\NormalTok{)}
+
+\NormalTok{aic\_table\_fixed\_effect \textless{}{-} map\_dfr(}
+\NormalTok{  names(all\_models\_fixed\_effect),}
+\NormalTok{  function(model\_name) \{}
+\NormalTok{    map\_dfr(}
+\NormalTok{      names(all\_models\_fixed\_effect[[model\_name]]),}
+\NormalTok{      function(cond) \{}
+\NormalTok{        m \textless{}{-} all\_models\_fixed\_effect[[model\_name]][[cond]]}
+\NormalTok{        data.frame(}
+\NormalTok{          model = model\_name,}
+\NormalTok{          matrix\_size = cond,}
+\NormalTok{          AIC = AIC(m),}
+\NormalTok{          isSingular = isSingular(m)}
+\NormalTok{        )}
+\NormalTok{      \}}
+\NormalTok{    )}
+\NormalTok{  \}}
+\NormalTok{)}
+
+\NormalTok{aic\_table\_fixed\_effect \%\textgreater{}\% }
+\NormalTok{  filter(aic\_table\_fixed\_effect$isSingular == FALSE) \%\textgreater{}\% }
+\NormalTok{  group\_by(model) \%\textgreater{}\%}
+\NormalTok{  summarise(total\_AIC = sum(AIC)) \%\textgreater{}\%}
+\NormalTok{  arrange(total\_AIC)}
+\NormalTok{  \#group\_by(matrix\_size) \%\textgreater{}\% }
+\NormalTok{  \#arrange(matrix\_size, AIC)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{theme\_set(theme\_minimal())}
+
+\NormalTok{effects\_df \textless{}{-} map\_dfr(}
+\NormalTok{  names(models),}
+\NormalTok{  \textasciitilde{} broom.mixed::tidy(models[[.x]]) \%\textgreater{}\%}
+\NormalTok{    filter(effect == "fixed" \& term != "(Intercept)") \%\textgreater{}\%}
+\NormalTok{    mutate(matrix\_size = .x)}
+\NormalTok{) \%\textgreater{}\%}
+\NormalTok{  mutate(}
+\NormalTok{    sig\_label = case\_when(}
+\NormalTok{      p.value \textless{} 0.001 \textasciitilde{} "***",}
+\NormalTok{      p.value \textless{} 0.01 \textasciitilde{} "**",}
+\NormalTok{      p.value \textless{} 0.05 \textasciitilde{} "*",}
+\NormalTok{      TRUE \textasciitilde{} ""}
+\NormalTok{    )}
+\NormalTok{  )}
+
+\NormalTok{\#effects\_df$matrix\_size \textless{}{-} as.numeric(effects\_df$matrix\_size)}
+
+\NormalTok{ggplot(effects\_df, aes(x = matrix\_size, y = estimate, color = term, group = term)) +}
+\NormalTok{  geom\_line() +}
+\NormalTok{  geom\_point() +}
+\NormalTok{  geom\_errorbar(aes(ymin = estimate {-} std.error, ymax = estimate + std.error), width = 0.2) +}
+\NormalTok{  geom\_text(aes(label = sig\_label), vjust = {-}1.2, size = 5, show.legend = FALSE)}
+\NormalTok{  labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") + }
+\NormalTok{  theme\_minimal()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data.m\_h1h2\_all\_blocks \textless{}{-} df \%\textgreater{}\% filter(!is.infinite(log\_rt))}
+
+\NormalTok{data\_list\_all\_blocks \textless{}{-} split(data.m\_h1h2\_all\_blocks, data.m\_h1h2\_all\_blocks$matrix\_size)}
+
+\NormalTok{models\_all \textless{}{-} map(data\_list\_all\_blocks, \textasciitilde{} lmer(}
+\NormalTok{  log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c * block + block * is\_repetition +}
+\NormalTok{    (surprisal\_c + prev\_entropy\_c + is\_repetition + block | subject\_id) + (1 | position),}
+\NormalTok{  data = .x, }
+\NormalTok{  REML=FALSE,}
+\NormalTok{  control=lmerControl(optimizer="bobyqa")))}
+
+\NormalTok{\#iwalk(models\_all, function(model, name) \{}
+\NormalTok{\#  saveRDS(model, paste0("./models/all\_block\_per\_condition/all\_block\_models\_", name, ".rds"))}
+\NormalTok{\#\})}
+
+\NormalTok{\# to read}
+\NormalTok{\#model\_names \textless{}{-} c("4", "5", "6", "7", "8")}
+\NormalTok{\#models\_all \textless{}{-} map(model\_names, \textasciitilde{} readRDS(paste0("./models/all\_block\_per\_condition/all\_block\_models\_", .x, ".rds")))}
+\NormalTok{\#names(models\_all) \textless{}{-} model\_names}
+
+\NormalTok{model\_summaries\_all\_blocks \textless{}{-} map(models\_all, summary)}
+\NormalTok{model\_summaries\_all\_blocks[5]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cur\_condition \textless{}{-} 8}
+\NormalTok{data\_m4 \textless{}{-} subset(df, matrix\_size == cur\_condition \& !is.infinite(log\_rt)) \# can change}
+
+\NormalTok{data\_list\_block \textless{}{-} split(data\_m4, data\_m4$block)}
+
+\NormalTok{\# random effects: (prev\_entropy\_c | subject\_id) + (1 | position) no singular fit for all conditions}
+\NormalTok{models\_block \textless{}{-} map2(names(data\_list\_block),}
+\NormalTok{  data\_list\_block,}
+\NormalTok{  function(name, dat) \{}
+\NormalTok{      model\_path \textless{}{-} paste0("./models/per\_block\_condition\_", cur\_condition, "/model\_block\_", name, ".rds") }
+\NormalTok{    dir\_path \textless{}{-} dirname(model\_path)}
+\NormalTok{    if (!dir.exists(dir\_path)) dir.create(dir\_path, recursive = TRUE)}
+\NormalTok{    if (file.exists(model\_path)) \{}
+\NormalTok{        readRDS(model\_path)}
+\NormalTok{    \} else \{}
+\NormalTok{        m \textless{}{-} lmer(}
+\NormalTok{          log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + }
+\NormalTok{          (prev\_entropy\_c | subject\_id) + (1 | position),}
+\NormalTok{        data = dat, }
+\NormalTok{        REML = FALSE,}
+\NormalTok{        control = lmerControl(optimizer = "bobyqa")}
+\NormalTok{      )}
+\NormalTok{      saveRDS(m, model\_path)}
+\NormalTok{      m}
+\NormalTok{    \}}
+\NormalTok{  \}}
+\NormalTok{)}
+  
+\NormalTok{model\_summaries\_block \textless{}{-} map(models\_block, summary)}
+\NormalTok{model\_summaries\_block[10]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_structures\_random\_slope \textless{}{-} list(}
+\NormalTok{  base = "(prev\_entropy\_c | subject\_id) + (1 | position)",}
+\NormalTok{  main = "(surprisal\_c + prev\_entropy\_c || subject\_id) + (1 | position)",}
+\NormalTok{  s\_only = "(surprisal\_c | subject\_id) + (1 | position)",}
+\NormalTok{  e\_only = "(prev\_entropy\_c | subject\_id) + (1 | position)",}
+\NormalTok{  intercept = "(1 | subject\_id) + (1 | position)"}
+\NormalTok{)}
+
+\NormalTok{all\_models\_random\_slope \textless{}{-} map(}
+\NormalTok{  model\_structures\_random\_slope,}
+\NormalTok{  \textasciitilde{} map(data\_list, function(dat) \{}
+\NormalTok{    lmer(}
+\NormalTok{      as.formula(}
+\NormalTok{        paste0("log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + ", .x)}
+\NormalTok{      ),}
+\NormalTok{      data = dat,}
+\NormalTok{      REML = FALSE,}
+\NormalTok{      control = lmerControl(optimizer = "bobyqa")}
+\NormalTok{    )}
+\NormalTok{  \})}
+\NormalTok{)}
+
+\NormalTok{aic\_table\_random\_slope \textless{}{-} map\_dfr(}
+\NormalTok{  names(all\_models\_random\_slope),}
+\NormalTok{  function(model\_name) \{}
+\NormalTok{    map\_dfr(}
+\NormalTok{      names(all\_models\_random\_slope[[model\_name]]),}
+\NormalTok{      function(cond) \{}
+\NormalTok{        m \textless{}{-} all\_models\_random\_slope[[model\_name]][[cond]]}
+\NormalTok{        data.frame(}
+\NormalTok{          model = model\_name,}
+\NormalTok{          matrix\_size = cond,}
+\NormalTok{          AIC = AIC(m),}
+\NormalTok{          isSingular = isSingular(m)}
+\NormalTok{        )}
+\NormalTok{      \}}
+\NormalTok{    )}
+\NormalTok{  \}}
+\NormalTok{)}
+
+\NormalTok{aic\_table\_random\_slope \%\textgreater{}\% }
+\NormalTok{  filter(aic\_table\_random\_slope$isSingular == FALSE) \%\textgreater{}\% }
+\NormalTok{  group\_by(model) \%\textgreater{}\%}
+\NormalTok{  summarise(total\_AIC = sum(AIC)) \%\textgreater{}\%}
+\NormalTok{  arrange(total\_AIC)}
+\NormalTok{  \#group\_by(matrix\_size) \%\textgreater{}\% }
+\NormalTok{  \#arrange(matrix\_size, AIC)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{effects\_block \textless{}{-} map\_dfr(}
+\NormalTok{  names(models\_block),}
+\NormalTok{  \textasciitilde{} broom.mixed::tidy(models\_block[[.x]]) \%\textgreater{}\%}
+\NormalTok{    filter(effect == "fixed" \& term != "(Intercept)") \%\textgreater{}\%}
+\NormalTok{    mutate(block = as.numeric(.x))}
+\NormalTok{) \%\textgreater{}\%}
+\NormalTok{  mutate(}
+\NormalTok{    sig\_label = case\_when(}
+\NormalTok{      p.value \textless{} 0.001 \textasciitilde{} "***",}
+\NormalTok{      p.value \textless{} 0.01 \textasciitilde{} "**",}
+\NormalTok{      p.value \textless{} 0.05 \textasciitilde{} "*",}
+\NormalTok{      TRUE \textasciitilde{} ""}
+\NormalTok{    )}
+\NormalTok{  )}
+
+\NormalTok{ggplot(effects\_block, aes(x = block, y = estimate, color = term, group = term)) +}
+\NormalTok{  geom\_line() +}
+\NormalTok{  geom\_point() +}
+\NormalTok{  geom\_errorbar(aes(ymin = estimate {-} std.error, ymax = estimate + std.error), width = 0.2) +}
+\NormalTok{  geom\_text(aes(label = sig\_label), vjust = {-}1.2, size = 5, show.legend = FALSE) +}
+\NormalTok{  labs(x = "Block", y = "Effect Estimate", color = "Parameter") +}
+\NormalTok{  theme\_minimal()}
+\end{Highlighting}
+\end{Shaded}
 
 \subsection{H3}\label{h3}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Num positions effect lmer models}
+\NormalTok{\#| echo: true}
+\NormalTok{\#| include: true}
+\NormalTok{\# (filter for correct trials and group by matrix\_size and block)}
+
+\NormalTok{m\_matrix\_size\_rt \textless{}{-}}
+\NormalTok{  blmer({-}log\_rt \textasciitilde{} matrix\_size + is\_repetition + (block | subject\_id) + (1 | position),}
+\NormalTok{  data=data.m\_h1h2,}
+\NormalTok{  REML=FALSE,}
+\NormalTok{  control=lmerControl(optimizer="nloptwrap")) \# can change}
+
+\NormalTok{\# m\_matrix\_size\_rt \textless{}{-}}
+\NormalTok{\#  lmer({-}log\_rt \textasciitilde{} matrix\_size + is\_repetition + (block | subject\_id) + (1 | position),}
+\NormalTok{\#       data=data.m\_h1h2,}
+\NormalTok{\#       REML=FALSE,}
+\NormalTok{\#       control=lmerControl(optimizer="bobyqa")) \# can change}
+
+\NormalTok{m\_matrix\_size\_acc \textless{}{-} }
+\NormalTok{    bglmer(correct \textasciitilde{} matrix\_size + is\_repetition + (block | subject\_id) + (1 | position),}
+\NormalTok{    data=data.m\_h1h2,}
+\NormalTok{    family=binomial,}
+\NormalTok{    REML=FALSE,}
+\NormalTok{    control=lmerControl(optimizer="nloptwrap")) \# can change}
+
+\NormalTok{summary(m\_matrix\_size\_rt)}
+\NormalTok{summary(m\_matrix\_size\_acc)}
+\end{Highlighting}
+\end{Shaded}
+
+For each of the fixed effects used for H1-H2, recover the effect size
+estimate. Now, for each fixed effect:
+\texttt{effect\_size\ \textasciitilde{}\ matrix\_size*block}
+
+Note that there are no random effects. We use \texttt{lm()} and get
+p-values in the normal way.
+
+Models will be fit with ML for model comparison; final models refit with
+REML for inference.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: Extract coefficients from per{-}block models}
+\NormalTok{\#| echo: true}
+\NormalTok{\#| include: true}
+
+\NormalTok{\# Extract coefficients from all per{-}block models across all conditions}
+\NormalTok{\# This creates a dataframe with: matrix\_size, block, and coefficient estimates}
+
+\NormalTok{library(broom.mixed)}
+
+\NormalTok{\# Get all per{-}block model directories}
+\NormalTok{condition\_dirs \textless{}{-} list.files("models/", pattern = "per\_block\_condition\_", full.names = TRUE)}
+
+\NormalTok{\# Extract coefficients from each condition\textquotesingle{}s per{-}block models}
+\NormalTok{coef\_df \textless{}{-} map\_dfr(condition\_dirs, function(dir) \{}
+\NormalTok{  condition\_num \textless{}{-} gsub(".*per\_block\_condition\_(\textbackslash{}\textbackslash{}d+)", "\textbackslash{}\textbackslash{}1", dir)}
+\NormalTok{  matrix\_size \textless{}{-} paste0(condition\_num, "x", condition\_num)}
+
+\NormalTok{  \# Get all model files in this directory}
+\NormalTok{  model\_files \textless{}{-} list.files(dir, pattern = "model\_block\_.*\textbackslash{}\textbackslash{}.rds", full.names = TRUE)}
+
+\NormalTok{  \# Extract block number and coefficients from each model}
+\NormalTok{  map\_dfr(model\_files, function(file) \{}
+\NormalTok{    block\_num \textless{}{-} as.numeric(gsub(".*model\_block\_(\textbackslash{}\textbackslash{}d+)\textbackslash{}\textbackslash{}.rds", "\textbackslash{}\textbackslash{}1", file))}
+
+\NormalTok{    \# Load model and extract fixed effects}
+\NormalTok{    m \textless{}{-} readRDS(file)}
+\NormalTok{    coefs \textless{}{-} fixef(m)}
+
+\NormalTok{    \# Return as a row}
+\NormalTok{    data.frame(}
+\NormalTok{      matrix\_size = matrix\_size,}
+\NormalTok{      matrix\_size\_num = as.numeric(condition\_num),}
+\NormalTok{      block = block\_num,}
+\NormalTok{      intercept = coefs["(Intercept)"],}
+\NormalTok{      surprisal = coefs["surprisal\_c"],}
+\NormalTok{      prev\_entropy = coefs["prev\_entropy\_c"],}
+\NormalTok{      interaction = coefs["surprisal\_c:prev\_entropy\_c"],}
+\NormalTok{      is\_repetition = coefs["is\_repetitionTRUE"]}
+\NormalTok{    )}
+\NormalTok{  \})}
+\NormalTok{\})}
+
+\NormalTok{\# View structure}
+\NormalTok{head(coef\_df)}
+\NormalTok{summary(coef\_df)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: H3 models {-} matrix size moderation}
+\NormalTok{\#| echo: true}
+\NormalTok{\#| include: true}
+
+\NormalTok{\# H3: Test whether surprisal, entropy, and interaction effects}
+\NormalTok{\# are moderated by matrix\_size and block}
+
+\NormalTok{\# Model 1: Surprisal effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_surprisal \textless{}{-} lm(surprisal \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
+\NormalTok{summary(m\_h3\_surprisal)}
+
+\NormalTok{\# Model 2: Previous entropy effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_entropy \textless{}{-} lm(prev\_entropy \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
+\NormalTok{summary(m\_h3\_entropy)}
+
+\NormalTok{\# Model 3: Interaction effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_interaction \textless{}{-} lm(interaction \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
+\NormalTok{summary(m\_h3\_interaction)}
+
+\NormalTok{\# Model 4: Repetition effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_repetition \textless{}{-} lm(is\_repetition \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
+\NormalTok{summary(m\_h3\_repetition)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#| label: H3 visualization}
+\NormalTok{\#| echo: false}
+\NormalTok{\#| include: true}
+
+\NormalTok{\# Create plots directory if it doesn\textquotesingle{}t exist}
+\NormalTok{dir.create("plots", showWarnings = FALSE)}
+
+\NormalTok{\# Visualize how effects change across matrix size and block}
+
+\NormalTok{\# Plot surprisal effect}
+\NormalTok{p1 \textless{}{-} ggplot(coef\_df, aes(x = block, y = surprisal, color = matrix\_size, group = matrix\_size)) +}
+\NormalTok{  geom\_smooth(method = "lm", se = TRUE, alpha = 0.2) +}
+\NormalTok{  geom\_point(alpha = 0.3) +}
+\NormalTok{  labs(title = "H1: Surprisal Effect Across Learning",}
+\NormalTok{       x = "Block", y = "Surprisal Coefficient", color = "Matrix Size") +}
+\NormalTok{  theme\_minimal()}
+\NormalTok{ggsave("plots/h3\_surprisal\_by\_block.png", p1, width = 8, height = 6, dpi = 300)}
+\NormalTok{print(p1)}
+
+\NormalTok{\# Plot entropy effect}
+\NormalTok{p2 \textless{}{-} ggplot(coef\_df, aes(x = block, y = prev\_entropy, color = matrix\_size, group = matrix\_size)) +}
+\NormalTok{  geom\_smooth(method = "lm", se = TRUE, alpha = 0.2) +}
+\NormalTok{  geom\_point(alpha = 0.3) +}
+\NormalTok{  labs(title = "H2: Entropy Effect Across Learning",}
+\NormalTok{       x = "Block", y = "Previous Entropy Coefficient", color = "Matrix Size") +}
+\NormalTok{  theme\_minimal()}
+\NormalTok{ggsave("plots/h3\_entropy\_by\_block.png", p2, width = 8, height = 6, dpi = 300)}
+\NormalTok{print(p2)}
+
+\NormalTok{\# Plot interaction effect}
+\NormalTok{p3 \textless{}{-} ggplot(coef\_df, aes(x = block, y = interaction, color = matrix\_size, group = matrix\_size)) +}
+\NormalTok{  geom\_smooth(method = "lm", se = TRUE, alpha = 0.2) +}
+\NormalTok{  geom\_point(alpha = 0.3) +}
+\NormalTok{  labs(title = "H2: Surprisal × Entropy Interaction Across Learning",}
+\NormalTok{       x = "Block", y = "Interaction Coefficient", color = "Matrix Size") +}
+\NormalTok{  theme\_minimal()}
+\NormalTok{ggsave("plots/h3\_interaction\_by\_block.png", p3, width = 8, height = 6, dpi = 300)}
+\NormalTok{print(p3)}
+
+\NormalTok{\# Plot matrix size effect (averaging across blocks)}
+\NormalTok{coef\_summary \textless{}{-} coef\_df \%\textgreater{}\%}
+\NormalTok{  group\_by(matrix\_size, matrix\_size\_num) \%\textgreater{}\%}
+\NormalTok{  summarize(}
+\NormalTok{    surprisal\_mean = mean(surprisal, na.rm = TRUE),}
+\NormalTok{    surprisal\_se = sd(surprisal, na.rm = TRUE) / sqrt(n()),}
+\NormalTok{    entropy\_mean = mean(prev\_entropy, na.rm = TRUE),}
+\NormalTok{    entropy\_se = sd(prev\_entropy, na.rm = TRUE) / sqrt(n()),}
+\NormalTok{    interaction\_mean = mean(interaction, na.rm = TRUE),}
+\NormalTok{    interaction\_se = sd(interaction, na.rm = TRUE) / sqrt(n())}
+\NormalTok{  )}
+
+\NormalTok{p4 \textless{}{-} ggplot(coef\_summary, aes(x = matrix\_size\_num)) +}
+\NormalTok{  geom\_line(aes(y = surprisal\_mean, color = "Surprisal")) +}
+\NormalTok{  geom\_point(aes(y = surprisal\_mean, color = "Surprisal")) +}
+\NormalTok{  geom\_errorbar(aes(ymin = surprisal\_mean {-} surprisal\_se,}
+\NormalTok{                    ymax = surprisal\_mean + surprisal\_se, color = "Surprisal"),}
+\NormalTok{                width = 0.2) +}
+\NormalTok{  geom\_line(aes(y = entropy\_mean, color = "Entropy")) +}
+\NormalTok{  geom\_point(aes(y = entropy\_mean, color = "Entropy")) +}
+\NormalTok{  geom\_errorbar(aes(ymin = entropy\_mean {-} entropy\_se,}
+\NormalTok{                    ymax = entropy\_mean + entropy\_se, color = "Entropy"),}
+\NormalTok{                width = 0.2) +}
+\NormalTok{  labs(title = "H3: Effect Size by Matrix Size (Averaged Across Blocks)",}
+\NormalTok{       x = "Matrix Size", y = "Coefficient Estimate", color = "Effect") +}
+\NormalTok{  theme\_minimal()}
+\NormalTok{ggsave("plots/h3\_effects\_by\_matrix\_size.png", p4, width = 8, height = 6, dpi = 300)}
+\NormalTok{print(p4)}
+\end{Highlighting}
+\end{Shaded}
 
 \section{Discussion}\label{discussion}
 
 \section{References}\label{references}
 
-\renewcommand{\bibsection}{}
-\bibliography{procedural-learning_bibliography.bib}
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-farkas_complexity_2024}
+Farkas, B. C., Krajcsi, A., Janacsek, K., \& Nemeth, D. (2024). The
+complexity of measuring reliability in learning tasks: {An} illustration
+using the {Alternating} {Serial} {Reaction} {Time} {Task}.
+\emph{Behavior Research Methods}, \emph{56}(1), 301--317.
+\url{https://doi.org/10.3758/s13428-022-02038-5}
 
+\bibitem[\citeproctext]{ref-hedenius_grammar_2011}
+Hedenius, M., Persson, J., Tremblay, A., Adi-Japha, E., Veríssimo, J.,
+Dye, C. D., Alm, P., Jennische, M., Bruce Tomblin, J., \& Ullman, M. T.
+(2011). Grammar predicts procedural learning and consolidation deficits
+in children with {Specific} {Language} {Impairment}. \emph{Research in
+Developmental Disabilities}, \emph{32}(6), 2362--2375.
+\url{https://doi.org/10.1016/j.ridd.2011.07.026}
+
+\bibitem[\citeproctext]{ref-howard_implicit_2004}
+Howard, D. V., Howard, J. H., Japikse, K., DiYanni, C., Thompson, A., \&
+Somberg, R. (2004). Implicit {Sequence} {Learning}: {Effects} of {Level}
+of {Structure}, {Adult} {Age}, and {Extended} {Practice}.
+\emph{Psychology and Aging}, \emph{19}(1), 79--92.
+\url{https://doi.org/10.1037/0882-7974.19.1.79}
+
+\bibitem[\citeproctext]{ref-howard_jr_age_1997}
+Howard Jr., J. H., \& Howard, D. V. (1997). Age differences in implicit
+learning of higher order dependencies in serial patterns.
+\emph{Psychology and Aging}, \emph{12}(4), 634--656.
+\url{https://doi.org/10.1037/0882-7974.12.4.634}
+
+\bibitem[\citeproctext]{ref-janacsek_best_2012}
+Janacsek, K., Fiser, J., \& Nemeth, D. (2012). The best time to acquire
+new skills: Age-related differences in implicit sequence learning across
+the human lifespan. \emph{Developmental Science}, \emph{15}(4),
+496--505. \url{https://doi.org/10.1111/j.1467-7687.2012.01150.x}
+
+\bibitem[\citeproctext]{ref-kassubek_changes_2001}
+Kassubek, J., Schmidtke, K., Kimmig, H., Lücking, C. H., \& Greenlee, M.
+W. (2001). Changes in cortical activation during mirror reading before
+and after training: An {fMRI} study of procedural learning.
+\emph{Cognitive Brain Research}, \emph{10}(3), 207--217.
+https://doi.org/\url{https://doi.org/10.1016/S0926-6410(00)00037-9}
+
+\bibitem[\citeproctext]{ref-kidd_individual_2016}
+Kidd, E., \& Arciuli, J. (2016). Individual {Differences} in
+{Statistical} {Learning} {Predict} {Children}'s {Comprehension} of
+{Syntax}. \emph{Child Development}, \emph{87}(1), 184--193.
+\url{https://doi.org/10.1111/cdev.12461}
+
+\bibitem[\citeproctext]{ref-lammertink_statistical_2017}
+Lammertink, I., Boersma, P., Wijnen, F., \& Rispens, J. (2017).
+Statistical {Learning} in {Specific} {Language} {Impairment}: {A}
+{Meta}-{Analysis}. \emph{Journal of Speech, Language, and Hearing
+Research}, \emph{60}(12), 3474--3486.
+\url{https://doi.org/10.1044/2017_JSLHR-L-16-0439}
+
+\bibitem[\citeproctext]{ref-lum_procedural_2014}
+Lum, J. A. G., Conti-Ramsden, G., Morgan, A. T., \& Ullman, M. T.
+(2014). Procedural learning deficits in specific language impairment
+({SLI}): {A} meta-analysis of serial reaction time task performance.
+\emph{Cortex}, \emph{51}, 1--10.
+\url{https://doi.org/10.1016/j.cortex.2013.10.011}
+
+\bibitem[\citeproctext]{ref-lustig_transition_2022}
+Lustig, C. (2022). \emph{The transition from implicit to explicit
+knowledge representations in implicit sequence learning}
+{[}Text.thesis.doctoral, Universität zu Köln{]}.
+\url{http://www.uni-koeln.de/}
+
+\bibitem[\citeproctext]{ref-mullaney_chinese_2017}
+Mullaney, T. S. (2017). \emph{The {Chinese} {Typewriter}: {A}
+{History}}. MIT Press.
+
+\bibitem[\citeproctext]{ref-nissen_attentional_1987}
+Nissen, M. J., \& Bullemer, P. (1987). Attentional requirements of
+learning: {Evidence} from performance measures. \emph{Cognitive
+Psychology}, \emph{19}(1), 1--32.
+\url{https://doi.org/10.1016/0010-0285(87)90002-8}
+
+\bibitem[\citeproctext]{ref-oliveira_reliability_2023}
+Oliveira, C. M., Hayiou-Thomas, M. E., \& Henderson, L. M. (2023). The
+reliability of the serial reaction time task: Meta-analysis of
+test--retest correlations. \emph{Royal Society Open Science},
+\emph{10}(7), 221542. \url{https://doi.org/10.1098/rsos.221542}
+
+\bibitem[\citeproctext]{ref-song_perceptual_2008}
+Song, S., Howard, J. H., \& Howard, D. V. (2008). Perceptual sequence
+learning in a serial reaction time task. \emph{Experimental Brain
+Research}, \emph{189}(2), 145--158.
+\url{https://doi.org/10.1007/s00221-008-1411-z}
+
+\bibitem[\citeproctext]{ref-squire_memory_2004}
+Squire, L. R. (2004). Memory systems of the brain: {A} brief history and
+current perspective. \emph{Neurobiology of Learning and Memory},
+\emph{82}(3), 171--177.
+https://doi.org/\url{https://doi.org/10.1016/j.nlm.2004.06.005}
+
+\bibitem[\citeproctext]{ref-ullman_specific_2005}
+Ullman, M. T., \& Pierpont, E. I. (2005). Specific {Language}
+{Impairment} is not {Specific} to {Language}: The {Procedural} {Deficit}
+{Hypothesis}. \emph{Cortex}, \emph{41}(3), 399--433.
+\url{https://doi.org/10.1016/S0010-9452(08)70276-4}
+
+\bibitem[\citeproctext]{ref-west_procedural_2018}
+West, G., Vadillo, M. A., Shanks, D. R., \& Hulme, C. (2018). The
+procedural learning deficit hypothesis of language learning disorders:
+We see some problems. \emph{Developmental Science}, \emph{21}(2),
+e12552. \url{https://doi.org/10.1111/desc.12552}
+
+\end{CSLReferences}
 
 
 
