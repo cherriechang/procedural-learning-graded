@@ -39,6 +39,7 @@ library(clipr)
 library(reticulate)
 library(lmerTest) # show p value in lmer
 library(blme)
+library(purrr)
 
 np <- import("numpy")
 ```
@@ -55,7 +56,7 @@ How many times have you typed "form" instead of "from"? Or ended a word with "-t
 
 Procedural learning is not limited to typing. It underlies skill acquisition across many domains, from proprioceptive skills like riding a bike to perceptual-cognitive skills like reading mirrored text (@kassubek_changes_2001). More recently, procedural learning has been proposed to support increasingly diverse and sophisticated abilities, notably grammar acquisition in language (@ullman_specific_2005, @lammertink_statistical_2017, @lum_procedural_2014, @kidd_individual_2016). These proposals invite closer scrutiny of its scalability: can the procedural learning system handle the large-scale, complex statistical structures that characterize domains like grammar? Consider a suggestive historical case: while QWERTY keyboards (26 letter keys) enabled fluent touch typing through procedural learning, Chinese typewriters (trays of 2,000+ characters) never achieved comparable automaticity and were eventually abandoned (for QWERTY keyboards, among others!) (@mullaney_chinese_2017). This raises a fundamental question: does procedural learning fail beyond a certain level of statistical complexity and state space size? As a first step toward answering these questions, we examine whether procedural learning tracks fine-grained statistical patterns - both the predictability of individual transitions and the uncertainty of different states - and how it scales across state space sizes from 4 to 8 positions.
 
-The primary method for measuring procedural learning has been the Serial Reaction Time Task (SRTT; @nissen_attentional_1987). In the SRTT, participants respond to stimuli appearing in one of four positions on screen using key presses. Unbeknownst to them, the sequence of positions follows a deterministic pattern. Over time, reaction times (RT) decrease for patterned trials relative to random trials, demonstrating procedural learning of the key press sequence corresponding to the positional sequence's deterministic pattern. While the SRTT provided early evidence for procedural learning, it suffers from a critical confound: participants often develop explicit awareness of the sequence, making it difficult to isolate implicit procedural learning effects (@song_perceptual_2008, @lustig_transition_2022). This has contributed to low test-retest reliability (@west_procedural_2018, @oliveira_reliability_2023).
+The primary method for measuring procedural learning has been the Serial Reaction Time Task (SRTT; @nissen_attentional_1987). In the SRTT, participants respond to stimuli appearing in one of four positions on screen using key presses. Unbeknownst to them, the sequence of positions follows a deterministic pattern. Over time, reaction times (RT) decrease for patterned trials relative to random trials, demonstrating procedural learning of the key press sequence corresponding to the positional sequence's deterministic pattern. While the SRTT provided early evidence for procedural learning, it suffers from a critical confound: participants often develop explicit awareness of the sequence, making it difficult to isolate implicit procedural learning effects (@song_perceptual_2008, @lustig_transition_2022). This has contributed to low test-retest reliability of the task (@west_procedural_2018, @oliveira_reliability_2023).
 
 The Alternating Serial Reaction Time Task (ASRT; @howard_jr_age_1997) addressed these issues by introducing a probabilistic design. In ASRT, deterministic (d) and random (r) trials alternate (e.g., d-r-d-r), resulting in positional sequences with two levels of frequency (high vs. low). This probabilistic design minimizes explicit awareness and dramatically improves reliability (@farkas_complexity_2024, @oliveira_reliability_2023). However, a key limitation of ASRT is that its bimodal frequency distribution represents an overtly simplistic statistical structure, lacking the graded frequency distributions found in real-world domains like language. Finally, across both SRTT and ASRT, experiment designs have mostly tested sequences with four possible positions (e.g., @janacsek_best_2012, @hedenius_grammar_2011), despite real-world domains where procedural learning is implicated often involving far larger state spaces. Whether procedural learning can track graded statistical structures, and whether it scales to larger state spaces, remains untested.
 
@@ -110,7 +111,7 @@ N_5x5 <- df.demographics.group_summary %>%
 
 We recruited `r overall_N` participants (`r n_female` female, `r n_male` male) to complete a web-based experiment using the online crowd-sourcing platform Prolific, screening for participants with an approval rating above 95% from previous studies and limiting participation to be on desktop or laptop computers. Participants ranged in age from `r overall_age_range[1]` to `r overall_age_range[2]` years ($\mu$=`r round(overall_mean_age, 1)`, $\sigma$=`r round(overall_sd_age, 1)`), representing `r N_nationalities` nationalities and `r N_languages` primary languages. Participants were compensated at $12.00 per hour, with median completion time varying by condition (~20-40 minutes). All participants provided informed consent prior to the experiment. The study was approved by the Institutional Review Board at the MGH Institute of Health Professions.
 
-## Probabilistic Serial Reaction Time Task
+## Experiment Design
 ```{r}
 #| label: Experiment configs that stay constant across participants
 #| echo: false
@@ -138,13 +139,35 @@ EXPERIMENT_CONFIG <- list(
 )
 ```
 
-Like other serial reaction time task designs, our experiment tasks participants to respond to a visual stimulus that appears in one of several evenly-spaced positions on screen as quickly and accurately as possible by pressing a corresponding key on the keyboard. In our implementation, this visual stimulus is a mole garbed in a bright red bib and matching sunglasses (@fig-example-trial-screen); and a schematic of each position-to-keyboard mapping for each condition is shown in (Table). Participants were evenly divided into 5 groups of `r group_N` per condition, with the conditions differing in the number of positions (4, 5, 6, 7, 8) the mole can appear in.
+```{=latex}
+\begin{table}[t]
+\centering
+\caption{Key mappings by number of positions}
+\label{tab:key-mapping}
+
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}} c l}
+\toprule
+\multicolumn{1}{c}{\textit{n} positions} &
+\multicolumn{1}{c}{keys (left to right)} \\
+\midrule
+4 & \{D, F, J, K\} \\
+5 & \{S, D, F, J, K\} \\
+6 & \{S, D, F, J, K, L\} \\
+7 & \{A, S, D, F, J, K, L\} \\
+8 & \{A, S, D, F, J, K, L, ;\} \\
+\bottomrule
+\end{tabular*}
+
+\end{table}
+```
 
 ![An example trial screen in the 8-position condition of the experiment]("../assets/example-trial-screen.png"){#fig-example-trial-screen width=100%}
 
-A participant is first given a text-based tutorial accompanied by an animated demonstration on which key to press in response to each position, then instructed to work through a set of practice trials where each position is visited twice in random order. After the practice section, the participant moves on to complete `r EXPERIMENT_CONFIG$n_blocks` blocks of trials, each separated with a self-paced break. Each block consists of 10 trials per position. This design choice results in longer blocks for conditions with more positions, but ensures each position is visited an equal number of times on average across conditions. In both practice and main trials, participants are given feedback on correctness via a pop-up short message (a checkmark vs. "Try again!" + an error tone), and allowed to retry each failed trial until they respond correctly. Following standard SRTT protocol, there is also a 120ms response-stimulus interval (RSI) between trials [CITE]. We find during piloting that allowing retries, combined with the `r EXPERIMENT_CONFIG$rsi`ms RSI, prevents participants from making compensatory errors, where they unintentionally press the wrong key in the next trial in an attempt to correct their current trial. We record response time, keyboard response and correctness for each trial. After each block, participants are given adaptive feedback based on their accuracy and speed. At the end of the experiment, participants complete a brief questionnaire probing their explicit awareness of any patterns in the mole's appearances (Table).
+Like other serial reaction time task designs, our experiment tasks participants to respond to a visual stimulus that appears in one of several evenly-spaced positions on screen as quickly and accurately as possible by pressing a corresponding key on the keyboard. In our implementation, this visual stimulus is a mole garbed in a bright red bib and matching sunglasses (@fig-example-trial-screen). Participants were evenly divided into 5 groups of `r group_N` per condition, with the conditions differing in the number of positions (4, 5, 6, 7, 8) the mole can appear in. @tab:key-mapping shows the position-to-key mapping for each condition.
 
-In addition to our dapper mole, a number of design choices were made to facilitate participant understanding and engagement. During the practice phase, each position on screen is labelled with its corresponding key character (e.g. "A", "S", "D") to help familiarize participants with the keyboard mappings. These key labels disappear in the main trials to prevent explicitly encoding of the sequence of positions via their character labels, but reappear during retry of failed trials. To make the correspondence between the positions on screen and keyboard keys as automatic and intuitive as possible, we chose to use conventional QWERTY-based finger layouts for the key mappings across conditions (Table). We found during piloting that while this decision helped reduce cognitive load from learning novel finger placements, the larger gap between keys "F" and "J" on the keyboard introduced a discrepancy between the evenly-spaced on-screen positions and the unevenly spaced keyboard keys. This made participants more prone to making errors in the positions towards the middle of the screen compared to those on the outer edges, especially when number of positions increases [TODO: maybe run stats on pilot to find this effect]; and was not mitigated by shifting either hand's placement to close the extra gap, because the positions were still corresponding half to one hand and half to the other. After further piloting testing different visual aids, we settled on adding two hands visually to the bottom of the screen, each finger aligned with its target position (Figure). We received verbal feedback that this visual aid helped participants better map the spatial layout of the on-screen positions to their corresponding keys. Lastly, the visual design of the "positions" on screen mimicked blank 3D keyboard keys that light up in pink when the mole appears on top, and look visibly "pressed down" when the participant presses the corresponding keyboard key. This design choice links the on-screen positions diegetically to the physical keyboard keys to maximally reduce mental distance between the two. This is important to enforce as much learning via implicit motor memory as possible, rather than via visual-spatial memory of the on-screen positions.
+A participant is first given a text-based tutorial accompanied by an animated demonstration on which key to press in response to each position, then instructed to work through a set of practice trials where each position is visited twice in random order. After the practice section, the participant moves on to complete `r EXPERIMENT_CONFIG$n_blocks` blocks of trials, each separated with a self-paced break. Each block consists of 10 trials per position. This design choice results in longer blocks for conditions with more positions, but ensures each position is visited an equal number of times on average across conditions. In both practice and main trials, participants are given feedback on correctness via a pop-up short message (a checkmark vs. "Try again!" + an error tone), and allowed to retry each failed trial until they respond correctly. Following standard SRTT protocol, there is also a 120ms response-stimulus interval (RSI) between trials (@nissen_attentional_1987, @janacsek_best_2012, @howard_implicit_2004). We find during piloting that allowing retries, combined with the `r EXPERIMENT_CONFIG$rsi`ms RSI, prevents participants from making compensatory errors, where they unintentionally press the wrong key in the next trial in an attempt to correct their current trial. We record response time, keyboard response and correctness for each trial. After each block, participants are given adaptive feedback based on their accuracy and speed. At the end of the experiment, participants complete a brief questionnaire probing their explicit awareness of any patterns in the mole's appearances (Table).
+
+In addition to our dapper mole, a number of design choices were made to facilitate participant understanding and engagement. During the practice phase, each position on screen is labelled with its corresponding key character (e.g. "A", "S", "D") to help familiarize participants with the keyboard mappings. These key labels disappear in the main trials to prevent explicitly encoding of the sequence of positions via their character labels, but reappear during retry of failed trials. To make the correspondence between the positions on screen and keyboard keys as automatic and intuitive as possible, we chose to use conventional QWERTY-based finger layouts for the key mappings across conditions (@tab:key-mapping). We found during piloting that while this decision helped reduce cognitive load from learning novel finger placements, the larger gap between keys "F" and "J" on the keyboard introduced a discrepancy between the evenly-spaced on-screen positions and the unevenly spaced keyboard keys. This made participants more prone to making errors in the positions towards the middle of the screen compared to those on the outer edges, especially when number of positions increases [TODO: maybe run stats on pilot to find this effect]; and was not mitigated by shifting either hand's placement to close the extra gap, because the positions were still corresponding half to one hand and half to the other. After further piloting testing different visual aids, we settled on adding two hands visually to the bottom of the screen, each finger aligned with its target position (Figure). We received verbal feedback that this visual aid helped participants better map the spatial layout of the on-screen positions to their corresponding keys. Lastly, the visual design of the "positions" on screen mimicked blank 3D keyboard keys that light up in pink when the mole appears on top, and look visibly "pressed down" when the participant presses the corresponding keyboard key. This design choice links the on-screen positions diegetically to the physical keyboard keys to maximally reduce mental distance between the two. This is important to enforce as much learning via implicit motor memory as possible, rather than via visual-spatial memory of the on-screen positions.
 
 ## Transition Matrices
 ```{r}
@@ -211,11 +234,11 @@ entropy_gradient_summary <- all_positional_entropies_df %>%
 
 Our experiment deviates from other serial reaction time tasks in how the sequence of positions and its probabilistic structure is constructed. In each run of the experiment, we use a first-order Markov process to generate the sequence of positions the mole appears in. This process is defined by a transition matrix, where each entry in the matrix defines the probability of transitioning from one position to another. We designed five different transition matrices of sizes 4x4, 5x5, 6x6, 7x7, and 8x8 respectively corresponding to the five conditions in our experiment. These "original" matrices were constructed to have graded and increasing levels of entropy across rows, such that position 1 has lowest entropy-having the most predictable next-position-transitions, followed by the second, with the last position, position n, having highest entropy. For example, in the 4x4 matrix, position 1 has a high probability (~`r round(transition_matrix_4x4[1,2], 2)`) of transitioning to position 2, a low probability (~`r round(transition_matrix_4x4[1,1], 2)`) of transitioning to position 1, and never transitions to position 3 or 4; while position 4 has a more uniform distribution of transition probabilities to all other positions (to 1: ~(`r round(transition_matrix_4x4[4,1], 2)`), to 2: ~(`r round(transition_matrix_4x4[4,2], 2)`), to 3: ~(`r round(transition_matrix_4x4[4,3], 2)`), to 4: ~(`r round(transition_matrix_4x4[4,4], 2)`)). This gives rise to a gradient of entropy values across the positions, which results in a richer, more varied distributed statistical structure underlying the sequence of positions the mole appears in, allowing us to investigate how the procedural learning system differentially picks up varying levels of predictability in a given statistical structure.
 
-Several design criteria/constraints were imposed on the construction of these original transition matrices. First, these matrices had to be doubly stochastic to ensure uniform visitation to each position over time, preventing confounding effects from position frequency on learning. Second, self-transitions (e.g. position 1 to position 1) should have near-zero probabilities to reduce data loss, as data from repeated trials have been historically thrown out from analysis in serial reaction time tasks to prevent confounding motor effects from repeating the same keypress [CITE]. Third, the graded entropy levels across the positions should translate to graded probabilities across bigrams as well, as having more fine-grained, distributed levels of transition probabilities is our experiment's key distinction from other SRTT tasks, such as the ASRT paradigm which only has 2 levels of trigram probability. Fourth, the increase in entropy across positions (i.e. rows) should be significant between one another and as linear as possible to ensure smooth a smooth gradient with meaningfully distinct levels in predictability across positions.
+Several design criteria/constraints were imposed on the construction of these original transition matrices. First, these matrices had to be doubly stochastic to ensure uniform visitation to each position over time, preventing confounding effects from position frequency on learning. Second, self-transitions (e.g. position 1 to position 1) should have near-zero probabilities to reduce data loss, as data from repeated trials have been historically thrown out from analysis in serial reaction time tasks to prevent confounding motor effects from repeating the same keystroke [CITE]. Third, the graded entropy levels across the positions should translate to graded probabilities across bigrams as well, as having more fine-grained, distributed levels of transition probabilities is our experiment's key distinction from other SRTT tasks, such as the ASRT paradigm which only has 2 levels of trigram probability. Fourth, the increase in entropy across positions (i.e. rows) should be significant between one another and as linear as possible to ensure smooth a smooth gradient with meaningfully distinct levels in predictability across positions.
 
 Strictly satisfying all these constraints at once turned out to be not only non-trivial, but mathematically impossible for our range of n_positions (i.e. matrix sizes), so we wrote an optimization algorithm that explores the candidate space for each matrix size, treating these constraints as soft penalties to find a global minimum of the total constraint violation, balancing trade-offs among the competing constraints.
 
-The five original matrices we constructed using this algorithm had these properties: 1) near fully doubly stochastic—all row and column sums sum to 1 (±0.0001) [TODO: consider not hardcoding]; 2) approach a uniform stationary distribution after 7 timesteps [TODO: consider not hardcoding] where the stationary visitation for each state (position) are within 0.001 of each other; 3) had a graded entropy structure across states—each matrix had a positional entropy range of `r round(pos_1_entropy$range[1], 3)`-`r round(pos_1_entropy$range[2], 3)` bits for position 1 ($\mu$=`r round(pos_1_entropy$mean[1], 3)`, $\sigma$=`r round(pos_1_entropy$sd[1], 3)`), and `r round(pos_n_entropy$range[1], 3)`-`r round(pos_n_entropy$range[2], 3)` bits for position n ($\mu$=`r round(pos_n_entropy$mean[1], 3)`, $\sigma$=`r round(pos_n_entropy$sd[1], 3)`). Within a matrix each position increases in entropy from the previous by `r round(entropy_gradient_summary$range_diff[[1]][1], 3)`-`r round(entropy_gradient_summary$range_diff[[1]][2], 3)` bits ($\mu$=`r round(entropy_gradient_summary$mean_diff[1], 3)`, $\sigma$=`r round(entropy_gradient_summary$sd_diff[1], 3)`); and 4) avoided self loops as much as possible—all of the matrices had <0.08 [TODO: consider not hardcoding] probabilities in the left diagonal up until the last two positions. Within each matrix size condition, all participants experience the same underlying entropy gradient across positions, but the mapping between screen positions and entropy levels is randomized through a double permutation procedure that shuffles the original matrix (of that size) using the same random permutation. This preserves the statistical properties of the original matrix—transition probabilities and entropy values—but decouples entropy levels from specific screen positions. The position sequence for each participant is subsequently generated using their individual shuffled transition matrix, so the sequence each participant experiences is different both within and between matrix size conditions.
+The five original matrices we constructed using this algorithm had these properties: 1) near fully doubly stochastic—all row and column sums sum to 1 (±0.0001); 2) approach a uniform stationary distribution after 7 timesteps where the stationary visitation for each state (position) are within 0.001 of each other; 3) had a graded entropy structure across states—each matrix had a positional entropy range of `r round(pos_1_entropy$range[1], 3)`-`r round(pos_1_entropy$range[2], 3)` bits for position 1 ($\mu$=`r round(pos_1_entropy$mean[1], 3)`, $\sigma$=`r round(pos_1_entropy$sd[1], 3)`), and `r round(pos_n_entropy$range[1], 3)`-`r round(pos_n_entropy$range[2], 3)` bits for position n ($\mu$=`r round(pos_n_entropy$mean[1], 3)`, $\sigma$=`r round(pos_n_entropy$sd[1], 3)`). Within a matrix each position increases in entropy from the previous by `r round(entropy_gradient_summary$range_diff[[1]][1], 3)`-`r round(entropy_gradient_summary$range_diff[[1]][2], 3)` bits ($\mu$=`r round(entropy_gradient_summary$mean_diff[1], 3)`, $\sigma$=`r round(entropy_gradient_summary$sd_diff[1], 3)`); and 4) avoided self loops as much as possible—all of the matrices had <0.08 probabilities in the left diagonal up until the last two positions. Within each matrix size condition, all participants experience the same underlying entropy gradient across positions, but the mapping between screen positions and entropy levels is randomized through a double permutation procedure that shuffles the original matrix (of that size) using the same random permutation. This preserves the statistical properties of the original matrix—transition probabilities and entropy values—but decouples entropy levels from specific screen positions. The position sequence for each participant is subsequently generated using their individual shuffled transition matrix, so the sequence each participant experiences is different both within and between matrix size conditions.
 
 # Statistical Analysis
 ```{r}
@@ -324,6 +347,18 @@ df <- df %>%
 ```
 
 ```{r}
+#| label: Center matrix_size and block
+#| echo: false
+#| include: false
+
+df <- df %>%
+  mutate(
+    matrix_size_c=matrix_size-((max(df$matrix_size, na.rm=TRUE)+min(df$matrix_size, na.rm=TRUE))/2),
+    block_c=block-((max(df$block, na.rm=TRUE)+min(df$block, na.rm=TRUE))/2)
+  )
+```
+
+```{r}
 #| label: Fill down overall_trial, trial_in_block, block
 #| echo: false
 #| include: false
@@ -410,7 +445,6 @@ df <- df[df$phase=="main", ]
 # -> or if too noisy--more than 20% of their trials are 3*mad higher than the subject's median_rt
 
 accuracy_excluded_subjects <- df %>%
-  filter(matrix_size==8) %>%
   filter(!is.na(correct)) %>%
   group_by(subject_id) %>%
   summarize(error_rate = mean(!correct)) %>%
@@ -439,7 +473,7 @@ df <- df %>%
 #| include: false
 
 df <- df %>%
-  filter(experiment_trial_type=="stimulus" & !is.na(rt))
+  filter(experiment_trial_type=="stimulus" & !is.na(rt) & rt != 0)
 ```
 
 ```{r}
@@ -465,7 +499,6 @@ if (file.exists(df_processed_cache)) {
 } else {
   df <- df %>%
     mutate(log_rt=log(rt)) %>%
-    filter(!is.infinite(log_rt)) %>%
     mutate(is_repetition=(position==lag(position,1))) %>%
     group_by(subject_id, block) %>%
     mutate(previous_entropy=lag(conditional_entropy, 1)) %>%
@@ -498,7 +531,7 @@ if (file.exists(df_correct_cache)) {
 ```
 
 ## Variables and Exclusion Criteria
-The main independent variables are surprisal and previous positional entropy. Surprisal is defined as the negative log probability of the actual next-position given the current position [TODO: math], derived from the transition matrix used to generate the sequence for that participant. Previous positional entropy is defined as the Shannon entropy of the transition probabilities from the previous position, also derived from the transition matrix [TODO: math]. Both surprisal and previous positional entropy are mean-centered within each matrix size condition to facilitate interpretation of main effects and interactions in subsequent models. We also create a binary variable indicating whether the current position is a repetition of the previous position (i.e. self-transition). This variable is included as a covariate in subsequent models to control for potential motor effects from repeating the same keypress.
+The main independent variables are surprisal and previous positional entropy. Surprisal is defined as the negative log probability of the actual next-position given the current position [TODO: math], derived from the transition matrix used to generate the sequence for that participant. Previous positional entropy is defined as the Shannon entropy of the transition probabilities from the previous position, also derived from the transition matrix [TODO: math]. Both surprisal and previous positional entropy are mean-centered within each matrix size condition to facilitate interpretation of main effects and interactions in subsequent models. We also create a binary variable indicating whether the current position is a repetition of the previous position (i.e. self-transition). This variable is included as a covariate in subsequent models to control for potential motor effects from repeating the same keystroke.
 
 The main dependent variables are response time (RT) and accuracy (proportion of correct responses) on non-practice/main trials. Incorrect trials, trials with RT >1000ms, and trials with RTs greater than 3 median absolute deviations above the participant's median RT (outliers) are excluded. On the participant level, participants with overall accuracy below 85%, median RT >1000ms, or with outliers making up more than 30% of total trials are excluded from analysis. We also discard data from the first trial of each block to account for blocks being implicitly treated as "restarts" and not following an existing probability distribution by participants. RTs are log-transformed to reduce skewness.
 
@@ -510,245 +543,515 @@ Models are initially fit with the maximal random effects structure supported by 
 For H1 and H2, we first establish the fixed effects structure using only the final block of trials, then extend to learning trajectories across blocks. Starting from a base model including surprisal, previous positional entropy, their interaction, and repetition as fixed effects (with the selected random effects structure), we use AIC-based model comparison to prune fixed effects. We first test whether repetition is significant by comparing the base model against one in which it is removed; if removing it does not increase AIC, we drop it from the base model. We then test whether the interaction term between surprisal and previous positional entropy is significant by comparing the current base model against one in which the interaction term is removed. If the interaction is not significant, we test each main effect individually by comparing models that omit surprisal or previous positional entropy as main effects. An effect is retained if removing it increases AIC.
 
 # Results
-## H0. Learning Effect
+<!-- H0 -->
 ```{r}
-#| label: prepare-m-learning-data
+#| label: Prepare data for H0 models
 #| echo: false
 #| eval: false
 
-df.m_learning <- df
-df.m_learning.correct <- df.correct
+df.m_h0 <- df
+df.m_h0.correct <- df.correct
 ```
 
 ```{r}
-#| label: m-learning-lmer
+#| label: H0 Learning effect lmer models
+#| (filter for correct trials and group by matrix_size)
 #| echo: false
-#| eval: false
 
-# Model: log_rt ~ block * matrix_size + is_repetition + (block * matrix_size + is_repetition | subject_id) + (1 | position)
-# Using lmer, filter for correct trials and group by matrix_size
+m_h0_rt <-
+  lmer(log_rt ~ block * is_repetition + (block * is_repetition| subject_id) + (1 | position),
+  data=df.m_h0.correct,
+  REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")) # can change
 
-# Results:
-# This model timed out with the following warning message:
-# In optwrap(optimizer, devfun, start, rho$lower, control = control,  :
-#   convergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded
+summary(m_h0_rt)
 
-m_learning_rt_lmer_file <- here("models/m_learning_rt_lmer.rds")
-m_learning_acc_lmer_file <- here("models/m_learning_acc_lmer.rds")
+df.m_h0.correct <- df.correct %>%
+  group_by(matrix_size)
+  
+m_h0_acc <-
+  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
+  data=df.m_h0,
+  family=binomial,
+ control=glmerControl(optimizer="bobyqa")) # can change
 
-if (file.exists(m_learning_rt_lmer_file)) {
-  m_learning_rt_lmer <- readRDS(m_learning_rt_lmer_file)
-} else {
-  m_learning_rt_lmer <-
-    lmer(log_rt ~ block * matrix_size + is_repetition + (block * matrix_size + is_repetition | subject_id) + (1 | position),
-    data=df.m_learning.correct,
-    REML=FALSE,
-    control=lmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_learning_rt_lmer, m_learning_rt_lmer_file)
-}
-
-summary_m_learning_rt_lmer <- summary(m_learning_rt_lmer)
-
-if (file.exists(m_learning_acc_lmer_file)) {
-  m_learning_acc_lmer <- readRDS(m_learning_acc_lmer_file)
-} else {
-  m_learning_acc_lmer <-
-    glmer(correct ~ block * matrix_size + is_repetition + (block * matrix_size + is_repetition | subject_id) + (1 | position),
-    data=df.m_learning,
-    family=binomial,
-    control=glmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_learning_acc_lmer, m_learning_acc_lmer_file)
-}
-
-summary_m_learning_acc_lmer <- summary(m_learning_acc_lmer)
+summary(m_h0_acc)
 ```
 
-## H0: Pruning random effects structure
-```{r}
-#| label: m-learning-lmer-pruned-1
-#| echo: false
-#| eval: false
-
-# Model: log_rt ~ block * matrix_size + is_repetition + (block * matrix_size | subject_id) + (1 | position)
-# Using lmer, filter for correct trials and group by matrix_size
-# Results:
-# Model did not converge
-
-m_learning_rt_lmer_p1_file <- here("models/m_learning_rt_lmer_p1.rds")
-m_learning_acc_lmer_p1_file <- here("models/m_learning_acc_lmer_p1.rds")
-
-if (file.exists(m_learning_rt_lmer_p1_file)) {
-  m_learning_rt_lmer_p1 <- readRDS(m_learning_rt_lmer_p1_file)
-} else {
-  m_learning_rt_lmer_p1 <-
-    lmer(log_rt ~ block * matrix_size + is_repetition + (block * matrix_size | subject_id) + (1 | position),
-    data=df.m_learning.correct,
-    REML=FALSE,
-    control=lmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_learning_rt_lmer_p1, m_learning_rt_lmer_p1_file)
-}
-
-summary_m_learning_rt_lmer_p1 <- summary(m_learning_rt_lmer_p1)
-
-if (file.exists(m_learning_acc_lmer_p1_file)) {
-  m_learning_acc_lmer_p1 <- readRDS(m_learning_acc_lmer_p1_file)
-} else {
-  m_learning_acc_lmer_p1 <-
-    glmer(correct ~ block * matrix_size + is_repetition + (block * matrix_size | subject_id) + (1 | position),
-    data=df.m_learning,
-    family=binomial,
-    control=glmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_learning_acc_lmer_p1, m_learning_acc_lmer_p1_file)
-}
-
-summary_m_learning_acc_lmer_p1 <- summary(m_learning_acc_lmer_p1)
-```
-
-```{r}
-#| label: m-learning-lmer-pruned-2
-#| echo: false
-#| eval: true
-
-# Model: log_rt ~ block * matrix_size + is_repetition + (1 | subject_id) + (1 | position)
-# Using lmer, filter for correct trials and group by matrix_size
-# Results: Model converged!
-
-m_learning_rt_lmer_p2_file <- here("models/m_learning_rt_lmer_p2.rds")
-
-if (file.exists(m_learning_rt_lmer_p2_file)) {
-  m_learning_rt_lmer_p2 <- readRDS(m_learning_rt_lmer_p2_file)
-} else {
-  m_learning_rt_lmer_p2 <-
-    lmer(log_rt ~ block * matrix_size + is_repetition + (is_repetition | subject_id) + (1 | position),
-    data=df.m_learning.correct,
-    REML=FALSE,
-    control=lmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_learning_rt_lmer_p2, m_learning_rt_lmer_p2_file)
-}
-
-summary_m_learning_rt_lmer_p2 <- summary(m_learning_rt_lmer_p2)
-
-m_learning_acc_lmer_p2_file <- here("models/m_learning_acc_lmer_p2.rds")
-
-if (file.exists(m_learning_acc_lmer_p2_file)) {
-  m_learning_acc_lmer_p2 <- readRDS(m_learning_acc_lmer_p2_file)
-} else {
-  m_learning_acc_lmer_p2 <-
-    glmer(correct ~ block + is_repetition + (1 | subject_id) + (1 | position),
-    data=df.m_learning,
-    family=binomial,
-    control=glmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_learning_acc_lmer_p2, m_learning_acc_lmer_p2_file)
-}
-
-summary_m_learning_acc_lmer_p2 <- summary(m_learning_acc_lmer_p2)
-```
-
-## H1
+<!-- H1 & H2 -->
 For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
 
-### Final block only
+<!-- H1 & H2: final block only; base model -->
 ```{r}
-#| label: prepare-m-surprisal-entropy-finalblock-data
-#| echo: false
-#| include: false
-
-# 4x4
-df.m_surprisal_entropy.finalblock.4x4 <- df %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 4) %>%
-  group_by(matrix_size)
-
-df.m_surprisal_entropy.finalblock.correct.4x4 <- df.correct %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 4) %>%
-  group_by(matrix_size)
-
-# 5x5
-df.m_surprisal_entropy.finalblock.5x5 <- df %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 5) %>%
-  group_by(matrix_size)
-
-df.m_surprisal_entropy.finalblock.correct.5x5 <- df.correct %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 5) %>%
-  group_by(matrix_size)
-
-# 6x6
-df.m_surprisal_entropy.finalblock.6x6 <- df %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 6) %>%
-  group_by(matrix_size)
-
-df.m_surprisal_entropy.finalblock.correct.6x6 <- df.correct %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 6) %>%
-  group_by(matrix_size)
-
-# 7x7
-df.m_surprisal_entropy.finalblock.7x7 <- df %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 7) %>%
-  group_by(matrix_size)
-
-df.m_surprisal_entropy.finalblock.correct.7x7 <- df.correct %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 7) %>%
-  group_by(matrix_size)
-
-# 8x8
-df.m_surprisal_entropy.finalblock.8x8 <- df %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 8) %>%
-  group_by(matrix_size)
-
-df.m_surprisal_entropy.finalblock.correct.8x8 <- df.correct %>%
-  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 8) %>%
-  group_by(matrix_size)
-```
-
-#### 4x4
-```{r}
-#| label: surprisal-x-entropy-lmer-4x4
+#| label: H1H2 Effect lmer models
+#| (filter for last block only, for each matrix_size)
 #| echo: false
 
-# Model: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position)
-# Using lmer, filter for matrix_size == 4 and correct trials 
+df.m_h1h2.finalblock <- df %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1)
 
-m_surprisal_x_entropy_rt_finalblock_4x4_file <- here("models/m_surprisal_x_entropy_rt_finalblock_4x4.rds")
-surprisal_x_entropy_acc_finalblock_4x4_file <- here("models/m_surprisal_x_entropy_acc_finalblock_4x4.rds")
+data_list <- split(df.m_h1h2.finalblock, df.m_h1h2.finalblock$matrix_size)
 
-if (file.exists(m_surprisal_x_entropy_rt_finalblock_4x4_file)) {
-  m_surprisal_x_entropy_rt_finalblock_4x4 <- readRDS(m_surprisal_x_entropy_rt_finalblock_4x4_file)
-} else {
-  m_surprisal_x_entropy_rt_finalblock_4x4 <- 
-    lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-    (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
-    (1 | position),
-    data=df.m_surprisal_entropy.finalblock.correct.4x4,
-    REML=FALSE,
-  control=lmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_surprisal_x_entropy_rt_finalblock_4x4, m_surprisal_x_entropy_rt_finalblock_4x4_file)
-}
+models <- map(data_list, ~ lmer(
+  log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+    (surprisal_c * prev_entropy_c || subject_id) + (1 | position),
+  data = .x, 
+  REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")))
 
-summary_m_surprisal_x_entropy_rt_finalblock_4x4 <- summary(m_surprisal_x_entropy_rt_finalblock_4x4)
-
-if (file.exists(surprisal_x_entropy_acc_finalblock_4x4_file)) {
-  m_surprisal_x_entropy_acc_finalblock_4x4 <- readRDS(surprisal_x_entropy_acc_finalblock_4x4_file)
-} else {
-  m_surprisal_x_entropy_acc_finalblock_4x4 <-
-    glmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
-           (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
-    (1 | position),
-    data=df.m_surprisal_entropy.finalblock.4x4,
-    family=binomial,
-  control=glmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_surprisal_x_entropy_acc_finalblock_4x4, surprisal_x_entropy_acc_finalblock_4x4_file)
-}
-
-summary_m_surprisal_x_entropy_acc_finalblock_4x4 <- summary(m_surprisal_x_entropy_acc_finalblock_4x4)
+model_summaries <- map(models, summary)
+model_summaries[2]
 ```
-solve singular fit: 
 
-+ remove random slope until isSingular() is False
-+ compare models AIC, and our design mainly focus on surperisal and entropy, final random slope without singular fit exclude interaction and is_repetition
+<!-- H1 & H2: final block only; pruning random effects -->
+```{r}
+model_structures_random_slope <- list(
+  base = "(surprisal_c * prev_entropy_c || subject_id) + (1 | position)",
+  main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
+  s_only = "(surprisal_c | subject_id) + (1 | position)",
+  e_only = "(prev_entropy_c | subject_id) + (1 | position)",
+  intercept = "(1 | subject_id) + (1 | position)"
+)
 
+all_models_random_slope <- map(
+  model_structures_random_slope,
+  ~ map(data_list, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ surprisal_c * prev_entropy_c + is_repetition + ", .x)
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
 
-## H2
+aic_table_random_slope <- map_dfr(
+  names(all_models_random_slope),
+  function(model_name) {
+    map_dfr(
+      names(all_models_random_slope[[model_name]]),
+      function(cond) {
+        m <- all_models_random_slope[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+aic_table_random_slope %>% 
+  filter(aic_table_random_slope$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
+<!-- H1 & H2: final block only; pruning fixed effects -->
+```{r}
+model_structures_fixed_effect <- list(
+  base = "surprisal_c * prev_entropy_c + is_repetition",
+  no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
+  no_is_repetition = "surprisal_c * prev_entropy_c",
+  only_main = "surprisal_c + prev_entropy_c",
+  surprisal_is_repetition = "surprisal_c + is_repetition",
+  entropy_is_repetition = "prev_entropy_c + is_repetition"
+)
+
+all_models_fixed_effect <- map(
+  model_structures_fixed_effect,
+  ~ map(data_list, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ ", .x, " + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)")
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
+
+aic_table_fixed_effect <- map_dfr(
+  names(all_models_fixed_effect),
+  function(model_name) {
+    map_dfr(
+      names(all_models_fixed_effect[[model_name]]),
+      function(cond) {
+        m <- all_models_fixed_effect[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
+<!-- H1 & H2: final block only; fixed effects plots -->
+```{r}
+theme_set(theme_minimal())
+
+effects_df <- map_dfr(
+  names(models),
+  ~ broom.mixed::tidy(models[[.x]]) %>%
+    filter(effect == "fixed" & term != "(Intercept)") %>%
+    mutate(matrix_size = .x)
+) %>%
+  mutate(
+    sig_label = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01 ~ "**",
+      p.value < 0.05 ~ "*",
+      TRUE ~ ""
+    )
+  )
+
+#effects_df$matrix_size <- as.numeric(effects_df$matrix_size)
+
+ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE)
+  labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") + 
+  theme_minimal()
+```
+
+<!-- H1 & H2: learning trajectories; across blocks per condition -->
+```{r}
+data.m_h1h2_all_blocks <- df %>% filter(!is.infinite(log_rt))
+
+data_list_all_blocks <- split(data.m_h1h2_all_blocks, data.m_h1h2_all_blocks$matrix_size)
+
+models_all <- map(data_list_all_blocks, ~ lmer(
+  log_rt ~ surprisal_c * prev_entropy_c * block + block * is_repetition +
+    (surprisal_c + prev_entropy_c + is_repetition + block | subject_id) + (1 | position),
+  data = .x, 
+  REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")))
+
+#iwalk(models_all, function(model, name) {
+#  saveRDS(model, paste0("./models/all_block_per_condition/all_block_models_", name, ".rds"))
+#})
+
+# to read
+#model_names <- c("4", "5", "6", "7", "8")
+#models_all <- map(model_names, ~ readRDS(paste0("./models/all_block_per_condition/all_block_models_", .x, ".rds")))
+#names(models_all) <- model_names
+
+model_summaries_all_blocks <- map(models_all, summary)
+model_summaries_all_blocks[5]
+```
+
+<!-- H1 & H2: learning trajectories; per block per condition -->
+```{r}
+cur_condition <- 8
+data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
+
+data_list_block <- split(data_m4, data_m4$block)
+
+# random effects: (prev_entropy_c | subject_id) + (1 | position) no singular fit for all conditions
+models_block <- map2(names(data_list_block),
+  data_list_block,
+  function(name, dat) {
+      model_path <- paste0("./models/per_block_condition_", cur_condition, "/model_block_", name, ".rds") 
+    dir_path <- dirname(model_path)
+    if (!dir.exists(dir_path)) dir.create(dir_path, recursive = TRUE)
+    if (file.exists(model_path)) {
+        readRDS(model_path)
+    } else {
+        m <- lmer(
+          log_rt ~ surprisal_c * prev_entropy_c + is_repetition + 
+          (prev_entropy_c | subject_id) + (1 | position),
+        data = dat, 
+        REML = FALSE,
+        control = lmerControl(optimizer = "bobyqa")
+      )
+      saveRDS(m, model_path)
+      m
+    }
+  }
+)
+  
+model_summaries_block <- map(models_block, summary)
+model_summaries_block[10]
+```
+
+<!-- H1 & H2: learning trajectories; per block per condition; pruning random effects -->
+```{r}
+model_structures_random_slope <- list(
+  base = "(prev_entropy_c | subject_id) + (1 | position)",
+  main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
+  s_only = "(surprisal_c | subject_id) + (1 | position)",
+  e_only = "(prev_entropy_c | subject_id) + (1 | position)",
+  intercept = "(1 | subject_id) + (1 | position)"
+)
+
+all_models_random_slope <- map(
+  model_structures_random_slope,
+  ~ map(data_list, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ surprisal_c * prev_entropy_c + is_repetition + ", .x)
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
+
+aic_table_random_slope <- map_dfr(
+  names(all_models_random_slope),
+  function(model_name) {
+    map_dfr(
+      names(all_models_random_slope[[model_name]]),
+      function(cond) {
+        m <- all_models_random_slope[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+aic_table_random_slope %>% 
+  filter(aic_table_random_slope$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
+<!-- H1 & H2: learning trajectories; fixed effects plots per block per condition-->
+```{r}
+effects_block <- map_dfr(
+  names(models_block),
+  ~ broom.mixed::tidy(models_block[[.x]]) %>%
+    filter(effect == "fixed" & term != "(Intercept)") %>%
+    mutate(block = as.numeric(.x))
+) %>%
+  mutate(
+    sig_label = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01 ~ "**",
+      p.value < 0.05 ~ "*",
+      TRUE ~ ""
+    )
+  )
+
+ggplot(effects_block, aes(x = block, y = estimate, color = term, group = term)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE) +
+  labs(x = "Block", y = "Effect Estimate", color = "Parameter") +
+  theme_minimal()
+```
 
 ## H3
+```{r}
+#| label: Num positions effect lmer models
+#| (filter for correct trials and group by matrix_size and block)
+#| 
+#| echo: true
+#| include: true
+
+m_matrix_size_rt <-
+  blmer(-log_rt ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
+  data=data.m_h1h2,
+  REML=FALSE,
+  control=lmerControl(optimizer="nloptwrap")) # can change
+
+# m_matrix_size_rt <-
+#  lmer(-log_rt ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
+#       data=data.m_h1h2,
+#       REML=FALSE,
+#       control=lmerControl(optimizer="bobyqa")) # can change
+
+m_matrix_size_acc <- 
+    bglmer(correct ~ matrix_size + is_repetition + (block | subject_id) + (1 | position),
+    data=data.m_h1h2,
+    family=binomial,
+    REML=FALSE,
+    control=lmerControl(optimizer="nloptwrap")) # can change
+
+summary(m_matrix_size_rt)
+summary(m_matrix_size_acc)
+```
+
+For each of the fixed effects used for H1-H2, recover the effect size estimate. Now, for each fixed effect: `effect_size ~ matrix_size*block`
+
+Note that there are no random effects. We use `lm()` and get p-values in the normal way.
+
+Models will be fit with ML for model comparison; final models refit with REML for inference.
+
+```{r}
+#| label: Extract coefficients from per-block models
+#| echo: true
+#| include: true
+
+# Extract coefficients from all per-block models across all conditions
+# This creates a dataframe with: matrix_size, block, and coefficient estimates
+
+library(broom.mixed)
+
+# Get all per-block model directories
+condition_dirs <- list.files("models/", pattern = "per_block_condition_", full.names = TRUE)
+
+# Extract coefficients from each condition's per-block models
+coef_df <- map_dfr(condition_dirs, function(dir) {
+  condition_num <- gsub(".*per_block_condition_(\\d+)", "\\1", dir)
+  matrix_size <- paste0(condition_num, "x", condition_num)
+
+  # Get all model files in this directory
+  model_files <- list.files(dir, pattern = "model_block_.*\\.rds", full.names = TRUE)
+
+  # Extract block number and coefficients from each model
+  map_dfr(model_files, function(file) {
+    block_num <- as.numeric(gsub(".*model_block_(\\d+)\\.rds", "\\1", file))
+
+    # Load model and extract fixed effects
+    m <- readRDS(file)
+    coefs <- fixef(m)
+
+    # Return as a row
+    data.frame(
+      matrix_size = matrix_size,
+      matrix_size_num = as.numeric(condition_num),
+      block = block_num,
+      intercept = coefs["(Intercept)"],
+      surprisal = coefs["surprisal_c"],
+      prev_entropy = coefs["prev_entropy_c"],
+      interaction = coefs["surprisal_c:prev_entropy_c"],
+      is_repetition = coefs["is_repetitionTRUE"]
+    )
+  })
+})
+
+# View structure
+head(coef_df)
+summary(coef_df)
+```
+
+```{r}
+#| label: H3 models - matrix size moderation
+#| echo: true
+#| include: true
+
+# H3: Test whether surprisal, entropy, and interaction effects
+# are moderated by matrix_size and block
+
+# Model 1: Surprisal effect ~ matrix_size * block
+m_h3_surprisal <- lm(surprisal ~ matrix_size_num * block, data = coef_df)
+summary(m_h3_surprisal)
+
+# Model 2: Previous entropy effect ~ matrix_size * block
+m_h3_entropy <- lm(prev_entropy ~ matrix_size_num * block, data = coef_df)
+summary(m_h3_entropy)
+
+# Model 3: Interaction effect ~ matrix_size * block
+m_h3_interaction <- lm(interaction ~ matrix_size_num * block, data = coef_df)
+summary(m_h3_interaction)
+
+# Model 4: Repetition effect ~ matrix_size * block
+m_h3_repetition <- lm(is_repetition ~ matrix_size_num * block, data = coef_df)
+summary(m_h3_repetition)
+```
+
+```{r}
+#| label: H3 visualization
+#| echo: false
+#| include: true
+
+# Create plots directory if it doesn't exist
+dir.create("plots", showWarnings = FALSE)
+
+# Visualize how effects change across matrix size and block
+
+# Plot surprisal effect
+p1 <- ggplot(coef_df, aes(x = block, y = surprisal, color = matrix_size, group = matrix_size)) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  geom_point(alpha = 0.3) +
+  labs(title = "H1: Surprisal Effect Across Learning",
+       x = "Block", y = "Surprisal Coefficient", color = "Matrix Size") +
+  theme_minimal()
+ggsave("plots/h3_surprisal_by_block.png", p1, width = 8, height = 6, dpi = 300)
+print(p1)
+
+# Plot entropy effect
+p2 <- ggplot(coef_df, aes(x = block, y = prev_entropy, color = matrix_size, group = matrix_size)) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  geom_point(alpha = 0.3) +
+  labs(title = "H2: Entropy Effect Across Learning",
+       x = "Block", y = "Previous Entropy Coefficient", color = "Matrix Size") +
+  theme_minimal()
+ggsave("plots/h3_entropy_by_block.png", p2, width = 8, height = 6, dpi = 300)
+print(p2)
+
+# Plot interaction effect
+p3 <- ggplot(coef_df, aes(x = block, y = interaction, color = matrix_size, group = matrix_size)) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  geom_point(alpha = 0.3) +
+  labs(title = "H2: Surprisal × Entropy Interaction Across Learning",
+       x = "Block", y = "Interaction Coefficient", color = "Matrix Size") +
+  theme_minimal()
+ggsave("plots/h3_interaction_by_block.png", p3, width = 8, height = 6, dpi = 300)
+print(p3)
+
+# Plot matrix size effect (averaging across blocks)
+coef_summary <- coef_df %>%
+  group_by(matrix_size, matrix_size_num) %>%
+  summarize(
+    surprisal_mean = mean(surprisal, na.rm = TRUE),
+    surprisal_se = sd(surprisal, na.rm = TRUE) / sqrt(n()),
+    entropy_mean = mean(prev_entropy, na.rm = TRUE),
+    entropy_se = sd(prev_entropy, na.rm = TRUE) / sqrt(n()),
+    interaction_mean = mean(interaction, na.rm = TRUE),
+    interaction_se = sd(interaction, na.rm = TRUE) / sqrt(n())
+  )
+
+p4 <- ggplot(coef_summary, aes(x = matrix_size_num)) +
+  geom_line(aes(y = surprisal_mean, color = "Surprisal")) +
+  geom_point(aes(y = surprisal_mean, color = "Surprisal")) +
+  geom_errorbar(aes(ymin = surprisal_mean - surprisal_se,
+                    ymax = surprisal_mean + surprisal_se, color = "Surprisal"),
+                width = 0.2) +
+  geom_line(aes(y = entropy_mean, color = "Entropy")) +
+  geom_point(aes(y = entropy_mean, color = "Entropy")) +
+  geom_errorbar(aes(ymin = entropy_mean - entropy_se,
+                    ymax = entropy_mean + entropy_se, color = "Entropy"),
+                width = 0.2) +
+  labs(title = "H3: Effect Size by Matrix Size (Averaged Across Blocks)",
+       x = "Matrix Size", y = "Coefficient Estimate", color = "Effect") +
+  theme_minimal()
+ggsave("plots/h3_effects_by_matrix_size.png", p4, width = 8, height = 6, dpi = 300)
+print(p4)
+```
 
 # Discussion
 
