@@ -556,23 +556,35 @@ df.m_h0.correct <- df.correct
 #| label: H0 Learning effect lmer models
 #| echo: false
 # (filter for correct trials and group by matrix_size)
+m_h0_rt_model_cache <- here("models/H0/m_h0_rt.rds")
+m_h0_acc_model_cache <- here("models/H0/m_h0_acc.rds")
 
-m_h0_rt <-
-  lmer(log_rt ~ block * is_repetition + (block * is_repetition| subject_id) + (1 | position),
-  data=df.m_h0.correct,
-  REML=FALSE,
-  control=lmerControl(optimizer="bobyqa")) # can change
+if (file.exists(m_h0_rt_model_cache)) {
+  m_h0_rt <- readRDS(m_h0_rt_model_cache)
+} else {
+  m_h0_rt <- 
+    lmer(log_rt ~ block_c * is_repetition + (block_c * is_repetition| subject_id) + (1 | position),
+                  data=df.m_h0.correct,
+                  REML=FALSE, 
+                  control=lmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_h0_rt, m_h0_rt_model_cache)
+}
 
 summary(m_h0_rt)
 
 df.m_h0.correct <- df.correct %>%
   group_by(matrix_size)
-  
-m_h0_acc <-
-  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
-  data=df.m_h0,
-  family=binomial,
- control=glmerControl(optimizer="bobyqa")) # can change
+
+if (file.exists(m_h0_acc_model_cache)) {
+  m_h0_acc <- readRDS(m_h0_acc_model_cache)
+} else {  
+  m_h0_acc <- 
+    glmer(correct ~ block_c + is_repetition + (block_c | subject_id) + (1 | position),  
+          data=df.m_h0,  
+          family=binomial, 
+          control=glmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_h0_acc, m_h0_acc_model_cache)
+}
 
 summary(m_h0_acc)
 ```
@@ -644,6 +656,10 @@ aic_table_random_slope <- map_dfr(
   }
 )
 
+# need to check isSingular first, if there is any, we exclude the model formula for all conditions
+# aic_table_random_slope %>% 
+#  filter(aic_table_random_slope$isSingular == TRUE)
+
 aic_table_random_slope %>% 
   filter(aic_table_random_slope$isSingular == FALSE) %>% 
   group_by(model) %>%
@@ -696,6 +712,10 @@ aic_table_fixed_effect <- map_dfr(
   }
 )
 
+# need to check isSingular first, if there is any, we exclude the model formula for all conditions
+# aic_table_fixed_effect %>% 
+#  filter(aic_table_fixed_effect$isSingular == TRUE)
+
 aic_table_fixed_effect %>% 
   filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
   group_by(model) %>%
@@ -742,20 +762,21 @@ data.m_h1h2_all_blocks <- df %>% filter(!is.infinite(log_rt))
 data_list_all_blocks <- split(data.m_h1h2_all_blocks, data.m_h1h2_all_blocks$matrix_size)
 
 models_all <- map(data_list_all_blocks, ~ lmer(
-  log_rt ~ surprisal_c * prev_entropy_c * block + block * is_repetition +
-    (surprisal_c + prev_entropy_c + is_repetition + block | subject_id) + (1 | position),
+  log_rt ~ surprisal_c * prev_entropy_c * block_c + block_c * is_repetition +
+    (surprisal_c + prev_entropy_c + is_repetition + block_c | subject_id) + (1 | position),
   data = .x, 
   REML=FALSE,
   control=lmerControl(optimizer="bobyqa")))
 
-#iwalk(models_all, function(model, name) {
-#  saveRDS(model, paste0("./models/all_block_per_condition/all_block_models_", name, ".rds"))
-#})
+# to save
+iwalk(models_all, function(model, name) {
+  saveRDS(model, paste0("../models/all_block_per_condition/all_block_models_", name, ".rds"))
+})
 
 # to read
-#model_names <- c("4", "5", "6", "7", "8")
-#models_all <- map(model_names, ~ readRDS(paste0("./models/all_block_per_condition/all_block_models_", .x, ".rds")))
-#names(models_all) <- model_names
+# model_names <- c("4", "5", "6", "7", "8")
+# models_all <- map(model_names, ~ readRDS(paste0("../models/all_block_per_condition/all_block_models_", .x, ".rds")))
+# names(models_all) <- model_names
 
 model_summaries_all_blocks <- map(models_all, summary)
 model_summaries_all_blocks[5]
@@ -763,7 +784,7 @@ model_summaries_all_blocks[5]
 
 <!-- H1 & H2: learning trajectories; per block per condition -->
 ```{r echo:false, include:false}
-cur_condition <- 8
+cur_condition <- 4
 data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
 
 data_list_block <- split(data_m4, data_m4$block)
@@ -772,7 +793,7 @@ data_list_block <- split(data_m4, data_m4$block)
 models_block <- map2(names(data_list_block),
   data_list_block,
   function(name, dat) {
-      model_path <- paste0("./models/per_block_condition_", cur_condition, "/model_block_", name, ".rds") 
+      model_path <- paste0("../models/per_block_condition_", cur_condition, "/model_block_", name, ".rds") 
     dir_path <- dirname(model_path)
     if (!dir.exists(dir_path)) dir.create(dir_path, recursive = TRUE)
     if (file.exists(model_path)) {
@@ -789,7 +810,7 @@ models_block <- map2(names(data_list_block),
       m
     }
   }
-)
+) %>% set_names(names(data_list_block))
   
 model_summaries_block <- map(models_block, summary)
 model_summaries_block[10]
@@ -799,15 +820,19 @@ model_summaries_block[10]
 ```{r echo:false, include:false}
 model_structures_random_slope <- list(
   base = "(prev_entropy_c | subject_id) + (1 | position)",
-  main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
   s_only = "(surprisal_c | subject_id) + (1 | position)",
-  e_only = "(prev_entropy_c | subject_id) + (1 | position)",
+  rep_only = "(is_repetition | subject_id) + (1 | position)",
   intercept = "(1 | subject_id) + (1 | position)"
 )
 
+# 4: base, 5: base, 6: base, 7: base, 8: base
+cur_condition <- 4
+data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
+data_list_block <- split(data_m4, data_m4$block)
+
 all_models_random_slope <- map(
   model_structures_random_slope,
-  ~ map(data_list, function(dat) {
+  ~ map(data_list_block, function(dat) {
     lmer(
       as.formula(
         paste0("log_rt ~ surprisal_c * prev_entropy_c + is_repetition + ", .x)
@@ -838,7 +863,132 @@ aic_table_random_slope <- map_dfr(
 )
 
 aic_table_random_slope %>% 
+  filter(aic_table_random_slope$isSingular == TRUE)
+
+aic_table_random_slope %>% 
   filter(aic_table_random_slope$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
+<!-- H1 & H2: learning trajectories; per block per condition; pruning fixed effects -->
+```{r}
+model_structures_fixed_effect <- list(
+  base = "surprisal_c * prev_entropy_c + is_repetition",
+  no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
+  no_is_repetition = "surprisal_c * prev_entropy_c",
+  only_main = "surprisal_c + prev_entropy_c",
+  surprisal_is_repetition = "surprisal_c + is_repetition",
+  entropy_is_repetition = "prev_entropy_c + is_repetition"
+)
+
+# 4: no_interaction < base, 5: base < no_interaction, 6: no_interaction < base, 7: base < no_interaction, 8: no_interaction < base
+cur_condition <- 8
+data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
+data_list_block <- split(data_m4, data_m4$block)
+
+all_models_fixed_effect <- map(
+  model_structures_fixed_effect,
+  ~ map(data_list_block, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ ", .x, " + (prev_entropy_c | subject_id) + (1 | position)")
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
+
+aic_table_fixed_effect <- map_dfr(
+  names(all_models_fixed_effect),
+  function(model_name) {
+    map_dfr(
+      names(all_models_fixed_effect[[model_name]]),
+      function(cond) {
+        m <- all_models_fixed_effect[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+# need to check isSingular first, if there is any, we exclude the model formula for all conditions
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == TRUE)
+
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
+<!-- H1 & H2: learning trajectories; per block per condition; pruning fixed effects -->
+```{r echo:false, include:false}
+model_structures_fixed_effect <- list(
+  base = "surprisal_c * prev_entropy_c + is_repetition",
+  no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
+  no_is_repetition = "surprisal_c * prev_entropy_c",
+  only_main = "surprisal_c + prev_entropy_c",
+  surprisal_is_repetition = "surprisal_c + is_repetition",
+  entropy_is_repetition = "prev_entropy_c + is_repetition"
+)
+
+# 4: no_interaction < base, 5: base < no_interaction, 6: no_interaction < base, 7: base < no_interaction, 8: no_interaction < base
+cur_condition <- 8
+data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
+data_list_block <- split(data_m4, data_m4$block)
+
+all_models_fixed_effect <- map(
+  model_structures_fixed_effect,
+  ~ map(data_list_block, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ ", .x, " + (prev_entropy_c | subject_id) + (1 | position)")
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
+
+aic_table_fixed_effect <- map_dfr(
+  names(all_models_fixed_effect),
+  function(model_name) {
+    map_dfr(
+      names(all_models_fixed_effect[[model_name]]),
+      function(cond) {
+        m <- all_models_fixed_effect[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+# need to check isSingular first, if there is any, we exclude the model formula for all conditions
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == TRUE)
+
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
   group_by(model) %>%
   summarise(total_AIC = sum(AIC)) %>%
   arrange(total_AIC)
