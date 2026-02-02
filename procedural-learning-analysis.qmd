@@ -23,6 +23,8 @@ library(jsonlite)
 library(clipr)
 library(reticulate)
 library(lmerTest) # show p value in lmer
+library(purrr)
+library(broom.mixed)
 
 np <- import("numpy")
 ```
@@ -443,10 +445,10 @@ For H1 & H2, we analyze each block independently. First, we determine the effect
 
 ```{r}
 # last block data model, for each of the matrix_size
-library(purrr)
-
 data.m_h1h2 <- df %>%
   filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, !is.infinite(log_rt))
+
+
 
 data_list <- split(data.m_h1h2, data.m_h1h2$matrix_size)
 
@@ -454,63 +456,254 @@ data_list <- split(data.m_h1h2, data.m_h1h2$matrix_size)
 
 models <- map(data_list, ~ lmer(
   log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-    (surprisal_c * prev_entropy_c + is_repetition | subject_id),
-  data = .x
-))
+    (surprisal_c * prev_entropy_c || subject_id) + (1 | position),
+  data = .x, 
+  REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")))
 
 model_summaries <- map(models, summary)
-# model_summaries[2]
+model_summaries[2]
 ```
 
+### per condition models for final block
+
+#### Prune random slopes
+
+base model: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)
+
+result: keep base model
+
 ```{r}
-# last block data model, for each of the matrix_size: plotting fixed effects (exclude intercepts)
-library(broom.mixed)
+model_structures_random_slope <- list(
+  base = "(surprisal_c * prev_entropy_c || subject_id) + (1 | position)",
+  main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
+  s_only = "(surprisal_c | subject_id) + (1 | position)",
+  e_only = "(prev_entropy_c | subject_id) + (1 | position)",
+  intercept = "(1 | subject_id) + (1 | position)"
+)
+
+all_models_random_slope <- map(
+  model_structures_random_slope,
+  ~ map(data_list, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ surprisal_c * prev_entropy_c + is_repetition + ", .x)
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
+
+aic_table_random_slope <- map_dfr(
+  names(all_models_random_slope),
+  function(model_name) {
+    map_dfr(
+      names(all_models_random_slope[[model_name]]),
+      function(cond) {
+        m <- all_models_random_slope[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+aic_table_random_slope %>% 
+  filter(aic_table_random_slope$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
+#### Prune fixed effects: 
+
+base model: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)
+
+results: keep base model
+
+```{r}
+model_structures_fixed_effect <- list(
+  base = "surprisal_c * prev_entropy_c + is_repetition",
+  no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
+  no_is_repetition = "surprisal_c * prev_entropy_c",
+  only_main = "surprisal_c + prev_entropy_c",
+  surprisal_is_repetition = "surprisal_c + is_repetition",
+  entropy_is_repetition = "prev_entropy_c + is_repetition"
+)
+
+all_models_fixed_effect <- map(
+  model_structures_fixed_effect,
+  ~ map(data_list, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ ", .x, " + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)")
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
+
+aic_table_fixed_effect <- map_dfr(
+  names(all_models_fixed_effect),
+  function(model_name) {
+    map_dfr(
+      names(all_models_fixed_effect[[model_name]]),
+      function(cond) {
+        m <- all_models_fixed_effect[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
+#### plotting final models per condition (final blocks): fixed effects (exclude intercepts)
+
+```{r}
+theme_set(theme_minimal())
 
 effects_df <- map_dfr(
   names(models),
   ~ broom.mixed::tidy(models[[.x]]) %>%
     filter(effect == "fixed" & term != "(Intercept)") %>%
     mutate(matrix_size = .x)
-)
+) %>%
+  mutate(
+    sig_label = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01 ~ "**",
+      p.value < 0.05 ~ "*",
+      TRUE ~ ""
+    )
+  )
 
-effects_df$matrix_size <- as.numeric(effects_df$matrix_size)
+#effects_df$matrix_size <- as.numeric(effects_df$matrix_size)
 
 ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term)) +
   geom_line() +
   geom_point() +
   geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
-  labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") +
+  geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE)
+  labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") + 
   theme_minimal()
 ```
+### learning across blocks
+
+#### try add block as a variable in the model
 
 ```{r}
-data_m4 <- subset(df, matrix_size == 4) # can change
+data.m_h1h2_all_blocks <- df %>% filter(!is.infinite(log_rt))
+
+data_list_all_blocks <- split(data.m_h1h2_all_blocks, data.m_h1h2_all_blocks$matrix_size)
+
+models_all <- map(data_list_all_blocks, ~ lmer(
+  log_rt ~ surprisal_c * prev_entropy_c * block + block * is_repetition +
+    (surprisal_c + prev_entropy_c + is_repetition + block | subject_id) + (1 | position),
+  data = .x, 
+  REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")))
+
+#iwalk(models_all, function(model, name) {
+#  saveRDS(model, paste0("./models/all_block_per_condition/all_block_models_", name, ".rds"))
+#})
+
+# to read
+#model_names <- c("4", "5", "6", "7", "8")
+#models_all <- map(model_names, ~ readRDS(paste0("./models/all_block_per_condition/all_block_models_", .x, ".rds")))
+#names(models_all) <- model_names
+
+model_summaries_all_blocks <- map(models_all, summary)
+model_summaries_all_blocks[5]
+```
+
+#### try seperate models per block
+
+all models no singular fit: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (prev_entropy_c | subject_id) + (1 | position)
+
+
+```{r}
+cur_condition <- 8
+data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
 
 data_list_block <- split(data_m4, data_m4$block)
 
-models_block <- map(data_list_block, ~ lmer(
-  log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
-    (surprisal_c * prev_entropy_c + is_repetition | subject_id),
-  data = .x
-))
+# random effects: (prev_entropy_c | subject_id) + (1 | position) no singular fit for all conditions
+models_block <- map2(names(data_list_block),
+                     data_list_block,
+                     function(name, dat) {
+                       model_path <- paste0("./models/per_block_condition_", cur_condition, "/model_block_", name, ".rds") 
+                       dir_path <- dirname(model_path)
+                       if (!dir.exists(dir_path)) dir.create(dir_path, recursive = TRUE)
+                       if (file.exists(model_path)) {
+                         readRDS(model_path)
+                       } else {
+                         m <- lmer(
+                           log_rt ~ surprisal_c * prev_entropy_c + is_repetition + 
+                             (prev_entropy_c | subject_id) + (1 | position),
+                           data = dat, 
+                           REML = FALSE,
+                           control = lmerControl(optimizer = "bobyqa")
+                         )
+                         saveRDS(m, model_path)
+                         m
+                       }
+                     }
+)
+  
+model_summaries_block <- map(models_block, summary)
+model_summaries_block[10]
+```
+#### ploting final models per condition (per blocks): fixed effects (exclude intercepts)
 
-
+```{r}
 effects_block <- map_dfr(
   names(models_block),
   ~ broom.mixed::tidy(models_block[[.x]]) %>%
     filter(effect == "fixed" & term != "(Intercept)") %>%
     mutate(block = as.numeric(.x))
-)
-
+) %>%
+  mutate(
+    sig_label = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01 ~ "**",
+      p.value < 0.05 ~ "*",
+      TRUE ~ ""
+    )
+  )
 
 ggplot(effects_block, aes(x = block, y = estimate, color = term, group = term)) +
   geom_line() +
   geom_point() +
   geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
+  geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE) +
   labs(x = "Block", y = "Effect Estimate", color = "Parameter") +
   theme_minimal()
 ```
 
+### single condition version (deprecated)
 
 ```{r}
 #| label: Surprisal x previous position entropy lmer models
@@ -619,7 +812,7 @@ m_surprisal_x_entropy_rt_brm <- brm(
 summary(m_surprisal_x_entropy_rt_brm)
 ```
 
-### Prune random slopes
+#### Prune random slopes
 
 base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c + prev_entropy_c | subject_id) + (1 | position)`
 
@@ -667,7 +860,7 @@ AIC(m_surprisal_x_entropy_rt_simple, m_surprisal_x_entropy_rt_rand_slope_1, m_su
 # summary(m_surprisal_x_entropy_rt_rand_slope_1)
 ```
 
-### Prune fixed effects
+#### Prune fixed effects
 
 base model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + [random effects left in last section]`
 
@@ -699,7 +892,7 @@ m_surprisal_x_entropy_rt_fixed_effects_2 <-
 AIC(m_surprisal_x_entropy_rt_simple, m_surprisal_x_entropy_rt_fixed_effects_1, m_surprisal_x_entropy_rt_fixed_effects_2)
 ```
 
-### previous code
+### previous code (deprecated)
 
 *We then prune the model as follows:*
 
