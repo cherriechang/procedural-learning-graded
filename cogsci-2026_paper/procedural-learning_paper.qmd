@@ -11,12 +11,16 @@ format:
       text: |
         \usepackage{cogsci}
         \usepackage{pslatex}
-        \hyphenpenalty=10000
-        \exhyphenpenalty=10000
+        \setlength{\parskip}{0pt}
+        \setlength{\parindent}{1em}
+        \tolerance=9999
+        \emergencystretch=3em
+        \hyphenpenalty=1000
+        \exhyphenpenalty=1000
     keep-tex: true
     cite-method: natbib
-    natbiboptions: [numbers]
-bibliography: CogSci_Template.bib
+    natbiboptions: "authoryear"
+bibliography: procedural-learning_bibliography.bib
 editor: source
 ---
 ```{r}
@@ -34,6 +38,7 @@ library(jsonlite)
 library(clipr)
 library(reticulate)
 library(lmerTest) # show p value in lmer
+library(blme)
 
 np <- import("numpy")
 ```
@@ -45,18 +50,24 @@ Your abstract text here. The abstract should be one paragraph. Following the abs
 **Keywords:** procedural learning, implicit learning, statistical learning
 :::
 
-# Introduction
+# Introductino
+How many times have you typed "form" instead of "from"? Or ended a word with "-tino" instead of "-tion", perhaps even in an important, embarrassingly glaring context? The typos we make are not random; they reflect the statistical patterns in the language we use. Experienced typists learn that some keystroke sequences are highly probable, causing their fingers to automatically perform ones like "for" mistakenly, or perform them so quickly they slip up, like in the case of "-tino". Yet typists cannot consciously report these probabilities or articulate their finger movements at the speed of execution - this knowledge is expressed in the automatic motor performance of typing, not in conscious awareness. This implicit form of learning, where statistical regularities are unconsciously acquired and expressed as behavior rather than declared knowledge, is called procedural learning (@squire_memory_2004, @nissen_attentional_1987).
 
-Your introduction text here. You can cite references using `@NewellSimon1972a` or `[@ChalnickBillman1988a]`.
+Procedural learning is not limited to typing. It underlies skill acquisition across many domains, from proprioceptive skills like riding a bike to perceptual-cognitive skills like reading mirrored text (@kassubek_changes_2001). More recently, procedural learning has been proposed to support increasingly diverse and sophisticated abilities, notably grammar acquisition in language (@ullman_specific_2005, @lammertink_statistical_2017, @lum_procedural_2014, @kidd_individual_2016). These proposals invite closer scrutiny of its scalability: can the procedural learning system handle the large-scale, complex statistical structures that characterize domains like grammar? Consider a suggestive historical case: while QWERTY keyboards (26 letter keys) enabled fluent touch typing through procedural learning, Chinese typewriters (trays of 2,000+ characters) never achieved comparable automaticity and were eventually abandoned (for QWERTY keyboards, among others!) (@mullaney_chinese_2017). This raises a fundamental question: does procedural learning fail beyond a certain level of statistical complexity and state space size? As a first step toward answering these questions, we examine whether procedural learning tracks fine-grained statistical patterns - both the predictability of individual transitions and the uncertainty of different states - and how it scales across state space sizes from 4 to 8 positions.
+
+The primary method for measuring procedural learning has been the Serial Reaction Time Task (SRTT; @nissen_attentional_1987). In the SRTT, participants respond to stimuli appearing in one of four positions on screen using key presses. Unbeknownst to them, the sequence of positions follows a deterministic pattern. Over time, reaction times (RT) decrease for patterned trials relative to random trials, demonstrating procedural learning of the key press sequence corresponding to the positional sequence's deterministic pattern. While the SRTT provided early evidence for procedural learning, it suffers from a critical confound: participants often develop explicit awareness of the sequence, making it difficult to isolate implicit procedural learning effects (@song_perceptual_2008, @lustig_transition_2022). This has contributed to low test-retest reliability (@west_procedural_2018, @oliveira_reliability_2023).
+
+The Alternating Serial Reaction Time Task (ASRT; @howard_jr_age_1997) addressed these issues by introducing a probabilistic design. In ASRT, deterministic (d) and random (r) trials alternate (e.g., d-r-d-r), resulting in positional sequences with two levels of frequency (high vs. low). This probabilistic design minimizes explicit awareness and dramatically improves reliability (@farkas_complexity_2024, @oliveira_reliability_2023). However, a key limitation of ASRT is that its bimodal frequency distribution represents an overtly simplistic statistical structure, lacking the graded frequency distributions found in real-world domains like language. Finally, across both SRTT and ASRT, experiment designs have mostly tested sequences with four possible positions (e.g., @janacsek_best_2012, @hedenius_grammar_2011), despite real-world domains where procedural learning is implicated often involving far larger state spaces. Whether procedural learning can track graded statistical structures, and whether it scales to larger state spaces, remains untested.
+
+Here, we introduce a new paradigm that retains ASRT's probabilistic design but introduces a graded statistical structure with a smooth continuum of transition probabilities. We construct transition matrices to generate positional sequences where each position has a different entropy, ranging from deterministic (low entropy) to uniformly distributed (high entropy). We also vary the number of positions (4, 5, 6, 7, 8) to test whether procedural learning scales with state space size. This allows us to ask: (1) Are learners sensitive to fine-grained differences in transition probabilities (surprisal) and state-level uncertainty (entropy), beyond simple high vs. low frequency contrasts? (2) Do learning trajectories change as the number of positions increases? Across 219 participants, we find evidence that procedural learning is sensitive to graded statistical structure, and that this sensitivity emerges early and strengthens over time. These results suggest that procedural learning is more flexible than prior paradigms can reveal, with implications for understanding how procedural learning operates in naturalistic environments.
 
 ## Hypotheses
-We make the following predictions. First, participants will show a basic learning effect: RT will decrease and accuracy will increase across blocks (H0). Second, within the learned statistical structure, trial-level RT and accuracy will be predicted by surprisal — the negative log probability of the observed transition — such that higher-surprisal (less predictable) transitions elicit slower and less accurate responses (H1). Third, previous positional entropy — the entropy of the transition distribution from the preceding position — will modulate performance independently, with higher-entropy (more uncertain) preceding positions leading to slower and less accurate responses (H2). We further predict that surprisal effects will be stronger at low-entropy positions, where predictions are more confident and prediction errors more costly, yielding a surprisal × entropy interaction. Finally, these effects will be attenuated as the number of positions increases, reflecting greater difficulty in learning more complex statistical structures (H3). Note that number of positions is confounded with entropy range in our design, so H3 effects may partially reflect differences in entropy distributions across conditions
-# Method
+We make the following predictions: First, if participants are learning the statistical structure and not merely practicing motor responses, trial-level RT and accuracy will be predicted by surprisal—the negative log probability of the observed transition—such that higher-surprisal (less predictable) transitions elicit slower and less accurate responses (H1). Second, previous positional entropy—the entropy of the transition distribution from the previous position—will modulate performance independently, with higher-entropy (more uncertain) previous positions leading to slower and less accurate responses (H2). We further predict that surprisal effects will be stronger following low-entropy positions, where predictions are more confident and prediction errors more costly (surprisal × entropy interaction). Third, these effects will be attenuated as the number of positions increases, reflecting greater difficulty in learning more complex statistical structures (H3). Note that number of positions is confounded with entropy range in our design, so H3 effects may partially reflect differences in entropy distributions across conditions.
 
+# Method
 ## Participants
 ```{r}
 #| label: Demographic data
-#| include: false
 #| echo: false
 
 df.demographics <- list.files(here("demographic-data/"), pattern = "*.csv", full.names=TRUE) %>%
@@ -211,7 +222,10 @@ The five original matrices we constructed using this algorithm had these propert
 #| label: Retrieve data from OSF
 #| echo: false
 #| include: false
-#| cache: true
+#| eval: false
+
+# NOTE: Set eval=true only when you need to download data from OSF for the first time.
+# Once data is downloaded locally, keep eval=false to speed up rendering.
 
 files_4x4 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_4x4) %>%
   osf_ls_files(n_max = Inf) %>%
@@ -232,6 +246,12 @@ files_7x7 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_7x7) %>%
 files_8x8 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_8x8) %>%
   osf_ls_files(n_max = Inf) %>%
   osf_download(path = here("data/8x8-data"), conflicts="skip")
+```
+
+```{r}
+#| label: List local data files
+#| echo: false
+#| include: false
 
 # But there is some bug in osfr that causes one file name to be duplicated and one file name to be skipped, so alternatively just download manually from OSF and put in data/ folder:
 files_4x4 <- list.files("data/4x4-data")
@@ -244,18 +264,29 @@ files_8x8 <- list.files("data/8x8-data")
 #| label: Bind all data together
 #| echo: false
 #| include: false
-#| cache: true
-df.raw <- list.files(here("data/"), pattern = "*.csv", full.names=TRUE, recursive=TRUE) %>%
-  .[!grepl("pilot-data", .)] %>%
-  lapply(read.csv) %>%
-  bind_rows()
+
+# Cache df.raw to speed up rendering
+df_raw_cache <- here("data/processed/df_raw.rds")
+
+if (file.exists(df_raw_cache)) {
+  df.raw <- readRDS(df_raw_cache)
+} else {
+  df.raw <- list.files(here("data/"), pattern = "*.csv", full.names=TRUE, recursive=TRUE) %>%
+    .[!grepl("pilot-data", .)] %>%
+    lapply(read.csv) %>%
+    bind_rows()
+
+  # Create processed directory if it doesn't exist
+  dir.create(here("data/processed"), showWarnings = FALSE, recursive = TRUE)
+  saveRDS(df.raw, df_raw_cache)
+}
 ```
 
 ```{r}
 #| label: Filter out unnecessary columns
 #| echo: false
 #| include: false
-#| cache: true
+
 df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, trials_per_block, total_trials, practice_trials, transition_matrix, conditional_entropies, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item))
 ```
 
@@ -263,7 +294,6 @@ df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, trials_per_b
 #| label: Clean up data formatting
 #| echo: false
 #| include: false
-#| cache: true
 
 # Convert NA values
 df <- df %>%
@@ -297,8 +327,7 @@ df <- df %>%
 #| label: Fill down overall_trial, trial_in_block, block
 #| echo: false
 #| include: false
-#| cache: true
-#| 
+
 df <- df %>%
     group_by(subject_id) %>%
     arrange(subject_id, row_number()) %>%
@@ -326,7 +355,6 @@ df <- df %>%
 #| label: Sanity check for unique subject_ids, matrix size, total number of trials, practice trials, transition matrices, conditional entropies and sequences across subjects and conditions
 #| echo: false
 #| include: false
-#| cache: true
 
 unique_subjects <- unique(df$subject_id)
 
@@ -364,7 +392,6 @@ df <- df[, !(names(df) %in% c("transition_matrix", "conditional_entropies"))]
 #| label: Separate practice, main and questionnaire sections
 #| echo: false
 #| include: false
-#| cache: true
 
 df.practice <- df[df$phase=="practice", ]
 df.questionnaire <- df[df$phase=="questionnaire", ]
@@ -375,7 +402,6 @@ df <- df[df$phase=="main", ]
 #| label: exclude-subjects
 #| echo: false
 #| include: false
-#| cache: true
 
 # Exclude subjects that
 # 1. Made too many mistakes (more than 15%)
@@ -406,6 +432,7 @@ rt_excluded_subjects <- df %>%
 df <- df %>%
   filter(!subject_id %in% accuracy_excluded_subjects & !subject_id %in% rt_excluded_subjects)
 ```
+
 ```{r}
 #| label: Filter df down to only stimulus, non-retry trials
 #| echo: false
@@ -414,42 +441,60 @@ df <- df %>%
 df <- df %>%
   filter(experiment_trial_type=="stimulus" & !is.na(rt))
 ```
+
 ```{r}
 #| label: Remove first trial of each block
 #| echo: false
 #| include: false
-#| cache: true
 
 df <- df %>%
   group_by(block, subject_id) %>%
   slice(2:n())
 ```
+
 ```{r}
 #| label: Make a new column for log(rt), previous position entropy, prev_entropy_c, surprisal_c, is_repetition
 #| echo: false
 #| include: false
-#| cache: true
 
-df <- df %>%
-  mutate(log_rt=log(rt)) %>%
-  filter(!is.infinite(log_rt)) %>%
-  mutate(is_repetition=(position==lag(position,1))) %>%
-  group_by(subject_id, block) %>%
-  mutate(previous_entropy=lag(conditional_entropy, 1)) %>%
-  ungroup() %>%
-  group_by(matrix_size) %>%
-  mutate(prev_entropy_c=previous_entropy-mean(previous_entropy, na.rm=TRUE)) %>%
-  mutate(surprisal_c=surprisal-mean(surprisal, na.rm=TRUE)) %>%
-  ungroup()
+# Cache fully processed df
+df_processed_cache <- here("data/processed/df_processed.rds")
+
+if (file.exists(df_processed_cache)) {
+  df <- readRDS(df_processed_cache)
+} else {
+  df <- df %>%
+    mutate(log_rt=log(rt)) %>%
+    filter(!is.infinite(log_rt)) %>%
+    mutate(is_repetition=(position==lag(position,1))) %>%
+    group_by(subject_id, block) %>%
+    mutate(previous_entropy=lag(conditional_entropy, 1)) %>%
+    ungroup() %>%
+    group_by(matrix_size) %>%
+    mutate(prev_entropy_c=previous_entropy-mean(previous_entropy, na.rm=TRUE)) %>%
+    mutate(surprisal_c=surprisal-mean(surprisal, na.rm=TRUE)) %>%
+    ungroup()
+
+  saveRDS(df, df_processed_cache)
+}
 ```
+
 ```{r}
 #| label: Make subset of df with only correct trials
 #| echo: false
 #| include: false
-#| cache: true
 
-df.correct <- df %>%
-  filter(correct)
+# Cache correct trials df
+df_correct_cache <- here("data/processed/df_correct.rds")
+
+if (file.exists(df_correct_cache)) {
+  df.correct <- readRDS(df_correct_cache)
+} else {
+  df.correct <- df %>%
+    filter(correct)
+
+  saveRDS(df.correct, df_correct_cache)
+}
 ```
 
 ## Variables and Exclusion Criteria
@@ -464,41 +509,242 @@ Models are initially fit with the maximal random effects structure supported by 
 
 For H1 and H2, we first establish the fixed effects structure using only the final block of trials, then extend to learning trajectories across blocks. Starting from a base model including surprisal, previous positional entropy, their interaction, and repetition as fixed effects (with the selected random effects structure), we use AIC-based model comparison to prune fixed effects. We first test whether repetition is significant by comparing the base model against one in which it is removed; if removing it does not increase AIC, we drop it from the base model. We then test whether the interaction term between surprisal and previous positional entropy is significant by comparing the current base model against one in which the interaction term is removed. If the interaction is not significant, we test each main effect individually by comparing models that omit surprisal or previous positional entropy as main effects. An effect is retained if removing it increases AIC.
 
-```{r}
-#| label: Learning effect lmer models
-#| (filter for correct trials and group by matrix_size)
-#| echo: true
-#| include: true
-
-df.m_h0 <- df %>%
-  group_by(matrix_size)
-
-m_h0_rt <-
-  lmer(-log_rt ~ block + is_repetition + (block | subject_id) + (1 | position),
-  data=df.m_h0,
-  REML=FALSE,
-  control=lmerControl(optimizer="bobyqa")) # can change
-
-summary(m_h0_rt)
-
-df.m_h0.correct <- df.correct %>%
-  group_by(matrix_size)
-  
-m_h0_acc <-
-  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
-  data=df.m_h0,
-  family=binomial,
-  control=glmerControl(optimizer="bobyqa")) # can change
-
-summary(m_h0_acc)
-```
-## H0. Learning Effect
-
 # Results
+## H0. Learning Effect
+```{r}
+#| label: prepare-m-learning-data
+#| echo: false
+#| eval: false
 
-## H0
+df.m_learning <- df
+df.m_learning.correct <- df.correct
+```
+
+```{r}
+#| label: m-learning-lmer
+#| echo: false
+#| eval: false
+
+# Model: log_rt ~ block * matrix_size + is_repetition + (block * matrix_size + is_repetition | subject_id) + (1 | position)
+# Using lmer, filter for correct trials and group by matrix_size
+
+# Results:
+# This model timed out with the following warning message:
+# In optwrap(optimizer, devfun, start, rho$lower, control = control,  :
+#   convergence code 1 from bobyqa: bobyqa -- maximum number of function evaluations exceeded
+
+m_learning_rt_lmer_file <- here("models/m_learning_rt_lmer.rds")
+m_learning_acc_lmer_file <- here("models/m_learning_acc_lmer.rds")
+
+if (file.exists(m_learning_rt_lmer_file)) {
+  m_learning_rt_lmer <- readRDS(m_learning_rt_lmer_file)
+} else {
+  m_learning_rt_lmer <-
+    lmer(log_rt ~ block * matrix_size + is_repetition + (block * matrix_size + is_repetition | subject_id) + (1 | position),
+    data=df.m_learning.correct,
+    REML=FALSE,
+    control=lmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_learning_rt_lmer, m_learning_rt_lmer_file)
+}
+
+summary_m_learning_rt_lmer <- summary(m_learning_rt_lmer)
+
+if (file.exists(m_learning_acc_lmer_file)) {
+  m_learning_acc_lmer <- readRDS(m_learning_acc_lmer_file)
+} else {
+  m_learning_acc_lmer <-
+    glmer(correct ~ block * matrix_size + is_repetition + (block * matrix_size + is_repetition | subject_id) + (1 | position),
+    data=df.m_learning,
+    family=binomial,
+    control=glmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_learning_acc_lmer, m_learning_acc_lmer_file)
+}
+
+summary_m_learning_acc_lmer <- summary(m_learning_acc_lmer)
+```
+
+## H0: Pruning random effects structure
+```{r}
+#| label: m-learning-lmer-pruned-1
+#| echo: false
+#| eval: false
+
+# Model: log_rt ~ block * matrix_size + is_repetition + (block * matrix_size | subject_id) + (1 | position)
+# Using lmer, filter for correct trials and group by matrix_size
+# Results:
+# Model did not converge
+
+m_learning_rt_lmer_p1_file <- here("models/m_learning_rt_lmer_p1.rds")
+m_learning_acc_lmer_p1_file <- here("models/m_learning_acc_lmer_p1.rds")
+
+if (file.exists(m_learning_rt_lmer_p1_file)) {
+  m_learning_rt_lmer_p1 <- readRDS(m_learning_rt_lmer_p1_file)
+} else {
+  m_learning_rt_lmer_p1 <-
+    lmer(log_rt ~ block * matrix_size + is_repetition + (block * matrix_size | subject_id) + (1 | position),
+    data=df.m_learning.correct,
+    REML=FALSE,
+    control=lmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_learning_rt_lmer_p1, m_learning_rt_lmer_p1_file)
+}
+
+summary_m_learning_rt_lmer_p1 <- summary(m_learning_rt_lmer_p1)
+
+if (file.exists(m_learning_acc_lmer_p1_file)) {
+  m_learning_acc_lmer_p1 <- readRDS(m_learning_acc_lmer_p1_file)
+} else {
+  m_learning_acc_lmer_p1 <-
+    glmer(correct ~ block * matrix_size + is_repetition + (block * matrix_size | subject_id) + (1 | position),
+    data=df.m_learning,
+    family=binomial,
+    control=glmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_learning_acc_lmer_p1, m_learning_acc_lmer_p1_file)
+}
+
+summary_m_learning_acc_lmer_p1 <- summary(m_learning_acc_lmer_p1)
+```
+
+```{r}
+#| label: m-learning-lmer-pruned-2
+#| echo: false
+#| eval: true
+
+# Model: log_rt ~ block * matrix_size + is_repetition + (1 | subject_id) + (1 | position)
+# Using lmer, filter for correct trials and group by matrix_size
+# Results: Model converged!
+
+m_learning_rt_lmer_p2_file <- here("models/m_learning_rt_lmer_p2.rds")
+
+if (file.exists(m_learning_rt_lmer_p2_file)) {
+  m_learning_rt_lmer_p2 <- readRDS(m_learning_rt_lmer_p2_file)
+} else {
+  m_learning_rt_lmer_p2 <-
+    lmer(log_rt ~ block * matrix_size + is_repetition + (is_repetition | subject_id) + (1 | position),
+    data=df.m_learning.correct,
+    REML=FALSE,
+    control=lmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_learning_rt_lmer_p2, m_learning_rt_lmer_p2_file)
+}
+
+summary_m_learning_rt_lmer_p2 <- summary(m_learning_rt_lmer_p2)
+
+m_learning_acc_lmer_p2_file <- here("models/m_learning_acc_lmer_p2.rds")
+
+if (file.exists(m_learning_acc_lmer_p2_file)) {
+  m_learning_acc_lmer_p2 <- readRDS(m_learning_acc_lmer_p2_file)
+} else {
+  m_learning_acc_lmer_p2 <-
+    glmer(correct ~ block + is_repetition + (1 | subject_id) + (1 | position),
+    data=df.m_learning,
+    family=binomial,
+    control=glmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_learning_acc_lmer_p2, m_learning_acc_lmer_p2_file)
+}
+
+summary_m_learning_acc_lmer_p2 <- summary(m_learning_acc_lmer_p2)
+```
 
 ## H1
+For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
+
+### Final block only
+```{r}
+#| label: prepare-m-surprisal-entropy-finalblock-data
+#| echo: false
+#| include: false
+
+# 4x4
+df.m_surprisal_entropy.finalblock.4x4 <- df %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 4) %>%
+  group_by(matrix_size)
+
+df.m_surprisal_entropy.finalblock.correct.4x4 <- df.correct %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 4) %>%
+  group_by(matrix_size)
+
+# 5x5
+df.m_surprisal_entropy.finalblock.5x5 <- df %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 5) %>%
+  group_by(matrix_size)
+
+df.m_surprisal_entropy.finalblock.correct.5x5 <- df.correct %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 5) %>%
+  group_by(matrix_size)
+
+# 6x6
+df.m_surprisal_entropy.finalblock.6x6 <- df %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 6) %>%
+  group_by(matrix_size)
+
+df.m_surprisal_entropy.finalblock.correct.6x6 <- df.correct %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 6) %>%
+  group_by(matrix_size)
+
+# 7x7
+df.m_surprisal_entropy.finalblock.7x7 <- df %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 7) %>%
+  group_by(matrix_size)
+
+df.m_surprisal_entropy.finalblock.correct.7x7 <- df.correct %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 7) %>%
+  group_by(matrix_size)
+
+# 8x8
+df.m_surprisal_entropy.finalblock.8x8 <- df %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 8) %>%
+  group_by(matrix_size)
+
+df.m_surprisal_entropy.finalblock.correct.8x8 <- df.correct %>%
+  filter(block==EXPERIMENT_CONFIG[["n_blocks"]]-1, matrix_size == 8) %>%
+  group_by(matrix_size)
+```
+
+#### 4x4
+```{r}
+#| label: surprisal-x-entropy-lmer-4x4
+#| echo: false
+
+# Model: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c + is_repetition | subject_id) + (1 | position)
+# Using lmer, filter for matrix_size == 4 and correct trials 
+
+m_surprisal_x_entropy_rt_finalblock_4x4_file <- here("models/m_surprisal_x_entropy_rt_finalblock_4x4.rds")
+surprisal_x_entropy_acc_finalblock_4x4_file <- here("models/m_surprisal_x_entropy_acc_finalblock_4x4.rds")
+
+if (file.exists(m_surprisal_x_entropy_rt_finalblock_4x4_file)) {
+  m_surprisal_x_entropy_rt_finalblock_4x4 <- readRDS(m_surprisal_x_entropy_rt_finalblock_4x4_file)
+} else {
+  m_surprisal_x_entropy_rt_finalblock_4x4 <- 
+    lmer(log_rt ~ surprisal_c * prev_entropy_c + is_repetition +
+    (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
+    (1 | position),
+    data=df.m_surprisal_entropy.finalblock.correct.4x4,
+    REML=FALSE,
+  control=lmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_surprisal_x_entropy_rt_finalblock_4x4, m_surprisal_x_entropy_rt_finalblock_4x4_file)
+}
+
+summary_m_surprisal_x_entropy_rt_finalblock_4x4 <- summary(m_surprisal_x_entropy_rt_finalblock_4x4)
+
+if (file.exists(surprisal_x_entropy_acc_finalblock_4x4_file)) {
+  m_surprisal_x_entropy_acc_finalblock_4x4 <- readRDS(surprisal_x_entropy_acc_finalblock_4x4_file)
+} else {
+  m_surprisal_x_entropy_acc_finalblock_4x4 <-
+    glmer(correct ~ surprisal_c * prev_entropy_c + is_repetition +
+           (surprisal_c * prev_entropy_c + is_repetition | subject_id) +
+    (1 | position),
+    data=df.m_surprisal_entropy.finalblock.4x4,
+    family=binomial,
+  control=glmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_surprisal_x_entropy_acc_finalblock_4x4, surprisal_x_entropy_acc_finalblock_4x4_file)
+}
+
+summary_m_surprisal_x_entropy_acc_finalblock_4x4 <- summary(m_surprisal_x_entropy_acc_finalblock_4x4)
+```
+solve singular fit: 
+
++ remove random slope until isSingular() is False
++ compare models AIC, and our design mainly focus on surperisal and entropy, final random slope without singular fit exclude interaction and is_repetition
+
 
 ## H2
 

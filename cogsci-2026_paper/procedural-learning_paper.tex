@@ -103,14 +103,18 @@
 
 
  
-\usepackage[numbers]{natbib}
+\usepackage[authoryear]{natbib}
 \bibliographystyle{plainnat}
 
 
 \usepackage{cogsci}
 \usepackage{pslatex}
-\hyphenpenalty=10000
-\exhyphenpenalty=10000
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1em}
+\tolerance=9999
+\emergencystretch=3em
+\hyphenpenalty=1000
+\exhyphenpenalty=1000
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -184,10 +188,116 @@ the abstract should be keywords.
 \textbf{Keywords:} procedural learning, implicit learning, statistical
 learning
 
-\section{Introduction}\label{introduction}
+\section{Introductino}\label{introductino}
 
-Your introduction text here. You can cite references using
-\texttt{@NewellSimon1972a} or \texttt{{[}@ChalnickBillman1988a{]}}.
+How many times have you typed ``form'' instead of ``from''? Or ended a
+word with ``-tino'' instead of ``-tion'', perhaps even in an important,
+embarrassingly glaring context? The typos we make are not random; they
+reflect the statistical patterns in the language we use. Experienced
+typists learn that some keystroke sequences are highly probable, causing
+their fingers to automatically perform ones like ``for'' mistakenly, or
+perform them so quickly they slip up, like in the case of ``-tino''. Yet
+typists cannot consciously report these probabilities or articulate
+their finger movements at the speed of execution - this knowledge is
+expressed in the automatic motor performance of typing, not in conscious
+awareness. This implicit form of learning, where statistical
+regularities are unconsciously acquired and expressed as behavior rather
+than declared knowledge, is called procedural learning
+(\citet{squire_memory_2004}, \citet{nissen_attentional_1987}).
+
+Procedural learning is not limited to typing. It underlies skill
+acquisition across many domains, from proprioceptive skills like riding
+a bike to perceptual-cognitive skills like reading mirrored text
+(\citet{kassubek_changes_2001}). More recently, procedural learning has
+been proposed to support increasingly diverse and sophisticated
+abilities, notably grammar acquisition in language
+(\citet{ullman_specific_2005}, \citet{lammertink_statistical_2017},
+\citet{lum_procedural_2014}, \citet{kidd_individual_2016}). These
+proposals invite closer scrutiny of its scalability: can the procedural
+learning system handle the large-scale, complex statistical structures
+that characterize domains like grammar? Consider a suggestive historical
+case: while QWERTY keyboards (26 letter keys) enabled fluent touch
+typing through procedural learning, Chinese typewriters (trays of 2,000+
+characters) never achieved comparable automaticity and were eventually
+abandoned (for QWERTY keyboards, among others!)
+(\citet{mullaney_chinese_2017}). This raises a fundamental question:
+does procedural learning fail beyond a certain level of statistical
+complexity and state space size? As a first step toward answering these
+questions, we examine whether procedural learning tracks fine-grained
+statistical patterns - both the predictability of individual transitions
+and the uncertainty of different states - and how it scales across state
+space sizes from 4 to 8 positions.
+
+The primary method for measuring procedural learning has been the Serial
+Reaction Time Task (SRTT; \citet{nissen_attentional_1987}). In the SRTT,
+participants respond to stimuli appearing in one of four positions on
+screen using key presses. Unbeknownst to them, the sequence of positions
+follows a deterministic pattern. Over time, reaction times (RT) decrease
+for patterned trials relative to random trials, demonstrating procedural
+learning of the key press sequence corresponding to the positional
+sequence's deterministic pattern. While the SRTT provided early evidence
+for procedural learning, it suffers from a critical confound:
+participants often develop explicit awareness of the sequence, making it
+difficult to isolate implicit procedural learning effects
+(\citet{song_perceptual_2008}, \citet{lustig_transition_2022}). This has
+contributed to low test-retest reliability
+(\citet{west_procedural_2018}, \citet{oliveira_reliability_2023}).
+
+The Alternating Serial Reaction Time Task (ASRT;
+\citet{howard_jr_age_1997}) addressed these issues by introducing a
+probabilistic design. In ASRT, deterministic (d) and random (r) trials
+alternate (e.g., d-r-d-r), resulting in positional sequences with two
+levels of frequency (high vs.~low). This probabilistic design minimizes
+explicit awareness and dramatically improves reliability
+(\citet{farkas_complexity_2024}, \citet{oliveira_reliability_2023}).
+However, a key limitation of ASRT is that its bimodal frequency
+distribution represents an overtly simplistic statistical structure,
+lacking the graded frequency distributions found in real-world domains
+like language. Finally, across both SRTT and ASRT, experiment designs
+have mostly tested sequences with four possible positions (e.g.,
+\citet{janacsek_best_2012}, \citet{hedenius_grammar_2011}), despite
+real-world domains where procedural learning is implicated often
+involving far larger state spaces. Whether procedural learning can track
+graded statistical structures, and whether it scales to larger state
+spaces, remains untested.
+
+Here, we introduce a new paradigm that retains ASRT's probabilistic
+design but introduces a graded statistical structure with a smooth
+continuum of transition probabilities. We construct transition matrices
+to generate positional sequences where each position has a different
+entropy, ranging from deterministic (low entropy) to uniformly
+distributed (high entropy). We also vary the number of positions (4, 5,
+6, 7, 8) to test whether procedural learning scales with state space
+size. This allows us to ask: (1) Are learners sensitive to fine-grained
+differences in transition probabilities (surprisal) and state-level
+uncertainty (entropy), beyond simple high vs.~low frequency contrasts?
+(2) Do learning trajectories change as the number of positions
+increases? Across 219 participants, we find evidence that procedural
+learning is sensitive to graded statistical structure, and that this
+sensitivity emerges early and strengthens over time. These results
+suggest that procedural learning is more flexible than prior paradigms
+can reveal, with implications for understanding how procedural learning
+operates in naturalistic environments.
+
+\subsection{Hypotheses}\label{hypotheses}
+
+We make the following predictions: First, if participants are learning
+the statistical structure and not merely practicing motor responses,
+trial-level RT and accuracy will be predicted by surprisal---the
+negative log probability of the observed transition---such that
+higher-surprisal (less predictable) transitions elicit slower and less
+accurate responses (H1). Second, previous positional entropy---the
+entropy of the transition distribution from the previous position---will
+modulate performance independently, with higher-entropy (more uncertain)
+previous positions leading to slower and less accurate responses (H2).
+We further predict that surprisal effects will be stronger following
+low-entropy positions, where predictions are more confident and
+prediction errors more costly (surprisal × entropy interaction). Third,
+these effects will be attenuated as the number of positions increases,
+reflecting greater difficulty in learning more complex statistical
+structures (H3). Note that number of positions is confounded with
+entropy range in our design, so H3 effects may partially reflect
+differences in entropy distributions across conditions.
 
 \section{Method}\label{method}
 
@@ -237,24 +347,23 @@ animated demonstration on which key to press in response to each
 position, then instructed to work through a set of practice trials where
 each position is visited twice in random order. After the practice
 section, the participant moves on to complete 20 blocks of trials, each
-separated with a self-paced break. Each block consists of trials 10x the
-number of positions in the participant's assigned condition. This design
-choice results in longer blocks for conditions with more positions, but
-ensures each position is visited an equal number of times on average
-across conditions. In both practice and main trials, participants are
-given feedback on correctness via a pop-up short message (a checkmark
-vs.~``Try again!'' + an error tone), and allowed to retry each failed
-trial until they respond correctly. Following standard SRTT protocol,
-there is also a 120ms response-stimulus interval (RSI) between trials
-{[}CITE{]}. We find during piloting that allowing retries, combined with
-the 120ms RSI, prevents participants from making compensatory errors,
-where they unintentionally press the wrong key in the next trial in an
-attempt to correct their current trial. We record response time,
-keyboard response and correctness for each trial. After each block,
-participants are given adaptive feedback based on their accuracy and
-speed. At the end of the experiment, participants complete a brief
-questionnaire probing their explicit awareness of any patterns in the
-mole's appearances (Table).
+separated with a self-paced break. Each block consists of 10 trials per
+position. This design choice results in longer blocks for conditions
+with more positions, but ensures each position is visited an equal
+number of times on average across conditions. In both practice and main
+trials, participants are given feedback on correctness via a pop-up
+short message (a checkmark vs.~``Try again!'' + an error tone), and
+allowed to retry each failed trial until they respond correctly.
+Following standard SRTT protocol, there is also a 120ms
+response-stimulus interval (RSI) between trials {[}CITE{]}. We find
+during piloting that allowing retries, combined with the 120ms RSI,
+prevents participants from making compensatory errors, where they
+unintentionally press the wrong key in the next trial in an attempt to
+correct their current trial. We record response time, keyboard response
+and correctness for each trial. After each block, participants are given
+adaptive feedback based on their accuracy and speed. At the end of the
+experiment, participants complete a brief questionnaire probing their
+explicit awareness of any patterns in the mole's appearances (Table).
 
 In addition to our dapper mole, a number of design choices were made to
 facilitate participant understanding and engagement. During the practice
@@ -368,75 +477,6 @@ generated using their individual shuffled transition matrix, so the
 sequence each participant experiences is different both within and
 between matrix size conditions.
 
-\subsection{Hypotheses}\label{hypotheses}
-
-\begin{quote}
-\textbf{H0. Procedural learning effect.} We predict participants to show
-implicit learning of the statistical structure across blocks, evidenced
-by a) decrease in response time across blocks and b) increase in
-accuracy across blocks.
-\end{quote}
-
-\begin{quote}
-\textbf{H1a. Surprisal effect.} In each experiment run, positions differ
-in how many next-positions are possible and how evenly distributed the
-transition probabilities are among them, which also means different
-next-position/bigram combinations for a given first position yield
-different levels of predictability and thus surprisal to the
-participant. We predict that participants will respond faster and more
-accurately on bigram transitions that are higher probability.
-\end{quote}
-
-\begin{quote}
-\textbf{H1b. Previous positional entropy effect.} In each experiment
-run, positions differ in their transition entropy---how many
-next-positions are possible and how evenly distributed the transition
-probabilities are among them. We predict that this influences how easily
-participants can predict the next position based on a given position, so
-participants will respond a) faster and b) more accurately on trials
-where the previous trial has lower entropy.
-\end{quote}
-
-\begin{quote}
-\textbf{H1c. Interaction effect between surprisal and previous
-positional entropy.} The effect of surprisal on rt will be modulated by
-entropy, such that surprisal effects are stronger at low-entropy
-(predictable) positions and weaker at high-entropy (uncertain)
-positions. This is because entropy determines prediction confidence. In
-low-entropy contexts, participants form strong, specific expectations,
-making prediction errors (high surprisal) more costly. In high-entropy
-contexts, predictions are weaker and more distributed, attenuating
-surprisal effects.
-\end{quote}
-
-\begin{quote}
-\textbf{H2a. Prediction error reflecting surprisal effect.} We predict
-that as participants implicitly learn the underlying statistical
-distribution, the mistakes they make reflect this learning, i.e.~across
-blocks, the mistakes they make will be a) increasingly on low
-probability bigram transitions and b) the false transitions they make
-will increasingly be higher probability bigram transitions\ldots{}
-\end{quote}
-
-\begin{quote}
-\textbf{H2b. Prediction error reflecting entropy effect.} \ldots and
-they will also be increasingly limited to higher previous positional
-entropy trials.
-\end{quote}
-
-\begin{quote}
-\textbf{H3. Moderation from number of positions.} We predict that the
-more positions there are to handle, the more difficult it is to learn
-the underlying statistical distribution, so participants with a larger
-number of positions will have a gentler learning slope, higher
-mean/median RT and also show worse performances/take more blocks to
-reach the same level of performance (in terms of both RT and accuracy)
-on the effects predicted in H1 (and H2).
-\end{quote}
-
-\emph{Note: Matrix size is confounded with entropy range, so effects may
-reflect entropy distribution rather than number of positions per se.}
-
 \section{Statistical Analysis}\label{statistical-analysis}
 
 \subsection{Variables and Exclusion
@@ -459,9 +499,9 @@ the same keypress.
 
 The main dependent variables are response time (RT) and accuracy
 (proportion of correct responses) on non-practice/main trials. Incorrect
-trials, trials with RT \textgreater1000ms RT, and trials with RTs
-greater than 3 median absolute deviations above the participant's median
-RT (outliers) are excluded. On the participant level, participants with
+trials, trials with RT \textgreater1000ms, and trials with RTs greater
+than 3 median absolute deviations above the participant's median RT
+(outliers) are excluded. On the participant level, participants with
 overall accuracy below 85\%, median RT \textgreater1000ms, or with
 outliers making up more than 30\% of total trials are excluded from
 analysis. We also discard data from the first trial of each block to
@@ -477,9 +517,9 @@ binomial link function to model accuracy. Models are fit using the
 \texttt{lmerTest} package in R. We first test for the learning effect
 across blocks (H0), then examine the effects of surprisal and previous
 positional entropy (H1 \& H2) in the final block, pruning effects where
-applicable to narrow in on the best-fitting effects structure before
-analyzing learning trajectories across blocks, and finally test for
-moderation by number of positions/matrix size(H3).
+applicable to find the best-fitting effects structure before analyzing
+learning trajectories across blocks, and finally test for moderation by
+number of positions/matrix size(H3).
 
 Models are initially fit with the maximal random effects structure
 supported by the design: random intercepts for participant and position,
@@ -507,13 +547,36 @@ interaction is not significant, we test each main effect individually by
 comparing models that omit surprisal or previous positional entropy as
 main effects. An effect is retained if removing it increases AIC.
 
-\subsection{H0. Learning Effect}\label{h0.-learning-effect}
-
 \section{Results}\label{results}
 
-\subsection{H0}\label{h0}
+\subsection{H0. Learning Effect}\label{h0.-learning-effect}
+
+\subsection{H0: Pruning random effects
+structure}\label{h0-pruning-random-effects-structure}
 
 \subsection{H1}\label{h1}
+
+For H1 \& H2, we analyze each block independently. First, we determine
+the effects structure by analyzing only the final block as follows:
+\emph{(When the best-fit base model for surprisal and/or previous
+position entropy effects has been found, we can then examine learning
+trajectories by adding block as a continuous predictor)}
+
+\subsubsection{Final block only}\label{final-block-only}
+
+\paragraph{4x4}\label{x4}
+
+solve singular fit:
+
+\begin{itemize}
+\tightlist
+\item
+  remove random slope until isSingular() is False
+\item
+  compare models AIC, and our design mainly focus on surperisal and
+  entropy, final random slope without singular fit exclude interaction
+  and is\_repetition
+\end{itemize}
 
 \subsection{H2}\label{h2}
 
@@ -524,7 +587,7 @@ main effects. An effect is retained if removing it increases AIC.
 \section{References}\label{references}
 
 \renewcommand{\bibsection}{}
-\bibliography{CogSci_Template.bib}
+\bibliography{procedural-learning_bibliography.bib}
 
 
 
