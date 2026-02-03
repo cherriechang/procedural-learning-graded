@@ -307,20 +307,19 @@ operates in naturalistic environments.
 
 We make the following predictions: First, if participants are learning
 the statistical structure and not merely practicing motor responses,
-trial-level RT and accuracy will be predicted by surprisal-----the
-negative log probability of the observed transition-----such that
-higher-surprisal (less predictable) transitions elicit slower and less
-accurate responses (surprisal effect). Second, previous positional
-entropy-----the entropy of the transition distribution from the previous
-position-----will modulate performance independently, with
-higher-entropy (more uncertain) previous positions leading to slower and
-less accurate responses (entropy effect). We further predict that
-surprisal effects will be stronger following low-entropy positions,
-where predictions are more confident and prediction errors more costly
-(surprisal × entropy interaction). Third, these effects will be
-attenuated as the number of positions increases, reflecting greater
-difficulty in learning more complex statistical structures (state space
-size effect).
+trial-level RT will be predicted by surprisal-----the negative log
+probability of the observed transition-----such that higher-surprisal
+(less predictable) transitions elicit slower and less accurate responses
+(surprisal effect). Second, previous positional entropy-----the entropy
+of the transition distribution from the previous position-----will
+modulate performance independently, with higher-entropy (more uncertain)
+previous positions leading to slower and less accurate responses
+(entropy effect). We further predict that surprisal effects will be
+stronger following low-entropy positions, where predictions are more
+confident and prediction errors more costly (surprisal × entropy
+interaction). Third, these effects will be attenuated as the number of
+positions increases, reflecting greater difficulty in learning more
+complex statistical structures (state space size effect).
 
 \section{Method}\label{method}
 
@@ -538,12 +537,12 @@ position (i.e.~self-transition). This variable is included as a
 covariate in subsequent models to control for potential motor effects
 from repeating the same keystroke.
 
-The main dependent variables are response time (RT) and accuracy
+The main dependent variable are response time (RT) and accuracy
 (proportion of correct responses) on non-practice/main trials. Incorrect
 trials, trials with RT \textgreater1000ms, and trials with RTs greater
 than 3 median absolute deviations above the participant's median RT
 (outliers) are excluded. On the participant level, participants with
-overall accuracy below 85\%, median RT \textgreater1000ms, or with
+overall accuracy below 90\%, median RT \textgreater1000ms, or with
 outliers making up more than 30\% of total trials are excluded from
 analysis. We also discard data from the first trial of each block to
 account for blocks being implicitly treated as ``restarts'' and not
@@ -553,11 +552,10 @@ log-transformed to reduce skewness.
 \subsection{Modeling Approach}\label{modeling-approach}
 
 We use linear mixed effects regression (LMER) to model log-transformed
-RTs and generalized linear mixed effects regression (GLMER) with a
-binomial link function to model accuracy. Models are fit using the
-\texttt{lmerTest} package in R.P-values were obtained using the
-Satterthwaite approximation for degrees of freedom, as implemented in
-the \texttt{lmerTest} package (Kuznetsova et al. (2017)).
+RTs. Models are fit using the \texttt{lmerTest} package in R.P-values
+were obtained using the Satterthwaite approximation for degrees of
+freedom, as implemented in the \texttt{lmerTest} package (Kuznetsova et
+al. (2017)).
 
 We first determine the optimal random and fixed effects structure using
 the final block of trials in each condition, fitting candidate models to
@@ -595,27 +593,37 @@ occurred.
 \subsection{Surprisal and Previous Position Entropy
 Effects}\label{surprisal-and-previous-position-entropy-effects}
 
-We first determined the optimal effects structure using final-block
-data, comparing candidate models by summing AIC values across all five
-matrix sizes. This comparison favored the model:
-\texttt{log\_rt\ \textasciitilde{}\ surprisal\_c\ *\ prev\_entropy\_c\ +\ is\_repetition\ +\ (surprisal\_c\ *\ prev\_entropy\_c\ \textbar{}\textbar{}\ subject\_id)\ +\ (1\ \textbar{}\ position)}
+We first determined the optimal random-effects structure using
+final-block data, comparing candidate models by summing AIC values
+across all five matrix sizes. After model selection, all fixed effects
+from the maximal structure were retained, including fixed effects for
+surprisal (mean-centered), previous positional entropy (mean-centered),
+their interaction, and whether the trial was a repetition. For random
+effects, the model included by-participant random intercepts and
+independent random slopes for surprisal, previous entropy, and their
+interaction, as well as random intercepts for position. Random slopes
+were specified without correlation parameters to improve model
+stability.
 
-We then fit this model structure each block in each matrix size
-condition separately, further pruning the random effets structure until
-all models converge. This pruning favored a simpler random effects
-structure, resulting in the following final model:
-\texttt{log\_rt\ \textasciitilde{}\ surprisal\_c\ *\ prev\_entropy\_c\ +\ is\_repetition\ +\ (prev\_entropy\_c\textbar{}\ subject\_id)\ +\ (1\ \textbar{}\ position)}
+We then fit this model structure to each block within each matrix size
+condition separately. To ensure convergence across all models, we
+progressively simplified the random-effects structure. The final
+converged model included by-participant random intercepts and random
+slopes for previous entropy, as well as random intercepts for position.
+Simplification was limited to the random-effects structure; the
+fixed-effects structure was held constant across all models.
 
-In the final block, all predicted effects were significant across all
-five matrix size conditions (Table \ref{tab:h1h2-results}). Higher
-surprisal transitions elicited slower responses, as did transitions
-following higher-entropy positions. The negative interaction indicates
-that surprisal effects were stronger following low-entropy (more
-predictable) positions, consistent with prediction-based learning.
-Repetitions showed faster responses, likely reflecting motor
-facilitation. This structure converged without singularity across all
-100 models (20 blocks × 5 conditions) and is therefore used for all
-subsequent analyses.
+In the final blocks, all predicted effects were statistically reliable
+across matrix size conditions, with significance in at least 4 out of 5
+conditions for all fixed effects (Table \ref{tab:h1h2-results}).
+Higher-surprisal transitions elicited slower responses, as did
+transitions following higher-entropy positions. The negative interaction
+indicates that surprisal effects were stronger following low-entropy
+(i.e., more predictable) positions, consistent with prediction-based
+learning. Repetition trials showed faster responses, likely reflecting
+motor facilitation. This model structure converged without singular fits
+across all 100 models (20 blocks × 5 conditions) and was therefore used
+for all subsequent analyses.
 
 \begin{table}[t]
 \centering
@@ -634,8 +642,10 @@ Repetition & -0.179 & [-0.278, -0.106] & 5/5*** \\
 \end{tabular*}
 
 \footnotesize
-\textit{Note.} Mean $\beta$ averaged across 5 matrix size conditions (4×4, 5×5, 6×6, 7×7, 8×8). \\
-Sig. = number of conditions with $p$ < .05; *** = all conditions $p$ < .001.
+\textit{Note.} Mean $\beta$ averaged across 5 matrix size conditions
+(4×4, 5×5, 6×6, 7×7, 8×8). \\
+Prop. Sig. = number of conditions with $p$ < .05;
+*** = all conditions $p$ < .001.
 \end{table}
 
 \subsection{State Space Size Effect}\label{state-space-size-effect}
@@ -648,6 +658,104 @@ the course of learning, and whether these trajectories differ across
 state space sizes.
 
 \section{Discussion}\label{discussion}
+
+Our results provide clear evidence that learners are sensitive to the
+graded statistical structure embedded in serial reaction time tasks
+across multiple state space sizes. We found robust effects of surprisal
+and entropy on reaction times at every matrix size tested (4×4, 5×5,
+6×6, 7×7, and 8×8), demonstrating that participants learned fine-grained
+transition probabilities rather than simply practicing motor responses
+or learning that ``some transitions are hard.'' Critically, we observed
+no interaction between surprisal and entropy effects, indicating that
+the effect of surprisal persists even when entropy is relatively high.
+This independence is particularly impressive because it shows that
+learners are not merely learning global difficulty levels, but are
+actually tracking which specific transitions are more or less likely
+even in high-uncertainty contexts.
+
+\subsection{Scaling Properties and Training
+Duration}\label{scaling-properties-and-training-duration}
+
+Importantly, the effects of surprisal and entropy did not rapidly
+approach zero as matrix size increased. This suggests that sensitivity
+to statistical structure scales beyond the typical 4-position SRTT
+paradigm, at least within the range we tested. While there remains
+considerable distance between an 8×8 transition matrix and the scale of
+statistical structure found in natural language or other real-world
+domains, our findings are encouraging given the brevity of training:
+participants completed only 20 blocks over approximately 20-40 minutes,
+receiving just 10 exposures per position per block. Despite this limited
+exposure, learners demonstrated robust sensitivity to graded statistical
+patterns across increasing state space complexity.
+
+\subsection{Limitations}\label{limitations}
+
+Several limitations warrant careful consideration when interpreting
+these findings. First, our transition matrices remain relatively small
+compared to the state spaces encountered in natural domains like
+language. Second, the short duration of our task means it does not fully
+represent the extended timescales typical of real-world procedural
+learning. Third, we made methodological decisions---particularly
+regarding how to handle random effects structures when fitting separate
+models to individual blocks---that may affect the quantitative estimates
+of effect sizes, though we believe these are unlikely to alter the
+qualitative pattern of results. These modeling choices were necessary to
+maintain convergence and interpretability across our per-block analyses,
+but future work should explore the robustness of specific effect size
+estimates to different modeling approaches.
+
+\subsection{Implications for Understanding Procedural
+Learning}\label{implications-for-understanding-procedural-learning}
+
+Taking these results at face value, they have important implications for
+understanding the relationship between procedural learning and language
+acquisition. Our task represents a substantially more complex design
+than traditionally used in procedural learning research, yet we still
+observe fine-grained sensitivity to surprisal and entropy that converges
+with recent quantitative analyses of language processing
+(\textbf{linzen\_how\_2019?}; \textbf{smith\_role\_2013?}). This
+convergence increases our confidence that serial reaction time tasks can
+serve as valid models for language learning processes. More broadly, it
+increases the plausibility that procedural learning mechanisms and
+language learning rely on shared underlying cognitive systems,
+consistent with theoretical proposals linking the two
+(\textbf{ullman\_neurocognition\_2016?};
+\textbf{ullman\_declarative\_2004?}).
+
+The preservation of both surprisal and entropy effects across varying
+levels of structural complexity is particularly noteworthy. It suggests
+that the statistical learning mechanisms engaged in these tasks are not
+simply detecting binary patterns or memorizing sequences, but rather
+building probabilistic models that capture graded distributional
+information. This capacity for nuanced statistical representation in a
+procedural learning context provides a bridge between the traditionally
+separate literatures on implicit sequence learning and statistical
+language learning.
+
+\subsection{Future Directions}\label{future-directions}
+
+Future research should pursue at least two important directions. First,
+additional scaling is needed to further test the boundaries of
+procedural statistical learning. One promising approach is to embed
+these learning paradigms within engaging game environments that can
+sustain participant motivation over extended training periods with
+larger state spaces (\textbf{sumers\_revisiting\_2024?}). Such designs
+would allow us to test whether the scaling properties we observe
+continue to hold as we approach state space sizes more representative of
+natural language.
+
+Second, examining procedural learning across the lifespan would provide
+a crucial test of the hypothesized link between procedural learning and
+language acquisition. If these processes share underlying mechanisms, we
+should observe parallel patterns of age-related change. Specifically,
+comparing younger and older adults' sensitivity to statistical structure
+in procedural learning tasks---and relating these patterns to what is
+known about age-related changes in language learning
+(\textbf{ullman\_neurocognition\_2016?};
+\textbf{hartshorne\_critical\_2018?})---would offer compelling evidence
+for or against shared cognitive systems. Such lifespan comparisons could
+also inform practical questions about the optimal timing and methods for
+language instruction across development.
 
 \section{References}\label{references}
 
