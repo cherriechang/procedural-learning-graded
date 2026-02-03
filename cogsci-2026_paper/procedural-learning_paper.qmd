@@ -22,7 +22,7 @@ format:
 bibliography: procedural-learning_bibliography.bib
 editor: source
 ---
-```{r}
+```{r echo:false, include:false}
 #| label: Load R libraries
 #| echo: false
 #| message: false
@@ -66,7 +66,7 @@ We make the following predictions: First, if participants are learning the stati
 
 # Method
 ## Participants
-```{r}
+```{r echo:false, include:false}
 #| label: Demographic data
 #| echo: false
 
@@ -111,7 +111,7 @@ N_5x5 <- df.demographics.group_summary %>%
 We recruited `r overall_N` participants (`r n_female` female, `r n_male` male) to complete a web-based experiment using the online crowd-sourcing platform Prolific, screening for participants with an approval rating above 95% from previous studies and limiting participation to be on desktop or laptop computers. Participants ranged in age from `r overall_age_range[1]` to `r overall_age_range[2]` years ($\mu$=`r round(overall_mean_age, 1)`, $\sigma$=`r round(overall_sd_age, 1)`), representing `r N_nationalities` nationalities and `r N_languages` primary languages. Participants were compensated at $12.00 per hour, with median completion time varying by condition (~20-40 minutes). All participants provided informed consent prior to the experiment. The study was approved by the Institutional Review Board at the MGH Institute of Health Professions.
 
 ## Experiment Design
-```{r}
+```{r echo:false, include:false}
 #| label: Experiment configs that stay constant across participants
 #| echo: false
 #| include: false
@@ -169,7 +169,7 @@ A participant is first given a text-based tutorial accompanied by an animated de
 In addition to our dapper mole, a number of design choices were made to facilitate participant understanding and engagement. During the practice phase, each position on screen is labelled with its corresponding key character (e.g. "A", "S", "D") to help familiarize participants with the keyboard mappings. These key labels disappear in the main trials to prevent explicitly encoding of the sequence of positions via their character labels, but reappear during retry of failed trials. To make the correspondence between the positions on screen and keyboard keys as automatic and intuitive as possible, we chose to use conventional QWERTY-based finger layouts for the key mappings across conditions (@tab:key-mapping). We found during piloting that while this decision helped reduce cognitive load from learning novel finger placements, the larger gap between keys "F" and "J" on the keyboard introduced a discrepancy between the evenly-spaced on-screen positions and the unevenly spaced keyboard keys. This made participants more prone to making errors in the positions towards the middle of the screen compared to those on the outer edges, especially when number of positions increases [TODO: maybe run stats on pilot to find this effect]; and was not mitigated by shifting either hand's placement to close the extra gap, because the positions were still corresponding half to one hand and half to the other. After further piloting testing different visual aids, we settled on adding two hands visually to the bottom of the screen, each finger aligned with its target position (Figure). We received verbal feedback that this visual aid helped participants better map the spatial layout of the on-screen positions to their corresponding keys. Lastly, the visual design of the "positions" on screen mimicked blank 3D keyboard keys that light up in pink when the mole appears on top, and look visibly "pressed down" when the participant presses the corresponding keyboard key. This design choice links the on-screen positions diegetically to the physical keyboard keys to maximally reduce mental distance between the two. This is important to enforce as much learning via implicit motor memory as possible, rather than via visual-spatial memory of the on-screen positions.
 
 ## Transition Matrices
-```{r}
+```{r echo:false, include:false}
 #| label: Original transition matrices
 #| echo: false
 #| include: false
@@ -240,7 +240,7 @@ Strictly satisfying all these constraints at once turned out to be not only non-
 The five original matrices we constructed using this algorithm had these properties: 1) near fully doubly stochastic—all row and column sums sum to 1 (±0.0001); 2) approach a uniform stationary distribution after 7 timesteps where the stationary visitation for each state (position) are within 0.001 of each other; 3) had a graded entropy structure across states—each matrix had a positional entropy range of `r round(pos_1_entropy$range[1], 3)`-`r round(pos_1_entropy$range[2], 3)` bits for position 1 ($\mu$=`r round(pos_1_entropy$mean[1], 3)`, $\sigma$=`r round(pos_1_entropy$sd[1], 3)`), and `r round(pos_n_entropy$range[1], 3)`-`r round(pos_n_entropy$range[2], 3)` bits for position n ($\mu$=`r round(pos_n_entropy$mean[1], 3)`, $\sigma$=`r round(pos_n_entropy$sd[1], 3)`). Within a matrix each position increases in entropy from the previous by `r round(entropy_gradient_summary$range_diff[[1]][1], 3)`-`r round(entropy_gradient_summary$range_diff[[1]][2], 3)` bits ($\mu$=`r round(entropy_gradient_summary$mean_diff[1], 3)`, $\sigma$=`r round(entropy_gradient_summary$sd_diff[1], 3)`); and 4) avoided self loops as much as possible—all of the matrices had <0.08 probabilities in the left diagonal up until the last two positions. Within each matrix size condition, all participants experience the same underlying entropy gradient across positions, but the mapping between screen positions and entropy levels is randomized through a double permutation procedure that shuffles the original matrix (of that size) using the same random permutation. This preserves the statistical properties of the original matrix—transition probabilities and entropy values—but decouples entropy levels from specific screen positions. The position sequence for each participant is subsequently generated using their individual shuffled transition matrix, so the sequence each participant experiences is different both within and between matrix size conditions.
 
 # Statistical Analysis
-```{r}
+```{r echo:false, include:false}
 #| label: Retrieve data from OSF
 #| echo: false
 #| include: false
@@ -270,7 +270,7 @@ files_8x8 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_8x8) %>%
   osf_download(path = here("data/8x8-data"), conflicts="skip")
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: List local data files
 #| echo: false
 #| include: false
@@ -282,7 +282,7 @@ files_6x6 <- list.files("data/6x6-data")
 files_7x7 <- list.files("data/7x7-data")
 files_8x8 <- list.files("data/8x8-data")
 ```
-```{r}
+```{r echo:false, include:false}
 #| label: Bind all data together
 #| echo: false
 #| include: false
@@ -304,7 +304,7 @@ if (file.exists(df_raw_cache)) {
 }
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Filter out unnecessary columns
 #| echo: false
 #| include: false
@@ -312,7 +312,7 @@ if (file.exists(df_raw_cache)) {
 df <- subset(df.raw, select=c(trial_index, subject_id, matrix_size, trials_per_block, total_trials, practice_trials, transition_matrix, conditional_entropies, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item))
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Clean up data formatting
 #| echo: false
 #| include: false
@@ -345,7 +345,7 @@ df <- df %>%
   }))
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Center matrix_size and block
 #| echo: false
 #| include: false
@@ -357,7 +357,7 @@ df <- df %>%
   )
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Fill down overall_trial, trial_in_block, block
 #| echo: false
 #| include: false
@@ -385,7 +385,7 @@ df <- df %>%
     ungroup()
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Sanity check for unique subject_ids, matrix size, total number of trials, practice trials, transition matrices, conditional entropies and sequences across subjects and conditions
 #| echo: false
 #| include: false
@@ -422,7 +422,7 @@ df <- df[, !(names(df) %in% c("transition_matrix", "conditional_entropies"))]
 # Shows only 1 unique transition matrix and conditional entropies for conditions 6x6, 7x7 and 8x8 because of an error in data collection for those conditions after removing row by row log of the transition matrix and conditional entropies from the data files to save space. However, the code to shuffle those matrices and corresponding conditional entropies are still the same, so we believe participants are still each seeing a shuffled matrix and a different sequence in these conditions.
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Separate practice, main and questionnaire sections
 #| echo: false
 #| include: false
@@ -432,7 +432,7 @@ df.questionnaire <- df[df$phase=="questionnaire", ]
 df <- df[df$phase=="main", ]
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: exclude-subjects
 #| echo: false
 #| include: false
@@ -466,7 +466,7 @@ df <- df %>%
   filter(!subject_id %in% accuracy_excluded_subjects & !subject_id %in% rt_excluded_subjects)
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Filter df down to only stimulus, non-retry trials
 #| echo: false
 #| include: false
@@ -475,7 +475,7 @@ df <- df %>%
   filter(experiment_trial_type=="stimulus" & !is.na(rt) & rt != 0)
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Remove first trial of each block
 #| echo: false
 #| include: false
@@ -485,7 +485,7 @@ df <- df %>%
   slice(2:n())
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Make a new column for log(rt), previous position entropy, prev_entropy_c, surprisal_c, is_repetition
 #| echo: false
 #| include: false
@@ -511,7 +511,7 @@ if (file.exists(df_processed_cache)) {
 }
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: Make subset of df with only correct trials
 #| echo: false
 #| include: false
@@ -543,7 +543,7 @@ For H1 and H2, we first establish the fixed effects structure using only the fin
 
 # Results
 <!-- H0 -->
-```{r}
+```{r echo:false, include:false}
 #| label: Prepare data for H0 models
 #| echo: false
 #| eval: true
@@ -552,27 +552,39 @@ df.m_h0 <- df
 df.m_h0.correct <- df.correct
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: H0 Learning effect lmer models
 #| echo: false
 # (filter for correct trials and group by matrix_size)
+m_h0_rt_model_cache <- here("models/H0/m_h0_rt.rds")
+m_h0_acc_model_cache <- here("models/H0/m_h0_acc.rds")
 
-m_h0_rt <-
-  lmer(log_rt ~ block * is_repetition + (block * is_repetition| subject_id) + (1 | position),
-  data=df.m_h0.correct,
-  REML=FALSE,
-  control=lmerControl(optimizer="bobyqa")) # can change
+if (file.exists(m_h0_rt_model_cache)) {
+  m_h0_rt <- readRDS(m_h0_rt_model_cache)
+} else {
+  m_h0_rt <- 
+    lmer(log_rt ~ block_c * is_repetition + (block_c * is_repetition| subject_id) + (1 | position),
+                  data=df.m_h0.correct,
+                  REML=FALSE, 
+                  control=lmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_h0_rt, m_h0_rt_model_cache)
+}
 
 summary(m_h0_rt)
 
 df.m_h0.correct <- df.correct %>%
   group_by(matrix_size)
-  
-m_h0_acc <-
-  glmer(correct ~ block + is_repetition + (block | subject_id) + (1 | position),
-  data=df.m_h0,
-  family=binomial,
- control=glmerControl(optimizer="bobyqa")) # can change
+
+if (file.exists(m_h0_acc_model_cache)) {
+  m_h0_acc <- readRDS(m_h0_acc_model_cache)
+} else {  
+  m_h0_acc <- 
+    glmer(correct ~ block_c + is_repetition + (block_c | subject_id) + (1 | position),  
+          data=df.m_h0,  
+          family=binomial, 
+          control=glmerControl(optimizer="bobyqa")) # can change
+  saveRDS(m_h0_acc, m_h0_acc_model_cache)
+}
 
 summary(m_h0_acc)
 ```
@@ -581,7 +593,7 @@ summary(m_h0_acc)
 For H1 & H2, we analyze each block independently. First, we determine the effects structure by analyzing only the final block as follows: *(When the best-fit base model for surprisal and/or previous position entropy effects has been found, we can then examine learning trajectories by adding block as a continuous predictor)*
 
 <!-- H1 & H2: final block only; base model -->
-```{r}
+```{r echo:false, include:false}
 #| label: H1H2 Effect lmer models
 #| echo: false
 # (filter for last block only, for each matrix_size)
@@ -603,7 +615,7 @@ model_summaries[2]
 ```
 
 <!-- H1 & H2: final block only; pruning random effects -->
-```{r}
+```{r echo:false, include:false}
 model_structures_random_slope <- list(
   base = "(surprisal_c * prev_entropy_c || subject_id) + (1 | position)",
   main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
@@ -644,6 +656,10 @@ aic_table_random_slope <- map_dfr(
   }
 )
 
+# need to check isSingular first, if there is any, we exclude the model formula for all conditions
+# aic_table_random_slope %>% 
+#  filter(aic_table_random_slope$isSingular == TRUE)
+
 aic_table_random_slope %>% 
   filter(aic_table_random_slope$isSingular == FALSE) %>% 
   group_by(model) %>%
@@ -654,7 +670,7 @@ aic_table_random_slope %>%
 ```
 
 <!-- H1 & H2: final block only; pruning fixed effects -->
-```{r}
+```{r echo:false, include:false}
 model_structures_fixed_effect <- list(
   base = "surprisal_c * prev_entropy_c + is_repetition",
   no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
@@ -696,6 +712,10 @@ aic_table_fixed_effect <- map_dfr(
   }
 )
 
+# need to check isSingular first, if there is any, we exclude the model formula for all conditions
+# aic_table_fixed_effect %>% 
+#  filter(aic_table_fixed_effect$isSingular == TRUE)
+
 aic_table_fixed_effect %>% 
   filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
   group_by(model) %>%
@@ -706,7 +726,7 @@ aic_table_fixed_effect %>%
 ```
 
 <!-- H1 & H2: final block only; fixed effects plots -->
-```{r}
+```{r echo:false, include:false}
 theme_set(theme_minimal())
 
 effects_df <- map_dfr(
@@ -736,34 +756,35 @@ ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term
 ```
 
 <!-- H1 & H2: learning trajectories; across blocks per condition -->
-```{r}
+```{r echo:false, include:false}
 data.m_h1h2_all_blocks <- df %>% filter(!is.infinite(log_rt))
 
 data_list_all_blocks <- split(data.m_h1h2_all_blocks, data.m_h1h2_all_blocks$matrix_size)
 
 models_all <- map(data_list_all_blocks, ~ lmer(
-  log_rt ~ surprisal_c * prev_entropy_c * block + block * is_repetition +
-    (surprisal_c + prev_entropy_c + is_repetition + block | subject_id) + (1 | position),
+  log_rt ~ surprisal_c * prev_entropy_c * block_c + block_c * is_repetition +
+    (surprisal_c + prev_entropy_c + is_repetition + block_c | subject_id) + (1 | position),
   data = .x, 
   REML=FALSE,
   control=lmerControl(optimizer="bobyqa")))
 
-#iwalk(models_all, function(model, name) {
-#  saveRDS(model, paste0("./models/all_block_per_condition/all_block_models_", name, ".rds"))
-#})
+# to save
+iwalk(models_all, function(model, name) {
+  saveRDS(model, paste0("../models/all_block_per_condition/all_block_models_", name, ".rds"))
+})
 
 # to read
-#model_names <- c("4", "5", "6", "7", "8")
-#models_all <- map(model_names, ~ readRDS(paste0("./models/all_block_per_condition/all_block_models_", .x, ".rds")))
-#names(models_all) <- model_names
+# model_names <- c("4", "5", "6", "7", "8")
+# models_all <- map(model_names, ~ readRDS(paste0("../models/all_block_per_condition/all_block_models_", .x, ".rds")))
+# names(models_all) <- model_names
 
 model_summaries_all_blocks <- map(models_all, summary)
 model_summaries_all_blocks[5]
 ```
 
 <!-- H1 & H2: learning trajectories; per block per condition -->
-```{r}
-cur_condition <- 8
+```{r echo:false, include:false}
+cur_condition <- 4
 data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
 
 data_list_block <- split(data_m4, data_m4$block)
@@ -772,7 +793,7 @@ data_list_block <- split(data_m4, data_m4$block)
 models_block <- map2(names(data_list_block),
   data_list_block,
   function(name, dat) {
-      model_path <- paste0("./models/per_block_condition_", cur_condition, "/model_block_", name, ".rds") 
+      model_path <- paste0("../models/per_block_condition_", cur_condition, "/model_block_", name, ".rds") 
     dir_path <- dirname(model_path)
     if (!dir.exists(dir_path)) dir.create(dir_path, recursive = TRUE)
     if (file.exists(model_path)) {
@@ -789,25 +810,29 @@ models_block <- map2(names(data_list_block),
       m
     }
   }
-)
+) %>% set_names(names(data_list_block))
   
 model_summaries_block <- map(models_block, summary)
 model_summaries_block[10]
 ```
 
 <!-- H1 & H2: learning trajectories; per block per condition; pruning random effects -->
-```{r}
+```{r echo:false, include:false}
 model_structures_random_slope <- list(
   base = "(prev_entropy_c | subject_id) + (1 | position)",
-  main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
   s_only = "(surprisal_c | subject_id) + (1 | position)",
-  e_only = "(prev_entropy_c | subject_id) + (1 | position)",
+  rep_only = "(is_repetition | subject_id) + (1 | position)",
   intercept = "(1 | subject_id) + (1 | position)"
 )
 
+# 4: base, 5: base, 6: base, 7: base, 8: base
+cur_condition <- 4
+data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
+data_list_block <- split(data_m4, data_m4$block)
+
 all_models_random_slope <- map(
   model_structures_random_slope,
-  ~ map(data_list, function(dat) {
+  ~ map(data_list_block, function(dat) {
     lmer(
       as.formula(
         paste0("log_rt ~ surprisal_c * prev_entropy_c + is_repetition + ", .x)
@@ -838,6 +863,9 @@ aic_table_random_slope <- map_dfr(
 )
 
 aic_table_random_slope %>% 
+  filter(aic_table_random_slope$isSingular == TRUE)
+
+aic_table_random_slope %>% 
   filter(aic_table_random_slope$isSingular == FALSE) %>% 
   group_by(model) %>%
   summarise(total_AIC = sum(AIC)) %>%
@@ -846,8 +874,69 @@ aic_table_random_slope %>%
   #arrange(matrix_size, AIC)
 ```
 
+<!-- H1 & H2: learning trajectories; per block per condition; pruning fixed effects -->
+```{r echo:false, include:false}
+model_structures_fixed_effect <- list(
+  base = "surprisal_c * prev_entropy_c + is_repetition",
+  no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
+  no_is_repetition = "surprisal_c * prev_entropy_c",
+  only_main = "surprisal_c + prev_entropy_c",
+  surprisal_is_repetition = "surprisal_c + is_repetition",
+  entropy_is_repetition = "prev_entropy_c + is_repetition"
+)
+
+# 4: no_interaction < base, 5: base < no_interaction, 6: no_interaction < base, 7: base < no_interaction, 8: no_interaction < base
+cur_condition <- 8
+data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
+data_list_block <- split(data_m4, data_m4$block)
+
+all_models_fixed_effect <- map(
+  model_structures_fixed_effect,
+  ~ map(data_list_block, function(dat) {
+    lmer(
+      as.formula(
+        paste0("log_rt ~ ", .x, " + (prev_entropy_c | subject_id) + (1 | position)")
+      ),
+      data = dat,
+      REML = FALSE,
+      control = lmerControl(optimizer = "bobyqa")
+    )
+  })
+)
+
+aic_table_fixed_effect <- map_dfr(
+  names(all_models_fixed_effect),
+  function(model_name) {
+    map_dfr(
+      names(all_models_fixed_effect[[model_name]]),
+      function(cond) {
+        m <- all_models_fixed_effect[[model_name]][[cond]]
+        data.frame(
+          model = model_name,
+          matrix_size = cond,
+          AIC = AIC(m),
+          isSingular = isSingular(m)
+        )
+      }
+    )
+  }
+)
+
+# need to check isSingular first, if there is any, we exclude the model formula for all conditions
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == TRUE)
+
+aic_table_fixed_effect %>% 
+  filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
+  group_by(model) %>%
+  summarise(total_AIC = sum(AIC)) %>%
+  arrange(total_AIC)
+  #group_by(matrix_size) %>% 
+  #arrange(matrix_size, AIC)
+```
+
 <!-- H1 & H2: learning trajectories; fixed effects plots per block per condition-->
-```{r}
+```{r echo:false, include:false}
 effects_block <- map_dfr(
   names(models_block),
   ~ broom.mixed::tidy(models_block[[.x]]) %>%
@@ -873,7 +962,7 @@ ggplot(effects_block, aes(x = block, y = estimate, color = term, group = term)) 
 ```
 
 ## H3
-```{r}
+```{r echo:false, include:false}
 #| label: Num positions effect lmer models
 #| echo: true
 #| include: true
@@ -908,7 +997,7 @@ Note that there are no random effects. We use `lm()` and get p-values in the nor
 
 Models will be fit with ML for model comparison; final models refit with REML for inference.
 
-```{r}
+```{r echo:false, include:false}
 #| label: Extract coefficients from per-block models
 #| echo: true
 #| include: true
@@ -956,7 +1045,7 @@ head(coef_df)
 summary(coef_df)
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: H3 models - matrix size moderation
 #| echo: true
 #| include: true
@@ -981,7 +1070,7 @@ m_h3_repetition <- lm(is_repetition ~ matrix_size_num * block, data = coef_df)
 summary(m_h3_repetition)
 ```
 
-```{r}
+```{r echo:false, include:false}
 #| label: H3 visualization
 #| echo: false
 #| include: true

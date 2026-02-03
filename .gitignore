@@ -1,6 +1,9 @@
 .DS_Store
 node_modules/
 .Rproj.user
+.Rhistory
+.RData
+.Ruserdata
 .vdoc.*.r
 */key-mappings-4pos/*
 */key-mappings-5pos/*

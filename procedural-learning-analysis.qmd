@@ -8,6 +8,7 @@ editor: visual
 # Data Analysis for Procedural Learning Graded Entropy Design Experiment
 
 ## Libraries
+
 ```{r}
 #| label: Load R libraries
 #| echo: false
@@ -31,6 +32,7 @@ np <- import("numpy")
 ```
 
 ## Participants
+
 ```{r}
 #| label: Demographic data
 #| echo: false
@@ -74,6 +76,7 @@ N_5x5 <- df.demographics.group_summary %>%
 ```
 
 ## Experiment Design
+
 ```{r}
 #| label: Experiment configs that stay constant across participants
 #| echo: false
@@ -102,6 +105,7 @@ EXPERIMENT_CONFIG <- list(
 ```
 
 ## Transition Matrices
+
 ```{r}
 #| label: Original transition matrices
 #| echo: false
@@ -165,6 +169,7 @@ entropy_gradient_summary <- all_positional_entropies_df %>%
 ```
 
 # Statistical Analysis
+
 ```{r}
 #| label: Retrieve data from OSF
 #| echo: false
@@ -207,6 +212,7 @@ files_6x6 <- list.files("data/6x6-data")
 files_7x7 <- list.files("data/7x7-data")
 files_8x8 <- list.files("data/8x8-data")
 ```
+
 ```{r}
 #| label: Bind all data together
 #| echo: false
@@ -445,6 +451,7 @@ if (file.exists(df_correct_cache)) {
 ```
 
 # Model - H0
+
 ```{r}
 #| label: Prepare data for H0 models
 #| echo: false
@@ -508,7 +515,7 @@ model_summaries[2]
 
 #### Prune random slopes
 
-base model: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)
+base model: log_rt \~ surprisal_c \* prev_entropy_c + is_repetition + (surprisal_c \* prev_entropy_c \|\| subject_id) + (1 \| position)
 
 result: keep base model
 
@@ -562,9 +569,9 @@ aic_table_random_slope %>%
   #arrange(matrix_size, AIC)
 ```
 
-#### Prune fixed effects: 
+#### Prune fixed effects:
 
-base model: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)
+base model: log_rt \~ surprisal_c \* prev_entropy_c + is_repetition + (surprisal_c \* prev_entropy_c \|\| subject_id) + (1 \| position)
 
 results: keep base model
 
@@ -649,14 +656,17 @@ ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term
   labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") + 
   theme_minimal()
 ```
+
 ### learning across blocks
 
 #### try add block as a variable in the model
 
 ```{r}
-data.m_h1h2_all_blocks <- df %>% filter(!is.infinite(log_rt))
 
-data_list_all_blocks <- split(data.m_h1h2_all_blocks, data.m_h1h2_all_blocks$matrix_size)
+_all_blocks <- df %>% filter(!is.infinite(log_rt))
+
+data_list_all_blocks <- split(
+    _all_blocks, data.m_h1h2_all_blocks$matrix_size)
 
 models_all <- map(data_list_all_blocks, ~ lmer(
   log_rt ~ surprisal_c * prev_entropy_c * block + block * is_repetition +
@@ -680,8 +690,7 @@ model_summaries_all_blocks[5]
 
 #### try seperate models per block
 
-all models no singular fit: log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (prev_entropy_c | subject_id) + (1 | position)
-
+all models no singular fit: log_rt \~ surprisal_c \* prev_entropy_c + is_repetition + (prev_entropy_c \| subject_id) + (1 \| position)
 
 ```{r}
 cur_condition <- 8
@@ -715,6 +724,7 @@ models_block <- map2(names(data_list_block),
 model_summaries_block <- map(models_block, summary)
 model_summaries_block[10]
 ```
+
 #### ploting final models per condition (per blocks): fixed effects (exclude intercepts)
 
 ```{r}

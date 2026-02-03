@@ -253,24 +253,20 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Load R libraries}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| message: false}
+\FunctionTok{library}\NormalTok{(here)}
+\FunctionTok{library}\NormalTok{(osfr)}
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(tidyr)}
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(zoo)}
+\FunctionTok{library}\NormalTok{(jsonlite)}
+\FunctionTok{library}\NormalTok{(clipr)}
+\FunctionTok{library}\NormalTok{(reticulate)}
+\FunctionTok{library}\NormalTok{(lmerTest) }\CommentTok{\# show p value in lmer}
+\FunctionTok{library}\NormalTok{(blme)}
+\FunctionTok{library}\NormalTok{(purrr)}
 
-\NormalTok{library(here)}
-\NormalTok{library(osfr)}
-\NormalTok{library(dplyr)}
-\NormalTok{library(tidyr)}
-\NormalTok{library(tidyverse)}
-\NormalTok{library(zoo)}
-\NormalTok{library(jsonlite)}
-\NormalTok{library(clipr)}
-\NormalTok{library(reticulate)}
-\NormalTok{library(lmerTest) \# show p value in lmer}
-\NormalTok{library(blme)}
-\NormalTok{library(purrr)}
-
-\NormalTok{np \textless{}{-} import("numpy")}
+\NormalTok{np }\OtherTok{\textless{}{-}} \FunctionTok{import}\NormalTok{(}\StringTok{"numpy"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -292,7 +288,7 @@ typists learn that some keystroke sequences are highly probable, causing
 their fingers to automatically perform ones like ``for'' mistakenly, or
 perform them so quickly they slip up, like in the case of ``-tino''. Yet
 typists cannot consciously report these probabilities or articulate
-their finger movements at the speed of execution - this knowledge is
+their finger movements at the speed of execution---this knowledge is
 expressed in the automatic motor performance of typing, not in conscious
 awareness. This implicit form of learning, where statistical
 regularities are unconsciously acquired and expressed as behavior rather
@@ -316,10 +312,10 @@ eventually abandoned (for QWERTY keyboards, among others!) (Mullaney
 (2017)). This raises a fundamental question: does procedural learning
 fail beyond a certain level of statistical complexity and state space
 size? As a first step toward answering these questions, we examine
-whether procedural learning tracks fine-grained statistical patterns -
-both the predictability of individual transitions and the uncertainty of
-different states - and how it scales across state space sizes from 4 to
-8 positions.
+whether procedural learning tracks fine-grained statistical
+patterns---both the predictability of individual transitions and the
+uncertainty of different states---and how it scales across state space
+sizes from 4 to 8 positions.
 
 The primary method for measuring procedural learning has been the Serial
 Reaction Time Task (SRTT; Nissen \& Bullemer (1987)). In the SRTT,
@@ -335,22 +331,22 @@ difficult to isolate implicit procedural learning effects (Song et al.
 (2008), Lustig (2022)). This has contributed to low test-retest
 reliability of the task (West et al. (2018), Oliveira et al. (2023)).
 
-The Alternating Serial Reaction Time Task (ASRT; Howard Jr. \& Howard
-(1997)) addressed these issues by introducing a probabilistic design. In
-ASRT, deterministic (d) and random (r) trials alternate (e.g., d-r-d-r),
-resulting in positional sequences with two levels of frequency (high
-vs.~low). This probabilistic design minimizes explicit awareness and
-dramatically improves reliability (Farkas et al. (2024), Oliveira et al.
-(2023)). However, a key limitation of ASRT is that its bimodal frequency
-distribution represents an overtly simplistic statistical structure,
-lacking the graded frequency distributions found in real-world domains
-like language. Finally, across both SRTT and ASRT, experiment designs
-have mostly tested sequences with four possible positions (e.g.,
-Janacsek et al. (2012), Hedenius et al. (2011)), despite real-world
-domains where procedural learning is implicated often involving far
-larger state spaces. Whether procedural learning can track graded
-statistical structures, and whether it scales to larger state spaces,
-remains untested.
+The Alternating Serial Reaction Time Task (ASRT) addressed these issues
+by introducing a probabilistic design. In ASRT, deterministic (d) and
+random (r) trials alternate (e.g., d-r-d-r), resulting in positional
+sequences with two levels of frequency (high vs.~low) (Howard Jr. \&
+Howard (1997)). This probabilistic design minimizes explicit awareness
+and dramatically improves reliability (Farkas et al. (2024), Oliveira et
+al. (2023)). However, a key limitation of ASRT is that its bimodal
+frequency distribution represents an overtly simplistic statistical
+structure, lacking the graded frequency distributions found in
+real-world domains like language. Finally, across both SRTT and ASRT,
+experiment designs have mostly tested sequences with four possible
+positions (e.g., Janacsek et al. (2012), Hedenius et al. (2011)),
+despite real-world domains where procedural learning is implicated often
+involving far larger state spaces. Whether procedural learning can track
+graded statistical structures, and whether it scales to larger state
+spaces, remains untested.
 
 Here, we introduce a new paradigm that retains ASRT's probabilistic
 design but introduces a graded statistical structure with a smooth
@@ -374,21 +370,20 @@ operates in naturalistic environments.
 
 We make the following predictions: First, if participants are learning
 the statistical structure and not merely practicing motor responses,
-trial-level RT and accuracy will be predicted by surprisal---the
-negative log probability of the observed transition---such that
+trial-level RT and accuracy will be predicted by surprisal-----the
+negative log probability of the observed transition-----such that
 higher-surprisal (less predictable) transitions elicit slower and less
-accurate responses (H1). Second, previous positional entropy---the
-entropy of the transition distribution from the previous position---will
-modulate performance independently, with higher-entropy (more uncertain)
-previous positions leading to slower and less accurate responses (H2).
-We further predict that surprisal effects will be stronger following
-low-entropy positions, where predictions are more confident and
-prediction errors more costly (surprisal × entropy interaction). Third,
-these effects will be attenuated as the number of positions increases,
-reflecting greater difficulty in learning more complex statistical
-structures (H3). Note that number of positions is confounded with
-entropy range in our design, so H3 effects may partially reflect
-differences in entropy distributions across conditions.
+accurate responses (surprisal effect). Second, previous positional
+entropy-----the entropy of the transition distribution from the previous
+position-----will modulate performance independently, with
+higher-entropy (more uncertain) previous positions leading to slower and
+less accurate responses (entropy effect). We further predict that
+surprisal effects will be stronger following low-entropy positions,
+where predictions are more confident and prediction errors more costly
+(surprisal × entropy interaction). Third, these effects will be
+attenuated as the number of positions increases, reflecting greater
+difficulty in learning more complex statistical structures (state space
+size effect).
 
 \section{Method}\label{method}
 
@@ -396,91 +391,82 @@ differences in entropy distributions across conditions.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Demographic data}
-\NormalTok{\#| echo: false}
+\NormalTok{df.demographics }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\FunctionTok{here}\NormalTok{(}\StringTok{"demographic{-}data/"}\NormalTok{), }\AttributeTok{pattern =} \StringTok{"*.csv"}\NormalTok{, }\AttributeTok{full.names =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{lapply}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(f) \{}
+\NormalTok{        matrix\_size }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{".*\_(}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{dx}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d)}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.csv"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, }\FunctionTok{basename}\NormalTok{(f))}
+        \FunctionTok{read.csv}\NormalTok{(f) }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Matrix.size =}\NormalTok{ matrix\_size)}
+\NormalTok{    \}) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{bind\_rows}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(Status }\SpecialCharTok{==} \StringTok{"APPROVED"}\NormalTok{)}
 
-\NormalTok{df.demographics \textless{}{-} list.files(here("demographic{-}data/"), pattern = "*.csv", full.names=TRUE) \%\textgreater{}\%}
-\NormalTok{  lapply(function(f) \{}
-\NormalTok{    matrix\_size \textless{}{-} gsub(\textquotesingle{}.*\_(\textbackslash{}\textbackslash{}dx\textbackslash{}\textbackslash{}d)\textbackslash{}\textbackslash{}.csv\textquotesingle{}, \textquotesingle{}\textbackslash{}\textbackslash{}1\textquotesingle{}, basename(f))}
-\NormalTok{    read.csv(f) \%\textgreater{}\%}
-\NormalTok{      mutate(Matrix.size = matrix\_size)}
-\NormalTok{  \}) \%\textgreater{}\%}
-\NormalTok{  bind\_rows() \%\textgreater{}\%}
-\NormalTok{  filter(Status=="APPROVED")}
+\NormalTok{overall\_N }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(df.demographics)}
+\NormalTok{overall\_mean\_age }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(df.demographics}\SpecialCharTok{$}\NormalTok{Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{overall\_median\_age }\OtherTok{\textless{}{-}} \FunctionTok{median}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(df.demographics}\SpecialCharTok{$}\NormalTok{Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{overall\_sd\_age }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(df.demographics}\SpecialCharTok{$}\NormalTok{Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{overall\_age\_range }\OtherTok{\textless{}{-}} \FunctionTok{range}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(df.demographics}\SpecialCharTok{$}\NormalTok{Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
 
-\NormalTok{overall\_N \textless{}{-} nrow(df.demographics)}
-\NormalTok{overall\_mean\_age \textless{}{-} mean(as.numeric(df.demographics$Age), na.rm=TRUE)}
-\NormalTok{overall\_median\_age \textless{}{-} median(as.numeric(df.demographics$Age), na.rm=TRUE)}
-\NormalTok{overall\_sd\_age \textless{}{-} sd(as.numeric(df.demographics$Age), na.rm=TRUE)}
-\NormalTok{overall\_age\_range \textless{}{-} range(as.numeric(df.demographics$Age), na.rm=TRUE)}
+\NormalTok{N\_nationalities }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(df.demographics}\SpecialCharTok{$}\NormalTok{Nationality))}
+\NormalTok{N\_languages }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(df.demographics}\SpecialCharTok{$}\NormalTok{Language))}
 
-\NormalTok{N\_nationalities \textless{}{-} length(unique(df.demographics$Nationality))}
-\NormalTok{N\_languages \textless{}{-} length(unique(df.demographics$Language))}
+\CommentTok{\# Gender distribution}
+\NormalTok{gender\_counts }\OtherTok{\textless{}{-}} \FunctionTok{table}\NormalTok{(df.demographics}\SpecialCharTok{$}\NormalTok{Sex)}
+\NormalTok{n\_female }\OtherTok{\textless{}{-}}\NormalTok{ gender\_counts[}\StringTok{"Female"}\NormalTok{]}
+\NormalTok{n\_male }\OtherTok{\textless{}{-}}\NormalTok{ gender\_counts[}\StringTok{"Male"}\NormalTok{]}
+\NormalTok{n\_other }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(gender\_counts[}\SpecialCharTok{!}\FunctionTok{names}\NormalTok{(gender\_counts) }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"Female"}\NormalTok{, }\StringTok{"Male"}\NormalTok{)], }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
 
-\NormalTok{\# Gender distribution}
-\NormalTok{gender\_counts \textless{}{-} table(df.demographics$Sex)}
-\NormalTok{n\_female \textless{}{-} gender\_counts["Female"]}
-\NormalTok{n\_male \textless{}{-} gender\_counts["Male"]}
-\NormalTok{n\_other \textless{}{-} sum(gender\_counts[!names(gender\_counts) \%in\% c("Female", "Male")], na.rm=TRUE)}
+\NormalTok{df.demographics.group\_summary }\OtherTok{\textless{}{-}}\NormalTok{ df.demographics }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(Matrix.size) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarise}\NormalTok{(}
+        \AttributeTok{N =} \FunctionTok{n}\NormalTok{(),}
+        \AttributeTok{mean\_age =} \FunctionTok{mean}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+        \AttributeTok{sd\_age =} \FunctionTok{sd}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+        \AttributeTok{min\_age =} \FunctionTok{min}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+        \AttributeTok{max\_age =} \FunctionTok{max}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(Age), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{    )}
 
-\NormalTok{df.demographics.group\_summary \textless{}{-} df.demographics \%\textgreater{}\%}
-\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
-\NormalTok{  summarise(N = n(),}
-\NormalTok{            mean\_age = mean(as.numeric(Age), na.rm=TRUE),}
-\NormalTok{            sd\_age = sd(as.numeric(Age), na.rm=TRUE),}
-\NormalTok{            min\_age = min(as.numeric(Age), na.rm=TRUE),}
-\NormalTok{            max\_age = max(as.numeric(Age), na.rm=TRUE))}
-
-\NormalTok{group\_N \textless{}{-} first(df.demographics.group\_summary$N)}
-\NormalTok{N\_5x5 \textless{}{-} df.demographics.group\_summary \%\textgreater{}\%}
-\NormalTok{  filter(Matrix.size=="5x5") \%\textgreater{}\%}
-\NormalTok{  pull(N)}
+\NormalTok{group\_N }\OtherTok{\textless{}{-}} \FunctionTok{first}\NormalTok{(df.demographics.group\_summary}\SpecialCharTok{$}\NormalTok{N)}
+\NormalTok{N\_5x5 }\OtherTok{\textless{}{-}}\NormalTok{ df.demographics.group\_summary }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(Matrix.size }\SpecialCharTok{==} \StringTok{"5x5"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{pull}\NormalTok{(N)}
 \end{Highlighting}
 \end{Shaded}
 
-We recruited \texttt{r\ overall\_N} participants (\texttt{r\ n\_female}
-female, \texttt{r\ n\_male} male) to complete a web-based experiment
-using the online crowd-sourcing platform Prolific, screening for
-participants with an approval rating above 95\% from previous studies
-and limiting participation to be on desktop or laptop computers.
-Participants ranged in age from \texttt{r\ overall\_age\_range{[}1{]}}
-to \texttt{r\ overall\_age\_range{[}2{]}} years
-(\(\mu\)=\texttt{r\ round(overall\_mean\_age,\ 1)},
-\(\sigma\)=\texttt{r\ round(overall\_sd\_age,\ 1)}), representing
-\texttt{r\ N\_nationalities} nationalities and \texttt{r\ N\_languages}
-primary languages. Participants were compensated at \$12.00 per hour,
-with median completion time varying by condition (\textasciitilde20-40
+We recruited 251 participants (133 female, 118 male) to complete a
+web-based experiment using the online crowd-sourcing platform Prolific,
+screening for participants with an approval rating above 95\% from
+previous studies and limiting participation to be on desktop or laptop
+computers. Participants ranged in age from 18 to 75 years (\(\mu\)=35.6,
+\(\sigma\)=11.9), representing 32 nationalities and 20 primary
+languages. Participants were compensated at \$12.00 per hour, with
+median completion time varying by condition (\textasciitilde20-40
 minutes). All participants provided informed consent prior to the
 experiment. The study was approved by the Institutional Review Board at
-the MGH Institute of Health Professions.
+the Mass General Hospital Institute of Health Professions.
 
 \subsection{Experiment Design}\label{experiment-design}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Experiment configs that stay constant across participants}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{EXPERIMENT\_CONFIG \textless{}{-} list(}
-\NormalTok{  osf\_id\_4x4 = "Emfhw",}
-\NormalTok{  osf\_id\_5x5 = "Fraxt",}
-\NormalTok{  osf\_id\_6x6 = "jx48y",}
-\NormalTok{  osf\_id\_7x7 = "92jq7",}
-\NormalTok{  osf\_id\_8x8 = "Tx3h7",}
-\NormalTok{  key\_mapping\_4pos = c("d","f","j","k"),}
-\NormalTok{  key\_mapping\_5pos = c("s","d","f","j","k"),}
-\NormalTok{  key\_mapping\_6pos = c("s","d","f","j","k","l"),}
-\NormalTok{  key\_mapping\_7pos = c("a","s","d","f","j","k","l"),}
-\NormalTok{  key\_mapping\_8pos = c("a","s","d","f","j","k","l",";"),}
-\NormalTok{  n\_blocks = 20,}
-\NormalTok{  rsi = 120,}
-\NormalTok{  error\_feedback\_duration = 200,}
-\NormalTok{  error\_tone\_duration = 100,}
-\NormalTok{  correct\_feedback\_duration = 200,}
-\NormalTok{  estimated\_trial\_duration = 500,}
-\NormalTok{  accuracy\_threshold = 0.65,}
-\NormalTok{    rt\_threshold = 1000}
+\NormalTok{EXPERIMENT\_CONFIG }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{osf\_id\_4x4 =} \StringTok{"Emfhw"}\NormalTok{,}
+    \AttributeTok{osf\_id\_5x5 =} \StringTok{"Fraxt"}\NormalTok{,}
+    \AttributeTok{osf\_id\_6x6 =} \StringTok{"jx48y"}\NormalTok{,}
+    \AttributeTok{osf\_id\_7x7 =} \StringTok{"92jq7"}\NormalTok{,}
+    \AttributeTok{osf\_id\_8x8 =} \StringTok{"Tx3h7"}\NormalTok{,}
+    \AttributeTok{key\_mapping\_4pos =} \FunctionTok{c}\NormalTok{(}\StringTok{"d"}\NormalTok{, }\StringTok{"f"}\NormalTok{, }\StringTok{"j"}\NormalTok{, }\StringTok{"k"}\NormalTok{),}
+    \AttributeTok{key\_mapping\_5pos =} \FunctionTok{c}\NormalTok{(}\StringTok{"s"}\NormalTok{, }\StringTok{"d"}\NormalTok{, }\StringTok{"f"}\NormalTok{, }\StringTok{"j"}\NormalTok{, }\StringTok{"k"}\NormalTok{),}
+    \AttributeTok{key\_mapping\_6pos =} \FunctionTok{c}\NormalTok{(}\StringTok{"s"}\NormalTok{, }\StringTok{"d"}\NormalTok{, }\StringTok{"f"}\NormalTok{, }\StringTok{"j"}\NormalTok{, }\StringTok{"k"}\NormalTok{, }\StringTok{"l"}\NormalTok{),}
+    \AttributeTok{key\_mapping\_7pos =} \FunctionTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{, }\StringTok{"s"}\NormalTok{, }\StringTok{"d"}\NormalTok{, }\StringTok{"f"}\NormalTok{, }\StringTok{"j"}\NormalTok{, }\StringTok{"k"}\NormalTok{, }\StringTok{"l"}\NormalTok{),}
+    \AttributeTok{key\_mapping\_8pos =} \FunctionTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{, }\StringTok{"s"}\NormalTok{, }\StringTok{"d"}\NormalTok{, }\StringTok{"f"}\NormalTok{, }\StringTok{"j"}\NormalTok{, }\StringTok{"k"}\NormalTok{, }\StringTok{"l"}\NormalTok{, }\StringTok{";"}\NormalTok{),}
+    \AttributeTok{n\_blocks =} \DecValTok{20}\NormalTok{,}
+    \AttributeTok{rsi =} \DecValTok{120}\NormalTok{,}
+    \AttributeTok{error\_feedback\_duration =} \DecValTok{200}\NormalTok{,}
+    \AttributeTok{error\_tone\_duration =} \DecValTok{100}\NormalTok{,}
+    \AttributeTok{correct\_feedback\_duration =} \DecValTok{200}\NormalTok{,}
+    \AttributeTok{estimated\_trial\_duration =} \DecValTok{500}\NormalTok{,}
+    \AttributeTok{accuracy\_threshold =} \FloatTok{0.65}\NormalTok{,}
+    \AttributeTok{rt\_threshold =} \DecValTok{1000}
 \NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -490,10 +476,9 @@ the MGH Institute of Health Professions.
 \caption{Key mappings by number of positions}
 \label{tab:key-mapping}
 
-\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}} c l}
+\begin{tabular*}{\columnwidth}{@{} c @{\extracolsep{\fill}} l @{}}
 \toprule
-\multicolumn{1}{c}{\textit{n} positions} &
-\multicolumn{1}{c}{keys (left to right)} \\
+\textit{n} positions & keys (left to right) \\
 \midrule
 4 & \{D, F, J, K\} \\
 5 & \{S, D, F, J, K\} \\
@@ -524,17 +509,16 @@ several evenly-spaced positions on screen as quickly and accurately as
 possible by pressing a corresponding key on the keyboard. In our
 implementation, this visual stimulus is a mole garbed in a bright red
 bib and matching sunglasses (Figure~\ref{fig-example-trial-screen}).
-Participants were evenly divided into 5 groups of \texttt{r\ group\_N}
-per condition, with the conditions differing in the number of positions
-(4, 5, 6, 7, 8) the mole can appear in. (\textbf{tab:key-mapping?})
-shows the position-to-key mapping for each condition.
+Participants were evenly divided into 5 groups of 50 per condition, with
+the conditions differing in the number of positions (4, 5, 6, 7, 8) the
+mole can appear in. (\textbf{tab:key-mapping?}) shows the
+position-to-key mapping for each condition.
 
 A participant is first given a text-based tutorial accompanied by an
 animated demonstration on which key to press in response to each
 position, then instructed to work through a set of practice trials where
 each position is visited twice in random order. After the practice
-section, the participant moves on to complete
-\texttt{r\ EXPERIMENT\_CONFIG\$n\_blocks} blocks of trials, each
+section, the participant moves on to complete 20 blocks of trials, each
 separated with a self-paced break. Each block consists of 10 trials per
 position. This design choice results in longer blocks for conditions
 with more positions, but ensures each position is visited an equal
@@ -545,15 +529,14 @@ allowed to retry each failed trial until they respond correctly.
 Following standard SRTT protocol, there is also a 120ms
 response-stimulus interval (RSI) between trials (Nissen \& Bullemer
 (1987), Janacsek et al. (2012), Howard et al. (2004)). We find during
-piloting that allowing retries, combined with the
-\texttt{r\ EXPERIMENT\_CONFIG\$rsi}ms RSI, prevents participants from
-making compensatory errors, where they unintentionally press the wrong
-key in the next trial in an attempt to correct their current trial. We
-record response time, keyboard response and correctness for each trial.
-After each block, participants are given adaptive feedback based on
-their accuracy and speed. At the end of the experiment, participants
-complete a brief questionnaire probing their explicit awareness of any
-patterns in the mole's appearances (Table).
+piloting that allowing retries, combined with the 120ms RSI, prevents
+participants from making compensatory errors, where they unintentionally
+press the wrong key in the next trial in an attempt to correct their
+current trial. We record response time, keyboard response and
+correctness for each trial. After each block, participants are given
+adaptive feedback based on their accuracy and speed. At the end of the
+experiment, participants complete a brief questionnaire probing their
+explicit awareness of any patterns in the mole's appearances (Table).
 
 In addition to our dapper mole, a number of design choices were made to
 facilitate participant understanding and engagement. During the practice
@@ -593,65 +576,78 @@ rather than via visual-spatial memory of the on-screen positions.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Original transition matrices}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{\# Shannon entropy (bits) of a single probability vector (skip zeros)}
-\NormalTok{row\_entropy \textless{}{-} function(prob\_vec) \{}
-\NormalTok{  p \textless{}{-} prob\_vec[prob\_vec \textgreater{} 0]}
-\NormalTok{  {-}sum(p * log2(p))}
+\CommentTok{\# Shannon entropy (bits) of a single probability vector (skip zeros)}
+\NormalTok{row\_entropy }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(prob\_vec) \{}
+\NormalTok{    p }\OtherTok{\textless{}{-}}\NormalTok{ prob\_vec[prob\_vec }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{]}
+    \SpecialCharTok{{-}}\FunctionTok{sum}\NormalTok{(p }\SpecialCharTok{*} \FunctionTok{log2}\NormalTok{(p))}
 \NormalTok{\}}
 
-\NormalTok{\# Calculate positional entropy for each row in a transition matrix}
-\NormalTok{positional\_entropy \textless{}{-} function(mat) \{}
-\NormalTok{  apply(mat, MARGIN=1, row\_entropy)}
+\CommentTok{\# Calculate positional entropy for each row in a transition matrix}
+\NormalTok{positional\_entropy }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(mat) \{}
+    \FunctionTok{apply}\NormalTok{(mat, }\AttributeTok{MARGIN =} \DecValTok{1}\NormalTok{, row\_entropy)}
 \NormalTok{\}}
 
-\NormalTok{transition\_matrix\_4x4 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_4x4.npy"))), nrow=4, byrow=TRUE)}
-\NormalTok{transition\_matrix\_5x5 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_5x5.npy"))), nrow=5, byrow=TRUE)}
-\NormalTok{transition\_matrix\_6x6 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_6x6.npy"))), nrow=6, byrow=TRUE)}
-\NormalTok{transition\_matrix\_7x7 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_7x7.npy"))), nrow=7, byrow=TRUE)}
-\NormalTok{transition\_matrix\_8x8 \textless{}{-} matrix(unlist(np$load(here("assets/transition{-}matrices/matrix\_8x8.npy"))), nrow=8, byrow=TRUE)}
-\NormalTok{all\_original\_matrices \textless{}{-} list(}
-\NormalTok{  "4x4" = transition\_matrix\_4x4,}
-\NormalTok{  "5x5" = transition\_matrix\_5x5,}
-\NormalTok{  "6x6" = transition\_matrix\_6x6,}
-\NormalTok{  "7x7" = transition\_matrix\_7x7,}
-\NormalTok{  "8x8" = transition\_matrix\_8x8}
+\NormalTok{load\_npy\_matrix }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(path) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ np}\SpecialCharTok{$}\FunctionTok{load}\NormalTok{(path)}
+\NormalTok{  lst }\OtherTok{\textless{}{-}}\NormalTok{ x}\SpecialCharTok{$}\FunctionTok{tolist}\NormalTok{()          }\CommentTok{\# Python → nested lists}
+  \FunctionTok{do.call}\NormalTok{(rbind, lst)        }\CommentTok{\# R{-}native matrix}
+\NormalTok{\}}
+
+\NormalTok{transition\_matrix\_4x4 }\OtherTok{\textless{}{-}} \FunctionTok{load\_npy\_matrix}\NormalTok{(}
+  \FunctionTok{here}\NormalTok{(}\StringTok{"assets/transition{-}matrices/matrix\_4x4.npy"}\NormalTok{)}
+\NormalTok{)}
+\NormalTok{transition\_matrix\_5x5 }\OtherTok{\textless{}{-}} \FunctionTok{load\_npy\_matrix}\NormalTok{(}
+  \FunctionTok{here}\NormalTok{(}\StringTok{"assets/transition{-}matrices/matrix\_5x5.npy"}\NormalTok{)}
+\NormalTok{)}
+\NormalTok{transition\_matrix\_6x6 }\OtherTok{\textless{}{-}} \FunctionTok{load\_npy\_matrix}\NormalTok{(}
+  \FunctionTok{here}\NormalTok{(}\StringTok{"assets/transition{-}matrices/matrix\_6x6.npy"}\NormalTok{)}
+\NormalTok{)}
+\NormalTok{transition\_matrix\_7x7 }\OtherTok{\textless{}{-}} \FunctionTok{load\_npy\_matrix}\NormalTok{(}
+  \FunctionTok{here}\NormalTok{(}\StringTok{"assets/transition{-}matrices/matrix\_7x7.npy"}\NormalTok{)}
+\NormalTok{)}
+\NormalTok{transition\_matrix\_8x8 }\OtherTok{\textless{}{-}} \FunctionTok{load\_npy\_matrix}\NormalTok{(}
+  \FunctionTok{here}\NormalTok{(}\StringTok{"assets/transition{-}matrices/matrix\_8x8.npy"}\NormalTok{)}
 \NormalTok{)}
 
-\NormalTok{all\_positional\_entropies \textless{}{-} lapply(all\_original\_matrices, positional\_entropy)}
-\NormalTok{all\_positional\_entropies\_df \textless{}{-} lapply(names(all\_positional\_entropies), function(size) \{}
-\NormalTok{  data.frame(}
-\NormalTok{    Matrix.size = size,}
-\NormalTok{    Position = 1:length(all\_positional\_entropies[[size]]),}
-\NormalTok{    Entropy = all\_positional\_entropies[[size]]}
-\NormalTok{  )}
-\NormalTok{\}) \%\textgreater{}\%}
-\NormalTok{  bind\_rows()}
+\NormalTok{all\_original\_matrices }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \StringTok{"4x4"} \OtherTok{=}\NormalTok{ transition\_matrix\_4x4,}
+    \StringTok{"5x5"} \OtherTok{=}\NormalTok{ transition\_matrix\_5x5,}
+    \StringTok{"6x6"} \OtherTok{=}\NormalTok{ transition\_matrix\_6x6,}
+    \StringTok{"7x7"} \OtherTok{=}\NormalTok{ transition\_matrix\_7x7,}
+    \StringTok{"8x8"} \OtherTok{=}\NormalTok{ transition\_matrix\_8x8}
+\NormalTok{)}
 
-\NormalTok{pos\_1\_entropy \textless{}{-} all\_positional\_entropies\_df \%\textgreater{}\%}
-\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
-\NormalTok{  filter(Position==1) \%\textgreater{}\%}
-\NormalTok{  ungroup() \%\textgreater{}\%}
-\NormalTok{  summarize(range=range(Entropy), mean=mean(Entropy), sd=sd(Entropy))}
+\NormalTok{all\_positional\_entropies }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(all\_original\_matrices, positional\_entropy)}
+\NormalTok{all\_positional\_entropies\_df }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(}\FunctionTok{names}\NormalTok{(all\_positional\_entropies), }\ControlFlowTok{function}\NormalTok{(size) \{}
+    \FunctionTok{data.frame}\NormalTok{(}
+        \AttributeTok{Matrix.size =}\NormalTok{ size,}
+        \AttributeTok{Position =} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(all\_positional\_entropies[[size]]),}
+        \AttributeTok{Entropy =}\NormalTok{ all\_positional\_entropies[[size]]}
+\NormalTok{    )}
+\NormalTok{\}) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{bind\_rows}\NormalTok{()}
 
-\NormalTok{pos\_n\_entropy \textless{}{-} all\_positional\_entropies\_df \%\textgreater{}\%}
-\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
-\NormalTok{  filter(Position==max(Position)) \%\textgreater{}\%}
-\NormalTok{  ungroup() \%\textgreater{}\%}
-\NormalTok{  summarize(range=range(Entropy), mean=mean(Entropy), sd=sd(Entropy))}
+\NormalTok{pos\_1\_entropy }\OtherTok{\textless{}{-}}\NormalTok{ all\_positional\_entropies\_df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(Matrix.size) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(Position }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}\AttributeTok{range =} \FunctionTok{range}\NormalTok{(Entropy), }\AttributeTok{mean =} \FunctionTok{mean}\NormalTok{(Entropy), }\AttributeTok{sd =} \FunctionTok{sd}\NormalTok{(Entropy))}
 
-\NormalTok{entropy\_gradient\_summary \textless{}{-} all\_positional\_entropies\_df \%\textgreater{}\%}
-\NormalTok{  group\_by(Matrix.size) \%\textgreater{}\%}
-\NormalTok{  summarize(entropy\_diffs = list(diff(Entropy))) \%\textgreater{}\%}
-\NormalTok{  ungroup() \%\textgreater{}\%}
-\NormalTok{  summarize(}
-\NormalTok{    range\_diff = list(range(unlist(entropy\_diffs))),}
-\NormalTok{    mean\_diff = mean(unlist(entropy\_diffs)),}
-\NormalTok{    sd\_diff = sd(unlist(entropy\_diffs))}
-\NormalTok{  )}
+\NormalTok{pos\_n\_entropy }\OtherTok{\textless{}{-}}\NormalTok{ all\_positional\_entropies\_df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(Matrix.size) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(Position }\SpecialCharTok{==} \FunctionTok{max}\NormalTok{(Position)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}\AttributeTok{range =} \FunctionTok{range}\NormalTok{(Entropy), }\AttributeTok{mean =} \FunctionTok{mean}\NormalTok{(Entropy), }\AttributeTok{sd =} \FunctionTok{sd}\NormalTok{(Entropy))}
+
+\NormalTok{entropy\_gradient\_summary }\OtherTok{\textless{}{-}}\NormalTok{ all\_positional\_entropies\_df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(Matrix.size) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}\AttributeTok{entropy\_diffs =} \FunctionTok{list}\NormalTok{(}\FunctionTok{diff}\NormalTok{(Entropy))) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}
+        \AttributeTok{range\_diff =} \FunctionTok{list}\NormalTok{(}\FunctionTok{range}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(entropy\_diffs))),}
+        \AttributeTok{mean\_diff =} \FunctionTok{mean}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(entropy\_diffs)),}
+        \AttributeTok{sd\_diff =} \FunctionTok{sd}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(entropy\_diffs))}
+\NormalTok{    )}
 \end{Highlighting}
 \end{Shaded}
 
@@ -668,25 +664,17 @@ and increasing levels of entropy across rows, such that position 1 has
 lowest entropy-having the most predictable next-position-transitions,
 followed by the second, with the last position, position n, having
 highest entropy. For example, in the 4x4 matrix, position 1 has a high
-probability
-(\textasciitilde{}\texttt{r\ round(transition\_matrix\_4x4{[}1,2{]},\ 2)})
-of transitioning to position 2, a low probability
-(\textasciitilde{}\texttt{r\ round(transition\_matrix\_4x4{[}1,1{]},\ 2)})
-of transitioning to position 1, and never transitions to position 3 or
-4; while position 4 has a more uniform distribution of transition
-probabilities to all other positions (to 1:
-\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,1{]},\ 2)}),
-to 2:
-\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,2{]},\ 2)}),
-to 3:
-\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,3{]},\ 2)}),
-to 4:
-\textasciitilde(\texttt{r\ round(transition\_matrix\_4x4{[}4,4{]},\ 2)})).
-This gives rise to a gradient of entropy values across the positions,
-which results in a richer, more varied distributed statistical structure
-underlying the sequence of positions the mole appears in, allowing us to
-investigate how the procedural learning system differentially picks up
-varying levels of predictability in a given statistical structure.
+probability (\textasciitilde0.97) of transitioning to position 2, a low
+probability (\textasciitilde0.03) of transitioning to position 1, and
+never transitions to position 3 or 4; while position 4 has a more
+uniform distribution of transition probabilities to all other positions
+(to 1: \textasciitilde(0.39), to 2: \textasciitilde(0.03), to 3:
+\textasciitilde(0.24), to 4: \textasciitilde(0.35)). This gives rise to
+a gradient of entropy values across the positions, which results in a
+richer, more varied distributed statistical structure underlying the
+sequence of positions the mole appears in, allowing us to investigate
+how the procedural learning system differentially picks up varying
+levels of predictability in a given statistical structure.
 
 Several design criteria/constraints were imposed on the construction of
 these original transition matrices. First, these matrices had to be
@@ -719,350 +707,289 @@ properties: 1) near fully doubly stochastic---all row and column sums
 sum to 1 (±0.0001); 2) approach a uniform stationary distribution after
 7 timesteps where the stationary visitation for each state (position)
 are within 0.001 of each other; 3) had a graded entropy structure across
-states---each matrix had a positional entropy range of
-\texttt{r\ round(pos\_1\_entropy\$range{[}1{]},\ 3)}-\texttt{r\ round(pos\_1\_entropy\$range{[}2{]},\ 3)}
-bits for position 1
-(\(\mu\)=\texttt{r\ round(pos\_1\_entropy\$mean{[}1{]},\ 3)},
-\(\sigma\)=\texttt{r\ round(pos\_1\_entropy\$sd{[}1{]},\ 3)}), and
-\texttt{r\ round(pos\_n\_entropy\$range{[}1{]},\ 3)}-\texttt{r\ round(pos\_n\_entropy\$range{[}2{]},\ 3)}
-bits for position n
-(\(\mu\)=\texttt{r\ round(pos\_n\_entropy\$mean{[}1{]},\ 3)},
-\(\sigma\)=\texttt{r\ round(pos\_n\_entropy\$sd{[}1{]},\ 3)}). Within a
-matrix each position increases in entropy from the previous by
-\texttt{r\ round(entropy\_gradient\_summary\$range\_diff{[}{[}1{]}{]}{[}1{]},\ 3)}-\texttt{r\ round(entropy\_gradient\_summary\$range\_diff{[}{[}1{]}{]}{[}2{]},\ 3)}
-bits
-(\(\mu\)=\texttt{r\ round(entropy\_gradient\_summary\$mean\_diff{[}1{]},\ 3)},
-\(\sigma\)=\texttt{r\ round(entropy\_gradient\_summary\$sd\_diff{[}1{]},\ 3)});
-and 4) avoided self loops as much as possible---all of the matrices had
-\textless0.08 probabilities in the left diagonal up until the last two
-positions. Within each matrix size condition, all participants
-experience the same underlying entropy gradient across positions, but
-the mapping between screen positions and entropy levels is randomized
-through a double permutation procedure that shuffles the original matrix
-(of that size) using the same random permutation. This preserves the
-statistical properties of the original matrix---transition probabilities
-and entropy values---but decouples entropy levels from specific screen
-positions. The position sequence for each participant is subsequently
-generated using their individual shuffled transition matrix, so the
-sequence each participant experiences is different both within and
-between matrix size conditions.
+states---each matrix had a positional entropy range of 0.061-0.181 bits
+for position 1 (\(\mu\)=0.107, \(\sigma\)=0.048), and 1.695-2.835 bits
+for position n (\(\mu\)=2.319, \(\sigma\)=0.451). Within a matrix each
+position increases in entropy from the previous by 0.295-0.699 bits
+(\(\mu\)=0.442, \(\sigma\)=0.085); and 4) avoided self loops as much as
+possible---all of the matrices had \textless0.08 probabilities in the
+left diagonal up until the last two positions. Within each matrix size
+condition, all participants experience the same underlying entropy
+gradient across positions, but the mapping between screen positions and
+entropy levels is randomized through a double permutation procedure that
+shuffles the original matrix (of that size) using the same random
+permutation. This preserves the statistical properties of the original
+matrix---transition probabilities and entropy values---but decouples
+entropy levels from specific screen positions. The position sequence for
+each participant is subsequently generated using their individual
+shuffled transition matrix, so the sequence each participant experiences
+is different both within and between matrix size conditions.
 
 \section{Statistical Analysis}\label{statistical-analysis}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Retrieve data from OSF}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-\NormalTok{\#| eval: false}
+\CommentTok{\# }\AlertTok{NOTE}\CommentTok{: Set eval=true only when you need to download data from OSF for the first time.}
+\CommentTok{\# Once data is downloaded locally, keep eval=false to speed up rendering.}
 
-\NormalTok{\# NOTE: Set eval=true only when you need to download data from OSF for the first time.}
-\NormalTok{\# Once data is downloaded locally, keep eval=false to speed up rendering.}
+\NormalTok{files\_4x4 }\OtherTok{\textless{}{-}} \FunctionTok{osf\_retrieve\_node}\NormalTok{(EXPERIMENT\_CONFIG}\SpecialCharTok{$}\NormalTok{osf\_id\_4x4) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_ls\_files}\NormalTok{(}\AttributeTok{n\_max =} \ConstantTok{Inf}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_download}\NormalTok{(}\AttributeTok{path =} \FunctionTok{here}\NormalTok{(}\StringTok{"data/4x4{-}data"}\NormalTok{), }\AttributeTok{conflicts =} \StringTok{"skip"}\NormalTok{)}
 
-\NormalTok{files\_4x4 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_4x4) \%\textgreater{}\%}
-\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
-\NormalTok{  osf\_download(path = here("data/4x4{-}data"), conflicts="skip")}
+\NormalTok{files\_5x5 }\OtherTok{\textless{}{-}} \FunctionTok{osf\_retrieve\_node}\NormalTok{(EXPERIMENT\_CONFIG}\SpecialCharTok{$}\NormalTok{osf\_id\_5x5) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_ls\_files}\NormalTok{(}\AttributeTok{n\_max =} \ConstantTok{Inf}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_download}\NormalTok{(}\AttributeTok{path =} \FunctionTok{here}\NormalTok{(}\StringTok{"data/5x5{-}data"}\NormalTok{), }\AttributeTok{conflicts =} \StringTok{"skip"}\NormalTok{)}
 
-\NormalTok{files\_5x5 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_5x5) \%\textgreater{}\%}
-\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
-\NormalTok{  osf\_download(path = here("data/5x5{-}data"), conflicts="skip")}
+\NormalTok{files\_6x6 }\OtherTok{\textless{}{-}} \FunctionTok{osf\_retrieve\_node}\NormalTok{(EXPERIMENT\_CONFIG}\SpecialCharTok{$}\NormalTok{osf\_id\_6x6) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_ls\_files}\NormalTok{(}\AttributeTok{n\_max =} \ConstantTok{Inf}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_download}\NormalTok{(}\AttributeTok{path =} \FunctionTok{here}\NormalTok{(}\StringTok{"data/6x6{-}data"}\NormalTok{), }\AttributeTok{conflicts =} \StringTok{"skip"}\NormalTok{)}
 
-\NormalTok{files\_6x6 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_6x6) \%\textgreater{}\%}
-\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
-\NormalTok{  osf\_download(path = here("data/6x6{-}data"), conflicts="skip")}
+\NormalTok{files\_7x7 }\OtherTok{\textless{}{-}} \FunctionTok{osf\_retrieve\_node}\NormalTok{(EXPERIMENT\_CONFIG}\SpecialCharTok{$}\NormalTok{osf\_id\_7x7) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_ls\_files}\NormalTok{(}\AttributeTok{n\_max =} \ConstantTok{Inf}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_download}\NormalTok{(}\AttributeTok{path =} \FunctionTok{here}\NormalTok{(}\StringTok{"data/7x7{-}data"}\NormalTok{), }\AttributeTok{conflicts =} \StringTok{"skip"}\NormalTok{)}
 
-\NormalTok{files\_7x7 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_7x7) \%\textgreater{}\%}
-\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
-\NormalTok{  osf\_download(path = here("data/7x7{-}data"), conflicts="skip")}
-
-\NormalTok{files\_8x8 \textless{}{-} osf\_retrieve\_node(EXPERIMENT\_CONFIG$osf\_id\_8x8) \%\textgreater{}\%}
-\NormalTok{  osf\_ls\_files(n\_max = Inf) \%\textgreater{}\%}
-\NormalTok{  osf\_download(path = here("data/8x8{-}data"), conflicts="skip")}
+\NormalTok{files\_8x8 }\OtherTok{\textless{}{-}} \FunctionTok{osf\_retrieve\_node}\NormalTok{(EXPERIMENT\_CONFIG}\SpecialCharTok{$}\NormalTok{osf\_id\_8x8) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_ls\_files}\NormalTok{(}\AttributeTok{n\_max =} \ConstantTok{Inf}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{osf\_download}\NormalTok{(}\AttributeTok{path =} \FunctionTok{here}\NormalTok{(}\StringTok{"data/8x8{-}data"}\NormalTok{), }\AttributeTok{conflicts =} \StringTok{"skip"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: List local data files}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{\# But there is some bug in osfr that causes one file name to be duplicated and one file name to be skipped, so alternatively just download manually from OSF and put in data/ folder:}
-\NormalTok{files\_4x4 \textless{}{-} list.files("data/4x4{-}data")}
-\NormalTok{files\_5x5 \textless{}{-} list.files("data/5x5{-}data")}
-\NormalTok{files\_6x6 \textless{}{-} list.files("data/6x6{-}data")}
-\NormalTok{files\_7x7 \textless{}{-} list.files("data/7x7{-}data")}
-\NormalTok{files\_8x8 \textless{}{-} list.files("data/8x8{-}data")}
+\CommentTok{\# But there is some bug in osfr that causes one file name to be duplicated and one file name to be skipped, so alternatively just download manually from OSF and put in data/ folder:}
+\NormalTok{files\_4x4 }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{"data/4x4{-}data"}\NormalTok{)}
+\NormalTok{files\_5x5 }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{"data/5x5{-}data"}\NormalTok{)}
+\NormalTok{files\_6x6 }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{"data/6x6{-}data"}\NormalTok{)}
+\NormalTok{files\_7x7 }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{"data/7x7{-}data"}\NormalTok{)}
+\NormalTok{files\_8x8 }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{"data/8x8{-}data"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Bind all data together}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
+\CommentTok{\# Cache df.raw to speed up rendering}
+\NormalTok{df\_raw\_cache }\OtherTok{\textless{}{-}} \FunctionTok{here}\NormalTok{(}\StringTok{"data/processed/df\_raw.rds"}\NormalTok{)}
 
-\NormalTok{\# Cache df.raw to speed up rendering}
-\NormalTok{df\_raw\_cache \textless{}{-} here("data/processed/df\_raw.rds")}
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{file.exists}\NormalTok{(df\_raw\_cache)) \{}
+\NormalTok{    df.raw }\OtherTok{\textless{}{-}} \FunctionTok{readRDS}\NormalTok{(df\_raw\_cache)}
+\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{    df.raw }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\FunctionTok{here}\NormalTok{(}\StringTok{"data/"}\NormalTok{), }\AttributeTok{pattern =} \StringTok{"*.csv"}\NormalTok{, }\AttributeTok{full.names =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{recursive =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{        .[}\SpecialCharTok{!}\FunctionTok{grepl}\NormalTok{(}\StringTok{"pilot{-}data"}\NormalTok{, .)] }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{lapply}\NormalTok{(read.csv) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{bind\_rows}\NormalTok{()}
 
-\NormalTok{if (file.exists(df\_raw\_cache)) \{}
-\NormalTok{  df.raw \textless{}{-} readRDS(df\_raw\_cache)}
-\NormalTok{\} else \{}
-\NormalTok{  df.raw \textless{}{-} list.files(here("data/"), pattern = "*.csv", full.names=TRUE, recursive=TRUE) \%\textgreater{}\%}
-\NormalTok{    .[!grepl("pilot{-}data", .)] \%\textgreater{}\%}
-\NormalTok{    lapply(read.csv) \%\textgreater{}\%}
-\NormalTok{    bind\_rows()}
-
-\NormalTok{  \# Create processed directory if it doesn\textquotesingle{}t exist}
-\NormalTok{  dir.create(here("data/processed"), showWarnings = FALSE, recursive = TRUE)}
-\NormalTok{  saveRDS(df.raw, df\_raw\_cache)}
+    \CommentTok{\# Create processed directory if it doesn\textquotesingle{}t exist}
+    \FunctionTok{dir.create}\NormalTok{(}\FunctionTok{here}\NormalTok{(}\StringTok{"data/processed"}\NormalTok{), }\AttributeTok{showWarnings =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{recursive =} \ConstantTok{TRUE}\NormalTok{)}
+    \FunctionTok{saveRDS}\NormalTok{(df.raw, df\_raw\_cache)}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Filter out unnecessary columns}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{df \textless{}{-} subset(df.raw, select=c(trial\_index, subject\_id, matrix\_size, trials\_per\_block, total\_trials, practice\_trials, transition\_matrix, conditional\_entropies, phase, block, experiment\_trial\_type, trial\_in\_block, overall\_trial, position, correct\_key, response, correct, rt, conditional\_entropy, surprisal, questionnaire\_item))}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(df.raw, }\AttributeTok{select =} \FunctionTok{c}\NormalTok{(trial\_index, subject\_id, matrix\_size, trials\_per\_block, total\_trials, practice\_trials, transition\_matrix, conditional\_entropies, phase, block, experiment\_trial\_type, trial\_in\_block, overall\_trial, position, correct\_key, response, correct, rt, conditional\_entropy, surprisal, questionnaire\_item))}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Clean up data formatting}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
+\CommentTok{\# Convert NA values}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{where}\NormalTok{(is.character), }\SpecialCharTok{\textasciitilde{}}\NormalTok{ \{}
+\NormalTok{        x }\OtherTok{\textless{}{-}}\NormalTok{ .}
+\NormalTok{        x[x }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"NA"}\NormalTok{, }\StringTok{"na"}\NormalTok{, }\StringTok{"null"}\NormalTok{, }\StringTok{"NULL"}\NormalTok{, }\StringTok{""}\NormalTok{)] }\OtherTok{\textless{}{-}} \ConstantTok{NA}
+\NormalTok{        x}
+\NormalTok{    \}))}
 
-\NormalTok{\# Convert NA values}
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  mutate(across(where(is.character), \textasciitilde{}\{}
-\NormalTok{    x \textless{}{-} .}
-\NormalTok{    x[x \%in\% c("NA", "na", "null", "NULL", "")] \textless{}{-} NA}
-\NormalTok{    x}
-\NormalTok{  \}))}
+\CommentTok{\# Convert boolean values}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{where}\NormalTok{(is.character), }\SpecialCharTok{\textasciitilde{}}\NormalTok{ \{}
+\NormalTok{        x }\OtherTok{\textless{}{-}} \FunctionTok{tolower}\NormalTok{(.)}
+        \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{all}\NormalTok{(x }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"true"}\NormalTok{, }\StringTok{"false"}\NormalTok{, }\ConstantTok{NA}\NormalTok{))) \{}
+            \FunctionTok{as.logical}\NormalTok{(x)}
+\NormalTok{        \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{            .}
+\NormalTok{        \}}
+\NormalTok{    \}))}
 
-\NormalTok{\# Convert boolean values}
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  mutate(across(where(is.character), \textasciitilde{} \{}
-\NormalTok{    x \textless{}{-} tolower(.)}
-\NormalTok{    if (all(x \%in\% c("true", "false", NA))) \{}
-\NormalTok{      as.logical(x)}
-\NormalTok{    \} else \{}
-\NormalTok{      .}
-\NormalTok{    \}}
-\NormalTok{  \}))}
-
-\NormalTok{\# Convert numeric values}
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  mutate(across(where(is.character), \textasciitilde{} \{}
-\NormalTok{    x \textless{}{-} .}
-\NormalTok{    is\_num \textless{}{-} suppressWarnings(!is.na(as.numeric(x)) | is.na(x))}
-\NormalTok{    if (all(is\_num)) as.numeric(x) else x}
-\NormalTok{  \}))}
+\CommentTok{\# Convert numeric values}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{where}\NormalTok{(is.character), }\SpecialCharTok{\textasciitilde{}}\NormalTok{ \{}
+\NormalTok{        x }\OtherTok{\textless{}{-}}\NormalTok{ .}
+\NormalTok{        is\_num }\OtherTok{\textless{}{-}} \FunctionTok{suppressWarnings}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(x)) }\SpecialCharTok{|} \FunctionTok{is.na}\NormalTok{(x))}
+        \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{all}\NormalTok{(is\_num)) }\FunctionTok{as.numeric}\NormalTok{(x) }\ControlFlowTok{else}\NormalTok{ x}
+\NormalTok{    \}))}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Center matrix\_size and block}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  mutate(}
-\NormalTok{    matrix\_size\_c=matrix\_size{-}((max(df$matrix\_size, na.rm=TRUE)+min(df$matrix\_size, na.rm=TRUE))/2),}
-\NormalTok{    block\_c=block{-}((max(df$block, na.rm=TRUE)+min(df$block, na.rm=TRUE))/2)}
-\NormalTok{  )}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}
+        \AttributeTok{matrix\_size\_c =}\NormalTok{ matrix\_size }\SpecialCharTok{{-}}\NormalTok{ ((}\FunctionTok{max}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{matrix\_size, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{min}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{matrix\_size, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{),}
+        \AttributeTok{block\_c =}\NormalTok{ block }\SpecialCharTok{{-}}\NormalTok{ ((}\FunctionTok{max}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{block, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{min}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{block, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+\NormalTok{    )}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Fill down overall\_trial, trial\_in\_block, block}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{    group\_by(subject\_id) \%\textgreater{}\%}
-\NormalTok{    arrange(subject\_id, row\_number()) \%\textgreater{}\%}
-\NormalTok{    mutate(}
-\NormalTok{      overall\_trial = if\_else(}
-\NormalTok{        experiment\_trial\_type \%in\% c("feedback", "rsi"),}
-\NormalTok{        zoo::na.locf(overall\_trial, na.rm = FALSE),  \# Fill down}
-\NormalTok{        overall\_trial  \# Keep as{-}is}
-\NormalTok{      ),}
-\NormalTok{      trial\_in\_block = if\_else(}
-\NormalTok{        experiment\_trial\_type \%in\% c("feedback", "rsi"),}
-\NormalTok{        zoo::na.locf(trial\_in\_block, na.rm = FALSE), }
-\NormalTok{        trial\_in\_block}
-\NormalTok{      ),}
-\NormalTok{      block = if\_else(}
-\NormalTok{        experiment\_trial\_type \%in\% c("feedback", "rsi"),}
-\NormalTok{        zoo::na.locf(block, na.rm = FALSE), }
-\NormalTok{        block}
-\NormalTok{      )}
-\NormalTok{    ) \%\textgreater{}\%}
-\NormalTok{    ungroup()}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(subject\_id) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{arrange}\NormalTok{(subject\_id, }\FunctionTok{row\_number}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}
+        \AttributeTok{overall\_trial =} \FunctionTok{if\_else}\NormalTok{(}
+\NormalTok{            experiment\_trial\_type }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"feedback"}\NormalTok{, }\StringTok{"rsi"}\NormalTok{),}
+\NormalTok{            zoo}\SpecialCharTok{::}\FunctionTok{na.locf}\NormalTok{(overall\_trial, }\AttributeTok{na.rm =} \ConstantTok{FALSE}\NormalTok{), }\CommentTok{\# Fill down}
+\NormalTok{            overall\_trial }\CommentTok{\# Keep as{-}is}
+\NormalTok{        ),}
+        \AttributeTok{trial\_in\_block =} \FunctionTok{if\_else}\NormalTok{(}
+\NormalTok{            experiment\_trial\_type }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"feedback"}\NormalTok{, }\StringTok{"rsi"}\NormalTok{),}
+\NormalTok{            zoo}\SpecialCharTok{::}\FunctionTok{na.locf}\NormalTok{(trial\_in\_block, }\AttributeTok{na.rm =} \ConstantTok{FALSE}\NormalTok{),}
+\NormalTok{            trial\_in\_block}
+\NormalTok{        ),}
+        \AttributeTok{block =} \FunctionTok{if\_else}\NormalTok{(}
+\NormalTok{            experiment\_trial\_type }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"feedback"}\NormalTok{, }\StringTok{"rsi"}\NormalTok{),}
+\NormalTok{            zoo}\SpecialCharTok{::}\FunctionTok{na.locf}\NormalTok{(block, }\AttributeTok{na.rm =} \ConstantTok{FALSE}\NormalTok{),}
+\NormalTok{            block}
+\NormalTok{        ),}
+        \AttributeTok{block\_c =} \FunctionTok{if\_else}\NormalTok{(}
+\NormalTok{            experiment\_trial\_type }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"feedback"}\NormalTok{, }\StringTok{"rsi"}\NormalTok{),}
+\NormalTok{            zoo}\SpecialCharTok{::}\FunctionTok{na.locf}\NormalTok{(block\_c, }\AttributeTok{na.rm =} \ConstantTok{FALSE}\NormalTok{),}
+\NormalTok{            block\_c}
+\NormalTok{        )}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{ungroup}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Sanity check for unique subject\_ids, matrix size, total number of trials, practice trials, transition matrices, conditional entropies and sequences across subjects and conditions}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
+\NormalTok{unique\_subjects }\OtherTok{\textless{}{-}} \FunctionTok{unique}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{subject\_id)}
 
-\NormalTok{unique\_subjects \textless{}{-} unique(df$subject\_id)}
+\CommentTok{\# Per{-}subject constants grouped by matrix\_size}
+\NormalTok{df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{distinct}\NormalTok{(matrix\_size, subject\_id, total\_trials, practice\_trials, transition\_matrix, conditional\_entropies) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(matrix\_size) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}
+        \AttributeTok{n\_subjects =} \FunctionTok{n\_distinct}\NormalTok{(subject\_id),}
+        \AttributeTok{total\_trials =} \FunctionTok{unique}\NormalTok{(total\_trials),}
+        \AttributeTok{practice\_trials =} \FunctionTok{unique}\NormalTok{(practice\_trials),}
+        \AttributeTok{transition\_matrix =} \FunctionTok{list}\NormalTok{(}\FunctionTok{unique}\NormalTok{(transition\_matrix)),}
+        \AttributeTok{conditional\_entropies =} \FunctionTok{list}\NormalTok{(}\FunctionTok{unique}\NormalTok{(conditional\_entropies))}
+\NormalTok{    )}
 
-\NormalTok{\# Per{-}subject constants grouped by matrix\_size}
-\NormalTok{df \%\textgreater{}\%}
-\NormalTok{  distinct(matrix\_size, subject\_id, total\_trials, practice\_trials, transition\_matrix, conditional\_entropies) \%\textgreater{}\%}
-\NormalTok{  group\_by(matrix\_size) \%\textgreater{}\%}
-\NormalTok{  summarize(}
-\NormalTok{    n\_subjects = n\_distinct(subject\_id),}
-\NormalTok{    total\_trials = unique(total\_trials),}
-\NormalTok{    practice\_trials = unique(practice\_trials),}
-\NormalTok{    transition\_matrix = list(unique(transition\_matrix)),}
-\NormalTok{    conditional\_entropies = list(unique(conditional\_entropies))}
-\NormalTok{  )}
+\CommentTok{\# Unique position sequences per matrix\_size}
+\NormalTok{df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(matrix\_size, subject\_id) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}
+        \AttributeTok{sequence =} \FunctionTok{paste}\NormalTok{(position, }\AttributeTok{collapse =} \StringTok{","}\NormalTok{),}
+        \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(matrix\_size) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}
+        \AttributeTok{n\_subjects =} \FunctionTok{n\_distinct}\NormalTok{(subject\_id),}
+        \AttributeTok{n\_unique\_sequences =} \FunctionTok{n\_distinct}\NormalTok{(sequence)}
+\NormalTok{    )}
 
-\NormalTok{\# Unique position sequences per matrix\_size}
-\NormalTok{df \%\textgreater{}\%}
-\NormalTok{  group\_by(matrix\_size, subject\_id) \%\textgreater{}\%}
-\NormalTok{  summarize(}
-\NormalTok{    sequence = paste(position, collapse = ","),}
-\NormalTok{    .groups = "drop"}
-\NormalTok{  ) \%\textgreater{}\%}
-\NormalTok{  group\_by(matrix\_size) \%\textgreater{}\%}
-\NormalTok{  summarize(}
-\NormalTok{    n\_subjects = n\_distinct(subject\_id),}
-\NormalTok{    n\_unique\_sequences = n\_distinct(sequence)}
-\NormalTok{  )}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df[, }\SpecialCharTok{!}\NormalTok{(}\FunctionTok{names}\NormalTok{(df) }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"transition\_matrix"}\NormalTok{, }\StringTok{"conditional\_entropies"}\NormalTok{))]}
 
-\NormalTok{df \textless{}{-} df[, !(names(df) \%in\% c("transition\_matrix", "conditional\_entropies"))]}
-
-\NormalTok{\# Shows only 1 unique transition matrix and conditional entropies for conditions 6x6, 7x7 and 8x8 because of an error in data collection for those conditions after removing row by row log of the transition matrix and conditional entropies from the data files to save space. However, the code to shuffle those matrices and corresponding conditional entropies are still the same, so we believe participants are still each seeing a shuffled matrix and a different sequence in these conditions.}
+\CommentTok{\# Shows only 1 unique transition matrix and conditional entropies for conditions 6x6, 7x7 and 8x8 because of an error in data collection for those conditions after removing row by row log of the transition matrix and conditional entropies from the data files to save space. However, the code to shuffle those matrices and corresponding conditional entropies are still the same, so we believe participants are still each seeing a shuffled matrix and a different sequence in these conditions.}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Separate practice, main and questionnaire sections}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{df.practice \textless{}{-} df[df$phase=="practice", ]}
-\NormalTok{df.questionnaire \textless{}{-} df[df$phase=="questionnaire", ]}
-\NormalTok{df \textless{}{-} df[df$phase=="main", ]}
+\NormalTok{df.practice }\OtherTok{\textless{}{-}}\NormalTok{ df[df}\SpecialCharTok{$}\NormalTok{phase }\SpecialCharTok{==} \StringTok{"practice"}\NormalTok{, ]}
+\NormalTok{df.questionnaire }\OtherTok{\textless{}{-}}\NormalTok{ df[df}\SpecialCharTok{$}\NormalTok{phase }\SpecialCharTok{==} \StringTok{"questionnaire"}\NormalTok{, ]}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df[df}\SpecialCharTok{$}\NormalTok{phase }\SpecialCharTok{==} \StringTok{"main"}\NormalTok{, ]}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: exclude{-}subjects}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
+\CommentTok{\# Exclude subjects that}
+\CommentTok{\# 1. Made too many mistakes (more than 15\%)}
+\CommentTok{\# 2. Have too long response time (look at mean, median and spread)}
+\CommentTok{\# {-}\textgreater{} exclude if too slow{-}{-}the subject\textquotesingle{}s median\_rt \textgreater{} 1000ms}
+\CommentTok{\# {-}\textgreater{} or if too noisy{-}{-}more than 20\% of their trials are 3*mad higher than the subject\textquotesingle{}s median\_rt}
 
-\NormalTok{\# Exclude subjects that}
-\NormalTok{\# 1. Made too many mistakes (more than 15\%)}
-\NormalTok{\# 2. Have too long response time (look at mean, median and spread)}
-\NormalTok{\# {-}\textgreater{} exclude if too slow{-}{-}the subject\textquotesingle{}s median\_rt \textgreater{} 1000ms}
-\NormalTok{\# {-}\textgreater{} or if too noisy{-}{-}more than 20\% of their trials are 3*mad higher than the subject\textquotesingle{}s median\_rt}
+\NormalTok{accuracy\_excluded\_subjects }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(correct)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(subject\_id) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}\AttributeTok{error\_rate =} \FunctionTok{mean}\NormalTok{(}\SpecialCharTok{!}\NormalTok{correct)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(error\_rate }\SpecialCharTok{\textgreater{}} \FloatTok{0.10}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{pull}\NormalTok{(subject\_id)}
 
-\NormalTok{accuracy\_excluded\_subjects \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  filter(!is.na(correct)) \%\textgreater{}\%}
-\NormalTok{  group\_by(subject\_id) \%\textgreater{}\%}
-\NormalTok{  summarize(error\_rate = mean(!correct)) \%\textgreater{}\%}
-\NormalTok{  filter(error\_rate \textgreater{} 0.10) \%\textgreater{}\%}
-\NormalTok{  pull(subject\_id)}
+\NormalTok{rt\_excluded\_subjects }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(}
+\NormalTok{        (experiment\_trial\_type }\SpecialCharTok{==} \StringTok{"stimulus"} \SpecialCharTok{|}\NormalTok{ experiment\_trial\_type }\SpecialCharTok{==} \StringTok{"retry"}\NormalTok{) }\SpecialCharTok{\&}
+            \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(rt)}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(subject\_id) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}
+        \AttributeTok{median\_rt =} \FunctionTok{median}\NormalTok{(rt),}
+        \AttributeTok{outlier\_prop =} \FunctionTok{mean}\NormalTok{(rt }\SpecialCharTok{\textgreater{}} \FunctionTok{median}\NormalTok{(rt) }\SpecialCharTok{+} \DecValTok{3} \SpecialCharTok{*} \FunctionTok{mad}\NormalTok{(rt))}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(median\_rt }\SpecialCharTok{\textgreater{}} \DecValTok{1000} \SpecialCharTok{|}\NormalTok{ outlier\_prop }\SpecialCharTok{\textgreater{}} \FloatTok{0.2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{pull}\NormalTok{(subject\_id)}
 
-\NormalTok{rt\_excluded\_subjects \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  filter(}
-\NormalTok{    (experiment\_trial\_type == "stimulus" | experiment\_trial\_type == "retry")}
-\NormalTok{    \& !is.na(rt)) \%\textgreater{}\% }
-\NormalTok{  group\_by(subject\_id) \%\textgreater{}\%}
-\NormalTok{  summarize(}
-\NormalTok{    median\_rt = median(rt),}
-\NormalTok{    outlier\_prop = mean(rt \textgreater{} median(rt) + 3*mad(rt))}
-\NormalTok{  ) \%\textgreater{}\%}
-\NormalTok{  filter(median\_rt \textgreater{} 1000 | outlier\_prop \textgreater{} 0.2) \%\textgreater{}\%}
-\NormalTok{  pull(subject\_id)}
-
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  filter(!subject\_id \%in\% accuracy\_excluded\_subjects \& !subject\_id \%in\% rt\_excluded\_subjects)}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{subject\_id }\SpecialCharTok{\%in\%}\NormalTok{ accuracy\_excluded\_subjects }\SpecialCharTok{\&} \SpecialCharTok{!}\NormalTok{subject\_id }\SpecialCharTok{\%in\%}\NormalTok{ rt\_excluded\_subjects)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Filter df down to only stimulus, non{-}retry trials}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  filter(experiment\_trial\_type=="stimulus" \& !is.na(rt) \& rt != 0)}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(experiment\_trial\_type }\SpecialCharTok{==} \StringTok{"stimulus"} \SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(rt) }\SpecialCharTok{\&}\NormalTok{ rt }\SpecialCharTok{!=} \DecValTok{0}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Remove first trial of each block}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
-
-\NormalTok{df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  group\_by(block, subject\_id) \%\textgreater{}\%}
-\NormalTok{  slice(2:n())}
+\NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(block, subject\_id) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{slice}\NormalTok{(}\DecValTok{2}\SpecialCharTok{:}\FunctionTok{n}\NormalTok{())}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Make a new column for log(rt), previous position entropy, prev\_entropy\_c, surprisal\_c, is\_repetition}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
+\CommentTok{\# Cache fully processed df}
+\NormalTok{df\_processed\_cache }\OtherTok{\textless{}{-}} \FunctionTok{here}\NormalTok{(}\StringTok{"data/processed/df\_processed.rds"}\NormalTok{)}
 
-\NormalTok{\# Cache fully processed df}
-\NormalTok{df\_processed\_cache \textless{}{-} here("data/processed/df\_processed.rds")}
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{file.exists}\NormalTok{(df\_processed\_cache)) \{}
+\NormalTok{    df }\OtherTok{\textless{}{-}} \FunctionTok{readRDS}\NormalTok{(df\_processed\_cache)}
+\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{    df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}\AttributeTok{log\_rt =} \FunctionTok{log}\NormalTok{(rt)) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}\AttributeTok{is\_repetition =}\NormalTok{ (position }\SpecialCharTok{==} \FunctionTok{lag}\NormalTok{(position, }\DecValTok{1}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{group\_by}\NormalTok{(subject\_id, block) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}\AttributeTok{previous\_entropy =} \FunctionTok{lag}\NormalTok{(conditional\_entropy, }\DecValTok{1}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{group\_by}\NormalTok{(matrix\_size) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}\AttributeTok{prev\_entropy\_c =}\NormalTok{ previous\_entropy }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(previous\_entropy, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}\AttributeTok{surprisal\_c =}\NormalTok{ surprisal }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(surprisal, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{ungroup}\NormalTok{()}
 
-\NormalTok{if (file.exists(df\_processed\_cache)) \{}
-\NormalTok{  df \textless{}{-} readRDS(df\_processed\_cache)}
-\NormalTok{\} else \{}
-\NormalTok{  df \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{    mutate(log\_rt=log(rt)) \%\textgreater{}\%}
-\NormalTok{    mutate(is\_repetition=(position==lag(position,1))) \%\textgreater{}\%}
-\NormalTok{    group\_by(subject\_id, block) \%\textgreater{}\%}
-\NormalTok{    mutate(previous\_entropy=lag(conditional\_entropy, 1)) \%\textgreater{}\%}
-\NormalTok{    ungroup() \%\textgreater{}\%}
-\NormalTok{    group\_by(matrix\_size) \%\textgreater{}\%}
-\NormalTok{    mutate(prev\_entropy\_c=previous\_entropy{-}mean(previous\_entropy, na.rm=TRUE)) \%\textgreater{}\%}
-\NormalTok{    mutate(surprisal\_c=surprisal{-}mean(surprisal, na.rm=TRUE)) \%\textgreater{}\%}
-\NormalTok{    ungroup()}
-
-\NormalTok{  saveRDS(df, df\_processed\_cache)}
+    \FunctionTok{saveRDS}\NormalTok{(df, df\_processed\_cache)}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Make subset of df with only correct trials}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: false}
+\CommentTok{\# Cache correct trials df}
+\NormalTok{df\_correct\_cache }\OtherTok{\textless{}{-}} \FunctionTok{here}\NormalTok{(}\StringTok{"data/processed/df\_correct.rds"}\NormalTok{)}
 
-\NormalTok{\# Cache correct trials df}
-\NormalTok{df\_correct\_cache \textless{}{-} here("data/processed/df\_correct.rds")}
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{file.exists}\NormalTok{(df\_correct\_cache)) \{}
+\NormalTok{    df.correct }\OtherTok{\textless{}{-}} \FunctionTok{readRDS}\NormalTok{(df\_correct\_cache)}
+\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{    df.correct }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{filter}\NormalTok{(correct)}
 
-\NormalTok{if (file.exists(df\_correct\_cache)) \{}
-\NormalTok{  df.correct \textless{}{-} readRDS(df\_correct\_cache)}
-\NormalTok{\} else \{}
-\NormalTok{  df.correct \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{    filter(correct)}
-
-\NormalTok{  saveRDS(df.correct, df\_correct\_cache)}
+    \FunctionTok{saveRDS}\NormalTok{(df.correct, df\_correct\_cache)}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
@@ -1102,574 +1029,998 @@ log-transformed to reduce skewness.
 We use linear mixed effects regression (LMER) to model log-transformed
 RTs and generalized linear mixed effects regression (GLMER) with a
 binomial link function to model accuracy. Models are fit using the
-\texttt{lmerTest} package in R. We first test for the learning effect
-across blocks (H0), then examine the effects of surprisal and previous
-positional entropy (H1 \& H2) in the final block, pruning effects where
-applicable to find the best-fitting effects structure before analyzing
-learning trajectories across blocks, and finally test for moderation by
-number of positions/matrix size(H3).
+\texttt{lmerTest} package in R. We first determine the optimal random
+and fixed effects structure using the final block of trials in each
+condition. We test candidate structrues by fitting them to each of the
+five matrix size conditions separately and selecting the structure with
+the lowest summed AIC across all conditions. Using this selected
+structure, we then fit separate models to each individual block within
+each matrix size condition to examine learning trajectories. Finally, we
+extract the effect size estimates from each model and test whether they
+are moderated by matrix size and block using linear regression without
+random effects, as the data are aggregated coefficients.
 
-Models are initially fit with the maximal random effects structure
-supported by the design: random intercepts for participant and position,
-and random slopes for surprisal, previous positional entropy, their
-interaction, and position repetition by participant. Where maximal
-models fail to converge, we use bounded linear mixed models
-(\texttt{blmer}/\texttt{bglmer}) as a first remedy. If singularity
-persists, we iteratively simplify the random effects structure, removing
-random slopes one at a time and retaining the most complex structure
-that converges without singularity. Among converging models, we select
-the one with the lowest AIC.
+\textbf{Random effects selection.} Models are initially fit with the
+maximal random effects structure supported by the design: random
+intercepts for participant and position, and random slopes by
+participant for surprisal, previous positional entropy, their
+interaction, and whether the current position is a repetition of the
+previous position. Where maximal models fail to converge, we use bounded
+linear mixed models (\texttt{blmer}/\texttt{bglmer}) as a first remedy.
+If singularity persists, we iteratively simplify the random effects
+structure, removing random slopes one at a time and retaining the most
+complex structure that converges without singularity. Among these
+converging models, we do further AIC-based selection to find the most
+simple effects structure without increasing AIC
 
-For H1 and H2, we first establish the fixed effects structure using only
-the final block of trials, then extend to learning trajectories across
-blocks. Starting from a base model including surprisal, previous
-positional entropy, their interaction, and repetition as fixed effects
-(with the selected random effects structure), we use AIC-based model
-comparison to prune fixed effects. We first test whether repetition is
-significant by comparing the base model against one in which it is
-removed; if removing it does not increase AIC, we drop it from the base
-model. We then test whether the interaction term between surprisal and
-previous positional entropy is significant by comparing the current base
-model against one in which the interaction term is removed. If the
-interaction is not significant, we test each main effect individually by
-comparing models that omit surprisal or previous positional entropy as
-main effects. An effect is retained if removing it increases AIC.
+\textbf{Fixed effects selection.} Starting with the selected random
+effects structure and a full fixed effects model including surprisal,
+previous positional entropy, their interaction, and repetition, we
+similarly use AIC-based stepwise backward selection to prune the fixed
+effects. We first test whether repetition can be removed without
+increasing AIC. We then test the interaction term between surprisal and
+previous position entropy, followed by individual main effects if the
+interaction is not retained. An effect is retained if removing it
+increases AIC.
 
 \section{Results}\label{results}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Prepare data for H0 models}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| eval: true}
-
-\NormalTok{df.m\_h0 \textless{}{-} df}
-\NormalTok{df.m\_h0.correct \textless{}{-} df.correct}
+\NormalTok{df.m\_h0 }\OtherTok{\textless{}{-}}\NormalTok{ df}
+\NormalTok{df.m\_h0.correct }\OtherTok{\textless{}{-}}\NormalTok{ df.correct}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: H0 Learning effect lmer models}
-\NormalTok{\#| echo: false}
-\NormalTok{\# (filter for correct trials and group by matrix\_size)}
+\NormalTok{m\_h0\_rt }\OtherTok{\textless{}{-}}
+    \FunctionTok{lmer}\NormalTok{(log\_rt }\SpecialCharTok{\textasciitilde{}}\NormalTok{ block\_c }\SpecialCharTok{*}\NormalTok{ is\_repetition }\SpecialCharTok{+}\NormalTok{ (block\_c }\SpecialCharTok{*}\NormalTok{ is\_repetition }\SpecialCharTok{|}\NormalTok{ subject\_id) }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ position),}
+        \AttributeTok{data =}\NormalTok{ df.m\_h0.correct,}
+        \AttributeTok{REML =} \ConstantTok{FALSE}\NormalTok{,}
+        \AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer =} \StringTok{"bobyqa"}\NormalTok{)}
+\NormalTok{    ) }\CommentTok{\# can change}
 
-\NormalTok{m\_h0\_rt \textless{}{-}}
-\NormalTok{  lmer(log\_rt \textasciitilde{} block * is\_repetition + (block * is\_repetition| subject\_id) + (1 | position),}
-\NormalTok{  data=df.m\_h0.correct,}
-\NormalTok{  REML=FALSE,}
-\NormalTok{  control=lmerControl(optimizer="bobyqa")) \# can change}
+\FunctionTok{summary}\NormalTok{(m\_h0\_rt)}
 
-\NormalTok{summary(m\_h0\_rt)}
+\NormalTok{df.m\_h0.correct }\OtherTok{\textless{}{-}}\NormalTok{ df.correct }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(matrix\_size)}
 
-\NormalTok{df.m\_h0.correct \textless{}{-} df.correct \%\textgreater{}\%}
-\NormalTok{  group\_by(matrix\_size)}
-  
-\NormalTok{m\_h0\_acc \textless{}{-}}
-\NormalTok{  glmer(correct \textasciitilde{} block + is\_repetition + (block | subject\_id) + (1 | position),}
-\NormalTok{  data=df.m\_h0,}
-\NormalTok{  family=binomial,}
-\NormalTok{ control=glmerControl(optimizer="bobyqa")) \# can change}
+\NormalTok{m\_h0\_acc }\OtherTok{\textless{}{-}}
+    \FunctionTok{glmer}\NormalTok{(correct }\SpecialCharTok{\textasciitilde{}}\NormalTok{ block\_c\_ }\SpecialCharTok{*}\NormalTok{ is\_repetition }\SpecialCharTok{+}\NormalTok{ (block\_c\_ }\SpecialCharTok{*}\NormalTok{ is\_repetition }\SpecialCharTok{|}\NormalTok{ subject\_id) }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ position),}
+        \AttributeTok{data =}\NormalTok{ df.m\_h0,}
+        \AttributeTok{family =}\NormalTok{ binomial,}
+        \AttributeTok{control =} \FunctionTok{glmerControl}\NormalTok{(}\AttributeTok{optimizer =} \StringTok{"bobyqa"}\NormalTok{)}
+\NormalTok{    ) }\CommentTok{\# can change}
 
-\NormalTok{summary(m\_h0\_acc)}
+\FunctionTok{summary}\NormalTok{(m\_h0\_acc)}
 \end{Highlighting}
 \end{Shaded}
 
-For H1 \& H2, we analyze each block independently. First, we determine
-the effects structure by analyzing only the final block as follows:
-\emph{(When the best-fit base model for surprisal and/or previous
-position entropy effects has been found, we can then examine learning
-trajectories by adding block as a continuous predictor)}
+As a preliminary sanity check, we confirmed that RTs decreased across
+blocks (\(\beta\) = -X.XX, p \textless{} .001), establishing that
+performance improvement occurred.
+
+\subsection{Surprisal and Previous Position Entropy
+Effects}\label{surprisal-and-previous-position-entropy-effects}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: H1H2 Effect lmer models}
-\NormalTok{\#| echo: false}
-\NormalTok{\# (filter for last block only, for each matrix\_size)}
+\CommentTok{\# (filter for last block only, for each matrix\_size)}
 
-\NormalTok{df.m\_h1h2.finalblock \textless{}{-} df \%\textgreater{}\%}
-\NormalTok{  filter(block==EXPERIMENT\_CONFIG[["n\_blocks"]]{-}1)}
+\NormalTok{df.m\_h1h2.finalblock }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(block }\SpecialCharTok{==}\NormalTok{ EXPERIMENT\_CONFIG[[}\StringTok{"n\_blocks"}\NormalTok{]] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
 
-\NormalTok{data\_list \textless{}{-} split(df.m\_h1h2.finalblock, df.m\_h1h2.finalblock$matrix\_size)}
+\NormalTok{data\_list }\OtherTok{\textless{}{-}} \FunctionTok{split}\NormalTok{(df.m\_h1h2.finalblock, df.m\_h1h2.finalblock}\SpecialCharTok{$}\NormalTok{matrix\_size)}
 
-\NormalTok{models \textless{}{-} map(data\_list, \textasciitilde{} lmer(}
-\NormalTok{  log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition +}
-\NormalTok{    (surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position),}
-\NormalTok{  data = .x, }
-\NormalTok{  REML=FALSE,}
-\NormalTok{  control=lmerControl(optimizer="bobyqa")))}
+\NormalTok{models }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(data\_list, }\SpecialCharTok{\textasciitilde{}} \FunctionTok{lmer}\NormalTok{(}
+\NormalTok{    log\_rt }\SpecialCharTok{\textasciitilde{}}\NormalTok{ surprisal\_c }\SpecialCharTok{*}\NormalTok{ prev\_entropy\_c }\SpecialCharTok{+}\NormalTok{ is\_repetition }\SpecialCharTok{+}
+\NormalTok{        (surprisal\_c }\SpecialCharTok{*}\NormalTok{ prev\_entropy\_c }\SpecialCharTok{||}\NormalTok{ subject\_id) }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ position),}
+    \AttributeTok{data =}\NormalTok{ .x,}
+    \AttributeTok{REML =} \ConstantTok{FALSE}\NormalTok{,}
+    \AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer =} \StringTok{"bobyqa"}\NormalTok{)}
+\NormalTok{))}
 
-\NormalTok{model\_summaries \textless{}{-} map(models, summary)}
-\NormalTok{model\_summaries[2]}
+\NormalTok{model\_summaries }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(models, summary)}
+\NormalTok{model\_summaries[}\DecValTok{2}\NormalTok{]}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{model\_structures\_random\_slope \textless{}{-} list(}
-\NormalTok{  base = "(surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position)",}
-\NormalTok{  main = "(surprisal\_c + prev\_entropy\_c || subject\_id) + (1 | position)",}
-\NormalTok{  s\_only = "(surprisal\_c | subject\_id) + (1 | position)",}
-\NormalTok{  e\_only = "(prev\_entropy\_c | subject\_id) + (1 | position)",}
-\NormalTok{  intercept = "(1 | subject\_id) + (1 | position)"}
+\NormalTok{model\_structures\_random\_slope }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{base =} \StringTok{"(surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{main =} \StringTok{"(surprisal\_c + prev\_entropy\_c || subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{s\_only =} \StringTok{"(surprisal\_c | subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{e\_only =} \StringTok{"(prev\_entropy\_c | subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{intercept =} \StringTok{"(1 | subject\_id) + (1 | position)"}
 \NormalTok{)}
 
-\NormalTok{all\_models\_random\_slope \textless{}{-} map(}
-\NormalTok{  model\_structures\_random\_slope,}
-\NormalTok{  \textasciitilde{} map(data\_list, function(dat) \{}
-\NormalTok{    lmer(}
-\NormalTok{      as.formula(}
-\NormalTok{        paste0("log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + ", .x)}
-\NormalTok{      ),}
-\NormalTok{      data = dat,}
-\NormalTok{      REML = FALSE,}
-\NormalTok{      control = lmerControl(optimizer = "bobyqa")}
-\NormalTok{    )}
-\NormalTok{  \})}
-\NormalTok{)}
-
-\NormalTok{aic\_table\_random\_slope \textless{}{-} map\_dfr(}
-\NormalTok{  names(all\_models\_random\_slope),}
-\NormalTok{  function(model\_name) \{}
-\NormalTok{    map\_dfr(}
-\NormalTok{      names(all\_models\_random\_slope[[model\_name]]),}
-\NormalTok{      function(cond) \{}
-\NormalTok{        m \textless{}{-} all\_models\_random\_slope[[model\_name]][[cond]]}
-\NormalTok{        data.frame(}
-\NormalTok{          model = model\_name,}
-\NormalTok{          matrix\_size = cond,}
-\NormalTok{          AIC = AIC(m),}
-\NormalTok{          isSingular = isSingular(m)}
+\NormalTok{all\_models\_random\_slope }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(}
+\NormalTok{    model\_structures\_random\_slope,}
+    \SpecialCharTok{\textasciitilde{}} \FunctionTok{map}\NormalTok{(data\_list, }\ControlFlowTok{function}\NormalTok{(dat) \{}
+        \FunctionTok{lmer}\NormalTok{(}
+            \FunctionTok{as.formula}\NormalTok{(}
+                \FunctionTok{paste0}\NormalTok{(}\StringTok{"log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + "}\NormalTok{, .x)}
+\NormalTok{            ),}
+            \AttributeTok{data =}\NormalTok{ dat,}
+            \AttributeTok{REML =} \ConstantTok{FALSE}\NormalTok{,}
+            \AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer =} \StringTok{"bobyqa"}\NormalTok{)}
 \NormalTok{        )}
-\NormalTok{      \}}
-\NormalTok{    )}
-\NormalTok{  \}}
+\NormalTok{    \})}
 \NormalTok{)}
 
-\NormalTok{aic\_table\_random\_slope \%\textgreater{}\% }
-\NormalTok{  filter(aic\_table\_random\_slope$isSingular == FALSE) \%\textgreater{}\% }
-\NormalTok{  group\_by(model) \%\textgreater{}\%}
-\NormalTok{  summarise(total\_AIC = sum(AIC)) \%\textgreater{}\%}
-\NormalTok{  arrange(total\_AIC)}
-\NormalTok{  \#group\_by(matrix\_size) \%\textgreater{}\% }
-\NormalTok{  \#arrange(matrix\_size, AIC)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{model\_structures\_fixed\_effect \textless{}{-} list(}
-\NormalTok{  base = "surprisal\_c * prev\_entropy\_c + is\_repetition",}
-\NormalTok{  no\_interaction = "surprisal\_c + prev\_entropy\_c + is\_repetition",}
-\NormalTok{  no\_is\_repetition = "surprisal\_c * prev\_entropy\_c",}
-\NormalTok{  only\_main = "surprisal\_c + prev\_entropy\_c",}
-\NormalTok{  surprisal\_is\_repetition = "surprisal\_c + is\_repetition",}
-\NormalTok{  entropy\_is\_repetition = "prev\_entropy\_c + is\_repetition"}
-\NormalTok{)}
-
-\NormalTok{all\_models\_fixed\_effect \textless{}{-} map(}
-\NormalTok{  model\_structures\_fixed\_effect,}
-\NormalTok{  \textasciitilde{} map(data\_list, function(dat) \{}
-\NormalTok{    lmer(}
-\NormalTok{      as.formula(}
-\NormalTok{        paste0("log\_rt \textasciitilde{} ", .x, " + (surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position)")}
-\NormalTok{      ),}
-\NormalTok{      data = dat,}
-\NormalTok{      REML = FALSE,}
-\NormalTok{      control = lmerControl(optimizer = "bobyqa")}
-\NormalTok{    )}
-\NormalTok{  \})}
-\NormalTok{)}
-
-\NormalTok{aic\_table\_fixed\_effect \textless{}{-} map\_dfr(}
-\NormalTok{  names(all\_models\_fixed\_effect),}
-\NormalTok{  function(model\_name) \{}
-\NormalTok{    map\_dfr(}
-\NormalTok{      names(all\_models\_fixed\_effect[[model\_name]]),}
-\NormalTok{      function(cond) \{}
-\NormalTok{        m \textless{}{-} all\_models\_fixed\_effect[[model\_name]][[cond]]}
-\NormalTok{        data.frame(}
-\NormalTok{          model = model\_name,}
-\NormalTok{          matrix\_size = cond,}
-\NormalTok{          AIC = AIC(m),}
-\NormalTok{          isSingular = isSingular(m)}
+\NormalTok{aic\_table\_random\_slope }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(}
+    \FunctionTok{names}\NormalTok{(all\_models\_random\_slope),}
+    \ControlFlowTok{function}\NormalTok{(model\_name) \{}
+        \FunctionTok{map\_dfr}\NormalTok{(}
+            \FunctionTok{names}\NormalTok{(all\_models\_random\_slope[[model\_name]]),}
+            \ControlFlowTok{function}\NormalTok{(cond) \{}
+\NormalTok{                m }\OtherTok{\textless{}{-}}\NormalTok{ all\_models\_random\_slope[[model\_name]][[cond]]}
+                \FunctionTok{data.frame}\NormalTok{(}
+                    \AttributeTok{model =}\NormalTok{ model\_name,}
+                    \AttributeTok{matrix\_size =}\NormalTok{ cond,}
+                    \AttributeTok{AIC =} \FunctionTok{AIC}\NormalTok{(m),}
+                    \AttributeTok{isSingular =} \FunctionTok{isSingular}\NormalTok{(m)}
+\NormalTok{                )}
+\NormalTok{            \}}
 \NormalTok{        )}
-\NormalTok{      \}}
-\NormalTok{    )}
-\NormalTok{  \}}
-\NormalTok{)}
-
-\NormalTok{aic\_table\_fixed\_effect \%\textgreater{}\% }
-\NormalTok{  filter(aic\_table\_fixed\_effect$isSingular == FALSE) \%\textgreater{}\% }
-\NormalTok{  group\_by(model) \%\textgreater{}\%}
-\NormalTok{  summarise(total\_AIC = sum(AIC)) \%\textgreater{}\%}
-\NormalTok{  arrange(total\_AIC)}
-\NormalTok{  \#group\_by(matrix\_size) \%\textgreater{}\% }
-\NormalTok{  \#arrange(matrix\_size, AIC)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{theme\_set(theme\_minimal())}
-
-\NormalTok{effects\_df \textless{}{-} map\_dfr(}
-\NormalTok{  names(models),}
-\NormalTok{  \textasciitilde{} broom.mixed::tidy(models[[.x]]) \%\textgreater{}\%}
-\NormalTok{    filter(effect == "fixed" \& term != "(Intercept)") \%\textgreater{}\%}
-\NormalTok{    mutate(matrix\_size = .x)}
-\NormalTok{) \%\textgreater{}\%}
-\NormalTok{  mutate(}
-\NormalTok{    sig\_label = case\_when(}
-\NormalTok{      p.value \textless{} 0.001 \textasciitilde{} "***",}
-\NormalTok{      p.value \textless{} 0.01 \textasciitilde{} "**",}
-\NormalTok{      p.value \textless{} 0.05 \textasciitilde{} "*",}
-\NormalTok{      TRUE \textasciitilde{} ""}
-\NormalTok{    )}
-\NormalTok{  )}
-
-\NormalTok{\#effects\_df$matrix\_size \textless{}{-} as.numeric(effects\_df$matrix\_size)}
-
-\NormalTok{ggplot(effects\_df, aes(x = matrix\_size, y = estimate, color = term, group = term)) +}
-\NormalTok{  geom\_line() +}
-\NormalTok{  geom\_point() +}
-\NormalTok{  geom\_errorbar(aes(ymin = estimate {-} std.error, ymax = estimate + std.error), width = 0.2) +}
-\NormalTok{  geom\_text(aes(label = sig\_label), vjust = {-}1.2, size = 5, show.legend = FALSE)}
-\NormalTok{  labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") + }
-\NormalTok{  theme\_minimal()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{data.m\_h1h2\_all\_blocks \textless{}{-} df \%\textgreater{}\% filter(!is.infinite(log\_rt))}
-
-\NormalTok{data\_list\_all\_blocks \textless{}{-} split(data.m\_h1h2\_all\_blocks, data.m\_h1h2\_all\_blocks$matrix\_size)}
-
-\NormalTok{models\_all \textless{}{-} map(data\_list\_all\_blocks, \textasciitilde{} lmer(}
-\NormalTok{  log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c * block + block * is\_repetition +}
-\NormalTok{    (surprisal\_c + prev\_entropy\_c + is\_repetition + block | subject\_id) + (1 | position),}
-\NormalTok{  data = .x, }
-\NormalTok{  REML=FALSE,}
-\NormalTok{  control=lmerControl(optimizer="bobyqa")))}
-
-\NormalTok{\#iwalk(models\_all, function(model, name) \{}
-\NormalTok{\#  saveRDS(model, paste0("./models/all\_block\_per\_condition/all\_block\_models\_", name, ".rds"))}
-\NormalTok{\#\})}
-
-\NormalTok{\# to read}
-\NormalTok{\#model\_names \textless{}{-} c("4", "5", "6", "7", "8")}
-\NormalTok{\#models\_all \textless{}{-} map(model\_names, \textasciitilde{} readRDS(paste0("./models/all\_block\_per\_condition/all\_block\_models\_", .x, ".rds")))}
-\NormalTok{\#names(models\_all) \textless{}{-} model\_names}
-
-\NormalTok{model\_summaries\_all\_blocks \textless{}{-} map(models\_all, summary)}
-\NormalTok{model\_summaries\_all\_blocks[5]}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{cur\_condition \textless{}{-} 8}
-\NormalTok{data\_m4 \textless{}{-} subset(df, matrix\_size == cur\_condition \& !is.infinite(log\_rt)) \# can change}
-
-\NormalTok{data\_list\_block \textless{}{-} split(data\_m4, data\_m4$block)}
-
-\NormalTok{\# random effects: (prev\_entropy\_c | subject\_id) + (1 | position) no singular fit for all conditions}
-\NormalTok{models\_block \textless{}{-} map2(names(data\_list\_block),}
-\NormalTok{  data\_list\_block,}
-\NormalTok{  function(name, dat) \{}
-\NormalTok{      model\_path \textless{}{-} paste0("./models/per\_block\_condition\_", cur\_condition, "/model\_block\_", name, ".rds") }
-\NormalTok{    dir\_path \textless{}{-} dirname(model\_path)}
-\NormalTok{    if (!dir.exists(dir\_path)) dir.create(dir\_path, recursive = TRUE)}
-\NormalTok{    if (file.exists(model\_path)) \{}
-\NormalTok{        readRDS(model\_path)}
-\NormalTok{    \} else \{}
-\NormalTok{        m \textless{}{-} lmer(}
-\NormalTok{          log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + }
-\NormalTok{          (prev\_entropy\_c | subject\_id) + (1 | position),}
-\NormalTok{        data = dat, }
-\NormalTok{        REML = FALSE,}
-\NormalTok{        control = lmerControl(optimizer = "bobyqa")}
-\NormalTok{      )}
-\NormalTok{      saveRDS(m, model\_path)}
-\NormalTok{      m}
 \NormalTok{    \}}
-\NormalTok{  \}}
 \NormalTok{)}
-  
-\NormalTok{model\_summaries\_block \textless{}{-} map(models\_block, summary)}
-\NormalTok{model\_summaries\_block[10]}
+
+\NormalTok{aic\_table\_random\_slope }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(aic\_table\_random\_slope}\SpecialCharTok{$}\NormalTok{isSingular }\SpecialCharTok{==} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(model) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{total\_AIC =} \FunctionTok{sum}\NormalTok{(AIC)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{arrange}\NormalTok{(total\_AIC)}
+\CommentTok{\# group\_by(matrix\_size) \%\textgreater{}\%}
+\CommentTok{\# arrange(matrix\_size, AIC)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{model\_structures\_random\_slope \textless{}{-} list(}
-\NormalTok{  base = "(prev\_entropy\_c | subject\_id) + (1 | position)",}
-\NormalTok{  main = "(surprisal\_c + prev\_entropy\_c || subject\_id) + (1 | position)",}
-\NormalTok{  s\_only = "(surprisal\_c | subject\_id) + (1 | position)",}
-\NormalTok{  e\_only = "(prev\_entropy\_c | subject\_id) + (1 | position)",}
-\NormalTok{  intercept = "(1 | subject\_id) + (1 | position)"}
+\NormalTok{model\_structures\_fixed\_effect }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{base =} \StringTok{"surprisal\_c * prev\_entropy\_c + is\_repetition"}\NormalTok{,}
+    \AttributeTok{no\_interaction =} \StringTok{"surprisal\_c + prev\_entropy\_c + is\_repetition"}\NormalTok{,}
+    \AttributeTok{no\_is\_repetition =} \StringTok{"surprisal\_c * prev\_entropy\_c"}\NormalTok{,}
+    \AttributeTok{only\_main =} \StringTok{"surprisal\_c + prev\_entropy\_c"}\NormalTok{,}
+    \AttributeTok{surprisal\_is\_repetition =} \StringTok{"surprisal\_c + is\_repetition"}\NormalTok{,}
+    \AttributeTok{entropy\_is\_repetition =} \StringTok{"prev\_entropy\_c + is\_repetition"}
 \NormalTok{)}
 
-\NormalTok{all\_models\_random\_slope \textless{}{-} map(}
-\NormalTok{  model\_structures\_random\_slope,}
-\NormalTok{  \textasciitilde{} map(data\_list, function(dat) \{}
-\NormalTok{    lmer(}
-\NormalTok{      as.formula(}
-\NormalTok{        paste0("log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + ", .x)}
-\NormalTok{      ),}
-\NormalTok{      data = dat,}
-\NormalTok{      REML = FALSE,}
-\NormalTok{      control = lmerControl(optimizer = "bobyqa")}
-\NormalTok{    )}
-\NormalTok{  \})}
-\NormalTok{)}
-
-\NormalTok{aic\_table\_random\_slope \textless{}{-} map\_dfr(}
-\NormalTok{  names(all\_models\_random\_slope),}
-\NormalTok{  function(model\_name) \{}
-\NormalTok{    map\_dfr(}
-\NormalTok{      names(all\_models\_random\_slope[[model\_name]]),}
-\NormalTok{      function(cond) \{}
-\NormalTok{        m \textless{}{-} all\_models\_random\_slope[[model\_name]][[cond]]}
-\NormalTok{        data.frame(}
-\NormalTok{          model = model\_name,}
-\NormalTok{          matrix\_size = cond,}
-\NormalTok{          AIC = AIC(m),}
-\NormalTok{          isSingular = isSingular(m)}
+\NormalTok{all\_models\_fixed\_effect }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(}
+\NormalTok{    model\_structures\_fixed\_effect,}
+    \SpecialCharTok{\textasciitilde{}} \FunctionTok{map}\NormalTok{(data\_list, }\ControlFlowTok{function}\NormalTok{(dat) \{}
+        \FunctionTok{lmer}\NormalTok{(}
+            \FunctionTok{as.formula}\NormalTok{(}
+                \FunctionTok{paste0}\NormalTok{(}\StringTok{"log\_rt \textasciitilde{} "}\NormalTok{, .x, }\StringTok{" + (surprisal\_c * prev\_entropy\_c || subject\_id) + (1 | position)"}\NormalTok{)}
+\NormalTok{            ),}
+            \AttributeTok{data =}\NormalTok{ dat,}
+            \AttributeTok{REML =} \ConstantTok{FALSE}\NormalTok{,}
+            \AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer =} \StringTok{"bobyqa"}\NormalTok{)}
 \NormalTok{        )}
-\NormalTok{      \}}
-\NormalTok{    )}
-\NormalTok{  \}}
+\NormalTok{    \})}
 \NormalTok{)}
 
-\NormalTok{aic\_table\_random\_slope \%\textgreater{}\% }
-\NormalTok{  filter(aic\_table\_random\_slope$isSingular == FALSE) \%\textgreater{}\% }
-\NormalTok{  group\_by(model) \%\textgreater{}\%}
-\NormalTok{  summarise(total\_AIC = sum(AIC)) \%\textgreater{}\%}
-\NormalTok{  arrange(total\_AIC)}
-\NormalTok{  \#group\_by(matrix\_size) \%\textgreater{}\% }
-\NormalTok{  \#arrange(matrix\_size, AIC)}
+\NormalTok{aic\_table\_fixed\_effect }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(}
+    \FunctionTok{names}\NormalTok{(all\_models\_fixed\_effect),}
+    \ControlFlowTok{function}\NormalTok{(model\_name) \{}
+        \FunctionTok{map\_dfr}\NormalTok{(}
+            \FunctionTok{names}\NormalTok{(all\_models\_fixed\_effect[[model\_name]]),}
+            \ControlFlowTok{function}\NormalTok{(cond) \{}
+\NormalTok{                m }\OtherTok{\textless{}{-}}\NormalTok{ all\_models\_fixed\_effect[[model\_name]][[cond]]}
+                \FunctionTok{data.frame}\NormalTok{(}
+                    \AttributeTok{model =}\NormalTok{ model\_name,}
+                    \AttributeTok{matrix\_size =}\NormalTok{ cond,}
+                    \AttributeTok{AIC =} \FunctionTok{AIC}\NormalTok{(m),}
+                    \AttributeTok{isSingular =} \FunctionTok{isSingular}\NormalTok{(m)}
+\NormalTok{                )}
+\NormalTok{            \}}
+\NormalTok{        )}
+\NormalTok{    \}}
+\NormalTok{)}
+
+\NormalTok{aic\_table\_fixed\_effect }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(aic\_table\_fixed\_effect}\SpecialCharTok{$}\NormalTok{isSingular }\SpecialCharTok{==} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(model) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{total\_AIC =} \FunctionTok{sum}\NormalTok{(AIC)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{arrange}\NormalTok{(total\_AIC) }
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{effects\_block \textless{}{-} map\_dfr(}
-\NormalTok{  names(models\_block),}
-\NormalTok{  \textasciitilde{} broom.mixed::tidy(models\_block[[.x]]) \%\textgreater{}\%}
-\NormalTok{    filter(effect == "fixed" \& term != "(Intercept)") \%\textgreater{}\%}
-\NormalTok{    mutate(block = as.numeric(.x))}
-\NormalTok{) \%\textgreater{}\%}
-\NormalTok{  mutate(}
-\NormalTok{    sig\_label = case\_when(}
-\NormalTok{      p.value \textless{} 0.001 \textasciitilde{} "***",}
-\NormalTok{      p.value \textless{} 0.01 \textasciitilde{} "**",}
-\NormalTok{      p.value \textless{} 0.05 \textasciitilde{} "*",}
-\NormalTok{      TRUE \textasciitilde{} ""}
+\FunctionTok{theme\_set}\NormalTok{(}\FunctionTok{theme\_minimal}\NormalTok{())}
+
+\NormalTok{effects\_df }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(}
+    \FunctionTok{names}\NormalTok{(models),}
+    \SpecialCharTok{\textasciitilde{}}\NormalTok{ broom.mixed}\SpecialCharTok{::}\FunctionTok{tidy}\NormalTok{(models[[.x]]) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{filter}\NormalTok{(effect }\SpecialCharTok{==} \StringTok{"fixed"} \SpecialCharTok{\&}\NormalTok{ term }\SpecialCharTok{!=} \StringTok{"(Intercept)"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}\AttributeTok{matrix\_size\_c =}\NormalTok{ .x)}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}
+        \AttributeTok{sig\_label =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{            p.value }\SpecialCharTok{\textless{}} \FloatTok{0.001} \SpecialCharTok{\textasciitilde{}} \StringTok{"***"}\NormalTok{,}
+\NormalTok{            p.value }\SpecialCharTok{\textless{}} \FloatTok{0.01} \SpecialCharTok{\textasciitilde{}} \StringTok{"**"}\NormalTok{,}
+\NormalTok{            p.value }\SpecialCharTok{\textless{}} \FloatTok{0.05} \SpecialCharTok{\textasciitilde{}} \StringTok{"*"}\NormalTok{,}
+            \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{""}
+\NormalTok{        )}
 \NormalTok{    )}
-\NormalTok{  )}
 
-\NormalTok{ggplot(effects\_block, aes(x = block, y = estimate, color = term, group = term)) +}
-\NormalTok{  geom\_line() +}
-\NormalTok{  geom\_point() +}
-\NormalTok{  geom\_errorbar(aes(ymin = estimate {-} std.error, ymax = estimate + std.error), width = 0.2) +}
-\NormalTok{  geom\_text(aes(label = sig\_label), vjust = {-}1.2, size = 5, show.legend = FALSE) +}
-\NormalTok{  labs(x = "Block", y = "Effect Estimate", color = "Parameter") +}
-\NormalTok{  theme\_minimal()}
+\CommentTok{\# effects\_df$matrix\_size \textless{}{-} as.numeric(effects\_df$matrix\_size)}
+
+\NormalTok{p\_h1h2\_fixed\_effects\_finalblock }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(effects\_df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ matrix\_size\_c, }\AttributeTok{y =}\NormalTok{ estimate, }\AttributeTok{color =}\NormalTok{ term, }\AttributeTok{group =}\NormalTok{ term)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_errorbar}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ estimate }\SpecialCharTok{{-}}\NormalTok{ std.error, }\AttributeTok{ymax =}\NormalTok{ estimate }\SpecialCharTok{+}\NormalTok{ std.error), }\AttributeTok{width =} \FloatTok{0.2}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =}\NormalTok{ sig\_label), }\AttributeTok{vjust =} \SpecialCharTok{{-}}\FloatTok{1.2}\NormalTok{, }\AttributeTok{size =} \DecValTok{5}\NormalTok{, }\AttributeTok{show.legend =} \ConstantTok{FALSE}\NormalTok{)}
+\FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Matrix Size (zero{-}centered)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Effect Estimate"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Parameter"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{()}
+\FunctionTok{ggsave}\NormalTok{(p\_h1h2\_fixed\_effects\_finalblock, }\AttributeTok{file =} \StringTok{"../plots/h1h2\_finalblock.png"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\subsection{H3}\label{h3}
-
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Num positions effect lmer models}
-\NormalTok{\#| echo: true}
-\NormalTok{\#| include: true}
-\NormalTok{\# (filter for correct trials and group by matrix\_size and block)}
+\NormalTok{cur\_condition }\OtherTok{\textless{}{-}} \DecValTok{8}
+\NormalTok{data\_m4 }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(df, matrix\_size }\SpecialCharTok{==}\NormalTok{ cur\_condition) }\CommentTok{\# can change}
 
-\NormalTok{m\_matrix\_size\_rt \textless{}{-}}
-\NormalTok{  blmer({-}log\_rt \textasciitilde{} matrix\_size + is\_repetition + (block | subject\_id) + (1 | position),}
-\NormalTok{  data=data.m\_h1h2,}
-\NormalTok{  REML=FALSE,}
-\NormalTok{  control=lmerControl(optimizer="nloptwrap")) \# can change}
+\NormalTok{data\_list\_block }\OtherTok{\textless{}{-}} \FunctionTok{split}\NormalTok{(data\_m4, data\_m4}\SpecialCharTok{$}\NormalTok{block)}
 
-\NormalTok{\# m\_matrix\_size\_rt \textless{}{-}}
-\NormalTok{\#  lmer({-}log\_rt \textasciitilde{} matrix\_size + is\_repetition + (block | subject\_id) + (1 | position),}
-\NormalTok{\#       data=data.m\_h1h2,}
-\NormalTok{\#       REML=FALSE,}
-\NormalTok{\#       control=lmerControl(optimizer="bobyqa")) \# can change}
+\CommentTok{\# random effects: (prev\_entropy\_c | subject\_id) + (1 | position) no singular fit for all conditions}
+\NormalTok{models\_block }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(}
+    \FunctionTok{names}\NormalTok{(data\_list\_block),}
+\NormalTok{    data\_list\_block,}
+    \ControlFlowTok{function}\NormalTok{(name, dat) \{}
+\NormalTok{        model\_path }\OtherTok{\textless{}{-}} \FunctionTok{paste0}\NormalTok{(}\StringTok{"./models/per\_block\_condition\_"}\NormalTok{, cur\_condition, }\StringTok{"/model\_block\_"}\NormalTok{, name, }\StringTok{".rds"}\NormalTok{)}
+\NormalTok{        dir\_path }\OtherTok{\textless{}{-}} \FunctionTok{dirname}\NormalTok{(model\_path)}
+        \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{dir.exists}\NormalTok{(dir\_path)) }\FunctionTok{dir.create}\NormalTok{(dir\_path, }\AttributeTok{recursive =} \ConstantTok{TRUE}\NormalTok{)}
+        \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{file.exists}\NormalTok{(model\_path)) \{}
+            \FunctionTok{readRDS}\NormalTok{(model\_path)}
+\NormalTok{        \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{            m }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(}
+\NormalTok{                log\_rt }\SpecialCharTok{\textasciitilde{}}\NormalTok{ surprisal\_c }\SpecialCharTok{*}\NormalTok{ prev\_entropy\_c }\SpecialCharTok{+}\NormalTok{ is\_repetition }\SpecialCharTok{+}
+\NormalTok{                    (prev\_entropy\_c }\SpecialCharTok{|}\NormalTok{ subject\_id) }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ position),}
+                \AttributeTok{data =}\NormalTok{ dat,}
+                \AttributeTok{REML =} \ConstantTok{FALSE}\NormalTok{,}
+                \AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer =} \StringTok{"bobyqa"}\NormalTok{)}
+\NormalTok{            )}
+            \FunctionTok{saveRDS}\NormalTok{(m, model\_path)}
+\NormalTok{            m}
+\NormalTok{        \}}
+\NormalTok{    \}}
+\NormalTok{)}
 
-\NormalTok{m\_matrix\_size\_acc \textless{}{-} }
-\NormalTok{    bglmer(correct \textasciitilde{} matrix\_size + is\_repetition + (block | subject\_id) + (1 | position),}
-\NormalTok{    data=data.m\_h1h2,}
-\NormalTok{    family=binomial,}
-\NormalTok{    REML=FALSE,}
-\NormalTok{    control=lmerControl(optimizer="nloptwrap")) \# can change}
-
-\NormalTok{summary(m\_matrix\_size\_rt)}
-\NormalTok{summary(m\_matrix\_size\_acc)}
+\NormalTok{model\_summaries\_block }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(models\_block, summary)}
+\NormalTok{model\_summaries\_block[}\DecValTok{10}\NormalTok{]}
 \end{Highlighting}
 \end{Shaded}
 
-For each of the fixed effects used for H1-H2, recover the effect size
-estimate. Now, for each fixed effect:
-\texttt{effect\_size\ \textasciitilde{}\ matrix\_size*block}
+\begin{verbatim}
+[[1]]
+Linear mixed model fit by maximum likelihood . t-tests use Satterthwaite's
+  method [lmerModLmerTest]
+Formula: 
+log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (prev_entropy_c |  
+    subject_id) + (1 | position)
+   Data: dat
+Control: lmerControl(optimizer = "bobyqa")
 
-Note that there are no random effects. We use \texttt{lm()} and get
-p-values in the normal way.
+     AIC      BIC   logLik deviance df.resid 
+   466.3    524.3   -223.1    446.3     2454 
 
-Models will be fit with ML for model comparison; final models refit with
-REML for inference.
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-5.2700 -0.5975 -0.1025  0.4629  7.0421 
+
+Random effects:
+ Groups     Name           Variance Std.Dev. Corr 
+ subject_id (Intercept)    0.029647 0.17218       
+            prev_entropy_c 0.004654 0.06822  -0.34
+ position   (Intercept)    0.003398 0.05829       
+ Residual                  0.065300 0.25554       
+Number of obs: 2464, groups:  subject_id, 32; position, 8
+
+Fixed effects:
+                             Estimate Std. Error         df t value Pr(>|t|)
+(Intercept)                 6.420e+00  3.739e-02  3.466e+01 171.696  < 2e-16
+surprisal_c                 1.661e-02  6.202e-03  2.415e+03   2.677  0.00748
+prev_entropy_c              2.431e-02  1.530e-02  4.677e+01   1.588  0.11899
+is_repetitionTRUE          -3.072e-01  1.629e-02  2.413e+03 -18.860  < 2e-16
+surprisal_c:prev_entropy_c  1.494e-03  6.940e-03  2.426e+03   0.215  0.82955
+                              
+(Intercept)                ***
+surprisal_c                ** 
+prev_entropy_c                
+is_repetitionTRUE          ***
+surprisal_c:prev_entropy_c    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) srprs_ prv_n_ i_TRUE
+surprisal_c -0.026                     
+prv_ntrpy_c -0.227 -0.342              
+is_rpttTRUE -0.058  0.011 -0.109       
+srprsl_c:__ -0.107  0.232  0.138  0.033
+\end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: Extract coefficients from per{-}block models}
-\NormalTok{\#| echo: true}
-\NormalTok{\#| include: true}
+\NormalTok{model\_structures\_random\_slope }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{base =} \StringTok{"(prev\_entropy\_c | subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{main =} \StringTok{"(surprisal\_c + prev\_entropy\_c || subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{s\_only =} \StringTok{"(surprisal\_c | subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{e\_only =} \StringTok{"(prev\_entropy\_c | subject\_id) + (1 | position)"}\NormalTok{,}
+    \AttributeTok{intercept =} \StringTok{"(1 | subject\_id) + (1 | position)"}
+\NormalTok{)}
 
-\NormalTok{\# Extract coefficients from all per{-}block models across all conditions}
-\NormalTok{\# This creates a dataframe with: matrix\_size, block, and coefficient estimates}
+\NormalTok{all\_models\_random\_slope }\OtherTok{\textless{}{-}} \FunctionTok{map}\NormalTok{(}
+\NormalTok{    model\_structures\_random\_slope,}
+    \SpecialCharTok{\textasciitilde{}} \FunctionTok{map}\NormalTok{(data\_list, }\ControlFlowTok{function}\NormalTok{(dat) \{}
+        \FunctionTok{lmer}\NormalTok{(}
+            \FunctionTok{as.formula}\NormalTok{(}
+                \FunctionTok{paste0}\NormalTok{(}\StringTok{"log\_rt \textasciitilde{} surprisal\_c * prev\_entropy\_c + is\_repetition + "}\NormalTok{, .x)}
+\NormalTok{            ),}
+            \AttributeTok{data =}\NormalTok{ dat,}
+            \AttributeTok{REML =} \ConstantTok{FALSE}\NormalTok{,}
+            \AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer =} \StringTok{"bobyqa"}\NormalTok{)}
+\NormalTok{        )}
+\NormalTok{    \})}
+\NormalTok{)}
 
-\NormalTok{library(broom.mixed)}
+\NormalTok{aic\_table\_random\_slope }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(}
+    \FunctionTok{names}\NormalTok{(all\_models\_random\_slope),}
+    \ControlFlowTok{function}\NormalTok{(model\_name) \{}
+        \FunctionTok{map\_dfr}\NormalTok{(}
+            \FunctionTok{names}\NormalTok{(all\_models\_random\_slope[[model\_name]]),}
+            \ControlFlowTok{function}\NormalTok{(cond) \{}
+\NormalTok{                m }\OtherTok{\textless{}{-}}\NormalTok{ all\_models\_random\_slope[[model\_name]][[cond]]}
+                \FunctionTok{data.frame}\NormalTok{(}
+                    \AttributeTok{model =}\NormalTok{ model\_name,}
+                    \AttributeTok{matrix\_size =}\NormalTok{ cond,}
+                    \AttributeTok{AIC =} \FunctionTok{AIC}\NormalTok{(m),}
+                    \AttributeTok{isSingular =} \FunctionTok{isSingular}\NormalTok{(m)}
+\NormalTok{                )}
+\NormalTok{            \}}
+\NormalTok{        )}
+\NormalTok{    \}}
+\NormalTok{)}
 
-\NormalTok{\# Get all per{-}block model directories}
-\NormalTok{condition\_dirs \textless{}{-} list.files("models/", pattern = "per\_block\_condition\_", full.names = TRUE)}
+\NormalTok{aic\_table\_random\_slope }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(aic\_table\_random\_slope}\SpecialCharTok{$}\NormalTok{isSingular }\SpecialCharTok{==} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(model) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarise}\NormalTok{(}\AttributeTok{total\_AIC =} \FunctionTok{sum}\NormalTok{(AIC)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{arrange}\NormalTok{(total\_AIC)}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{\# Extract coefficients from each condition\textquotesingle{}s per{-}block models}
-\NormalTok{coef\_df \textless{}{-} map\_dfr(condition\_dirs, function(dir) \{}
-\NormalTok{  condition\_num \textless{}{-} gsub(".*per\_block\_condition\_(\textbackslash{}\textbackslash{}d+)", "\textbackslash{}\textbackslash{}1", dir)}
-\NormalTok{  matrix\_size \textless{}{-} paste0(condition\_num, "x", condition\_num)}
+\begin{verbatim}
+# A tibble: 5 x 2
+  model     total_AIC
+  <chr>         <dbl>
+1 main          1536.
+2 base          1564.
+3 e_only        1564.
+4 s_only        1653.
+5 intercept     2016.
+\end{verbatim}
 
-\NormalTok{  \# Get all model files in this directory}
-\NormalTok{  model\_files \textless{}{-} list.files(dir, pattern = "model\_block\_.*\textbackslash{}\textbackslash{}.rds", full.names = TRUE)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# group\_by(matrix\_size) \%\textgreater{}\%}
+\CommentTok{\# arrange(matrix\_size, AIC)}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{  \# Extract block number and coefficients from each model}
-\NormalTok{  map\_dfr(model\_files, function(file) \{}
-\NormalTok{    block\_num \textless{}{-} as.numeric(gsub(".*model\_block\_(\textbackslash{}\textbackslash{}d+)\textbackslash{}\textbackslash{}.rds", "\textbackslash{}\textbackslash{}1", file))}
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{theme}\NormalTok{(}\AttributeTok{set=}\FunctionTok{theme\_minimal}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{    \# Load model and extract fixed effects}
-\NormalTok{    m \textless{}{-} readRDS(file)}
-\NormalTok{    coefs \textless{}{-} fixef(m)}
+\begin{verbatim}
+<theme> List of 1
+ $ set: <theme> List of 144
+ .. $ line                            : <ggplot2::element_line>
+ ..  ..@ colour       : chr "black"
+ ..  ..@ linewidth    : num 0.5
+ ..  ..@ linetype     : num 1
+ ..  ..@ lineend      : chr "butt"
+ ..  ..@ linejoin     : chr "round"
+ ..  ..@ arrow        : logi FALSE
+ ..  ..@ arrow.fill   : chr "black"
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ rect                            : <ggplot2::element_rect>
+ ..  ..@ fill         : chr "white"
+ ..  ..@ colour       : chr "black"
+ ..  ..@ linewidth    : num 0.5
+ ..  ..@ linetype     : num 1
+ ..  ..@ linejoin     : chr "round"
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ text                            : <ggplot2::element_text>
+ ..  ..@ family       : chr ""
+ ..  ..@ face         : chr "plain"
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : chr "black"
+ ..  ..@ size         : num 11
+ ..  ..@ hjust        : num 0.5
+ ..  ..@ vjust        : num 0.5
+ ..  ..@ angle        : num 0
+ ..  ..@ lineheight   : num 0.9
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 0 0 0
+ ..  ..@ debug        : logi FALSE
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ title                           : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : NULL
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ point                           : <ggplot2::element_point>
+ ..  ..@ colour       : chr "black"
+ ..  ..@ shape        : num 19
+ ..  ..@ size         : num 1.5
+ ..  ..@ fill         : chr "white"
+ ..  ..@ stroke       : num 0.5
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ polygon                         : <ggplot2::element_polygon>
+ ..  ..@ fill         : chr "white"
+ ..  ..@ colour       : chr "black"
+ ..  ..@ linewidth    : num 0.5
+ ..  ..@ linetype     : num 1
+ ..  ..@ linejoin     : chr "round"
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ geom                            : <ggplot2::element_geom>
+ ..  ..@ ink        : chr "black"
+ ..  ..@ paper      : chr "white"
+ ..  ..@ accent     : chr "#3366FF"
+ ..  ..@ linewidth  : num 0.5
+ ..  ..@ borderwidth: num 0.5
+ ..  ..@ linetype   : int 1
+ ..  ..@ bordertype : int 1
+ ..  ..@ family     : chr ""
+ ..  ..@ fontsize   : num 3.87
+ ..  ..@ pointsize  : num 1.5
+ ..  ..@ pointshape : num 19
+ ..  ..@ colour     : NULL
+ ..  ..@ fill       : NULL
+ .. $ spacing                         : 'simpleUnit' num 5.5points
+ ..  ..- attr(*, "unit")= int 8
+ .. $ margins                         : <ggplot2::margin> num [1:4] 5.5 5.5 5.5 5.5
+ .. $ aspect.ratio                    : NULL
+ .. $ axis.title                      : NULL
+ .. $ axis.title.x                    : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : num 1
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 2.75 0 0 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.title.x.top                : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : num 0
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 0 2.75 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.title.x.bottom             : NULL
+ .. $ axis.title.y                    : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : num 1
+ ..  ..@ angle        : num 90
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 2.75 0 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.title.y.left               : NULL
+ .. $ axis.title.y.right              : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : num 1
+ ..  ..@ angle        : num -90
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 0 0 2.75
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text                       : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : chr "#4D4D4DFF"
+ ..  ..@ size         : 'rel' num 0.8
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : NULL
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text.x                     : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : num 1
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 2.2 0 0 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text.x.top                 : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 0 4.95 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text.x.bottom              : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 4.95 0 0 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text.y                     : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : num 1
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 2.2 0 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text.y.left                : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 4.95 0 0
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text.y.right               : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 0 0 4.95
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.text.theta                 : NULL
+ .. $ axis.text.r                     : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : num 0.5
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : <ggplot2::margin> num [1:4] 0 2.2 0 2.2
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ axis.ticks                      : <ggplot2::element_blank>
+ .. $ axis.ticks.x                    : NULL
+ .. $ axis.ticks.x.top                : NULL
+ .. $ axis.ticks.x.bottom             : NULL
+ .. $ axis.ticks.y                    : NULL
+ .. $ axis.ticks.y.left               : NULL
+ .. $ axis.ticks.y.right              : NULL
+ .. $ axis.ticks.theta                : NULL
+ .. $ axis.ticks.r                    : NULL
+ .. $ axis.minor.ticks.x.top          : NULL
+ .. $ axis.minor.ticks.x.bottom       : NULL
+ .. $ axis.minor.ticks.y.left         : NULL
+ .. $ axis.minor.ticks.y.right        : NULL
+ .. $ axis.minor.ticks.theta          : NULL
+ .. $ axis.minor.ticks.r              : NULL
+ .. $ axis.ticks.length               : 'rel' num 0.5
+ .. $ axis.ticks.length.x             : NULL
+ .. $ axis.ticks.length.x.top         : NULL
+ .. $ axis.ticks.length.x.bottom      : NULL
+ .. $ axis.ticks.length.y             : NULL
+ .. $ axis.ticks.length.y.left        : NULL
+ .. $ axis.ticks.length.y.right       : NULL
+ .. $ axis.ticks.length.theta         : NULL
+ .. $ axis.ticks.length.r             : NULL
+ .. $ axis.minor.ticks.length         : 'rel' num 0.75
+ .. $ axis.minor.ticks.length.x       : NULL
+ .. $ axis.minor.ticks.length.x.top   : NULL
+ .. $ axis.minor.ticks.length.x.bottom: NULL
+ .. $ axis.minor.ticks.length.y       : NULL
+ .. $ axis.minor.ticks.length.y.left  : NULL
+ .. $ axis.minor.ticks.length.y.right : NULL
+ .. $ axis.minor.ticks.length.theta   : NULL
+ .. $ axis.minor.ticks.length.r       : NULL
+ .. $ axis.line                       : <ggplot2::element_blank>
+ .. $ axis.line.x                     : NULL
+ .. $ axis.line.x.top                 : NULL
+ .. $ axis.line.x.bottom              : NULL
+ .. $ axis.line.y                     : NULL
+ .. $ axis.line.y.left                : NULL
+ .. $ axis.line.y.right               : NULL
+ .. $ axis.line.theta                 : NULL
+ .. $ axis.line.r                     : NULL
+ .. $ legend.background               : <ggplot2::element_blank>
+ .. $ legend.margin                   : NULL
+ .. $ legend.spacing                  : 'rel' num 2
+ .. $ legend.spacing.x                : NULL
+ .. $ legend.spacing.y                : NULL
+ .. $ legend.key                      : <ggplot2::element_blank>
+ .. $ legend.key.size                 : 'simpleUnit' num 1.2lines
+ ..  ..- attr(*, "unit")= int 3
+ .. $ legend.key.height               : NULL
+ .. $ legend.key.width                : NULL
+ .. $ legend.key.spacing              : NULL
+ .. $ legend.key.spacing.x            : NULL
+ .. $ legend.key.spacing.y            : NULL
+ .. $ legend.key.justification        : NULL
+ .. $ legend.frame                    : NULL
+ .. $ legend.ticks                    : NULL
+ .. $ legend.ticks.length             : 'rel' num 0.2
+ .. $ legend.axis.line                : NULL
+ .. $ legend.text                     : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : 'rel' num 0.8
+ ..  ..@ hjust        : NULL
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : NULL
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ legend.text.position            : NULL
+ .. $ legend.title                    : <ggplot2::element_text>
+ ..  ..@ family       : NULL
+ ..  ..@ face         : NULL
+ ..  ..@ italic       : chr NA
+ ..  ..@ fontweight   : num NA
+ ..  ..@ fontwidth    : num NA
+ ..  ..@ colour       : NULL
+ ..  ..@ size         : NULL
+ ..  ..@ hjust        : num 0
+ ..  ..@ vjust        : NULL
+ ..  ..@ angle        : NULL
+ ..  ..@ lineheight   : NULL
+ ..  ..@ margin       : NULL
+ ..  ..@ debug        : NULL
+ ..  ..@ inherit.blank: logi TRUE
+ .. $ legend.title.position           : NULL
+ .. $ legend.position                 : chr "right"
+ .. $ legend.position.inside          : NULL
+ .. $ legend.direction                : NULL
+ .. $ legend.byrow                    : NULL
+ .. $ legend.justification            : chr "center"
+ .. $ legend.justification.top        : NULL
+ .. $ legend.justification.bottom     : NULL
+ .. $ legend.justification.left       : NULL
+ .. $ legend.justification.right      : NULL
+ .. $ legend.justification.inside     : NULL
+ ..  [list output truncated]
+  ..@ complete: logi TRUE
+  ..@ validate: logi TRUE
+ @ complete: logi FALSE
+ @ validate: logi TRUE
+\end{verbatim}
 
-\NormalTok{    \# Return as a row}
-\NormalTok{    data.frame(}
-\NormalTok{      matrix\_size = matrix\_size,}
-\NormalTok{      matrix\_size\_num = as.numeric(condition\_num),}
-\NormalTok{      block = block\_num,}
-\NormalTok{      intercept = coefs["(Intercept)"],}
-\NormalTok{      surprisal = coefs["surprisal\_c"],}
-\NormalTok{      prev\_entropy = coefs["prev\_entropy\_c"],}
-\NormalTok{      interaction = coefs["surprisal\_c:prev\_entropy\_c"],}
-\NormalTok{      is\_repetition = coefs["is\_repetitionTRUE"]}
-\NormalTok{    )}
-\NormalTok{  \})}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{effects\_block }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(}
+  \FunctionTok{seq\_along}\NormalTok{(models\_block),}
+  \SpecialCharTok{\textasciitilde{}}\NormalTok{ \{}
+\NormalTok{    coef\_table }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(models\_block[[.x]])}\SpecialCharTok{$}\NormalTok{coefficients}
+    \FunctionTok{data.frame}\NormalTok{(}
+      \AttributeTok{term =} \FunctionTok{rownames}\NormalTok{(coef\_table),}
+      \AttributeTok{estimate =}\NormalTok{ coef\_table[, }\StringTok{"Estimate"}\NormalTok{],}
+      \AttributeTok{std.error =}\NormalTok{ coef\_table[, }\StringTok{"Std. Error"}\NormalTok{],}
+      \AttributeTok{statistic =}\NormalTok{ coef\_table[, }\StringTok{"t value"}\NormalTok{],}
+      \AttributeTok{p.value =}\NormalTok{ coef\_table[, }\StringTok{"Pr(\textgreater{}|t|)"}\NormalTok{],}
+      \AttributeTok{block =}\NormalTok{ .x }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{,  }\CommentTok{\# blocks are 0{-}indexed (0{-}19)}
+      \AttributeTok{block\_c =}\NormalTok{ (.x }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{{-}} \FloatTok{9.5}  \CommentTok{\# centered around mean}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+      \FunctionTok{filter}\NormalTok{(term }\SpecialCharTok{!=} \StringTok{"(Intercept)"}\NormalTok{)}
+\NormalTok{  \}}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{sig\_label =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      p.value }\SpecialCharTok{\textless{}} \FloatTok{0.001} \SpecialCharTok{\textasciitilde{}} \StringTok{"***"}\NormalTok{,}
+\NormalTok{      p.value }\SpecialCharTok{\textless{}} \FloatTok{0.01} \SpecialCharTok{\textasciitilde{}} \StringTok{"**"}\NormalTok{,}
+\NormalTok{      p.value }\SpecialCharTok{\textless{}} \FloatTok{0.05} \SpecialCharTok{\textasciitilde{}} \StringTok{"*"}\NormalTok{,}
+      \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{""}
+\NormalTok{    ))}
+
+\NormalTok{p\_h1h2\_fixed\_effects }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(effects\_block, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ block\_c, }\AttributeTok{y =}\NormalTok{ estimate, }\AttributeTok{color =}\NormalTok{ term, }\AttributeTok{group =}\NormalTok{ term)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_errorbar}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ estimate }\SpecialCharTok{{-}}\NormalTok{ std.error, }\AttributeTok{ymax =}\NormalTok{ estimate }\SpecialCharTok{+}\NormalTok{ std.error), }\AttributeTok{width =} \FloatTok{0.2}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =}\NormalTok{ sig\_label), }\AttributeTok{vjust =} \SpecialCharTok{{-}}\FloatTok{1.2}\NormalTok{, }\AttributeTok{size =} \DecValTok{5}\NormalTok{, }\AttributeTok{show.legend =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Block (zero{-}centered)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Effect Estimate"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Parameter"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{()}
+
+\FunctionTok{ggsave}\NormalTok{(p\_h1h2\_fixed\_effects, }\AttributeTok{file =} \StringTok{"../plots/h1h2\_fixed\_effects.png"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Saving 5.5 x 3.5 in image
+\end{verbatim}
+
+We first determined the optimal effects structure using final-block
+data, comparing candidate models by summing AIC values across all five
+matrix sizes. This comparison favored the maximal random effects
+structure
+\texttt{(surprisal\ ×\ prev\_entropy\ \textbar{}\textbar{}\ subject)\ +\ (1\ \textbar{}\ position)}
+over simpler alternatives, and the full fixed effects model
+\texttt{surprisal\ ×\ prev\_entropy\ +\ is\_repetition} over nested
+versions. This structure converged without singularity across all 100
+models (20 blocks × 5 conditions), and is therefore used for all
+subsequent analyses.
+
+To examine learning trajectories, we fit this selected model structure
+separately to each block within each matrix size condition, yielding 100
+models total (20 blocks × 5 conditions). This approach allows us to
+track how sensitivity to surprisal and entropy emerges and changes over
+the course of learning, and whether these trajectories differ across
+state space sizes.
+
+\subsection{State Space Size Effect}\label{state-space-size-effect}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Extract coefficients from all per{-}block models across all conditions}
+\CommentTok{\# This creates a dataframe with: matrix\_size, block, and coefficient estimates}
+
+\FunctionTok{library}\NormalTok{(broom.mixed)}
+
+\CommentTok{\# Get all per{-}block model directories}
+\NormalTok{condition\_dirs }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{"models/"}\NormalTok{, }\AttributeTok{pattern =} \StringTok{"per\_block\_condition\_"}\NormalTok{, }\AttributeTok{full.names =} \ConstantTok{TRUE}\NormalTok{)}
+
+\CommentTok{\# Extract coefficients from each condition\textquotesingle{}s per{-}block models}
+\NormalTok{coef\_df }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(condition\_dirs, }\ControlFlowTok{function}\NormalTok{(dir) \{}
+\NormalTok{    condition\_num }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{".*per\_block\_condition\_(}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d+)"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, dir)}
+\NormalTok{    matrix\_size }\OtherTok{\textless{}{-}} \FunctionTok{paste0}\NormalTok{(condition\_num, }\StringTok{"x"}\NormalTok{, condition\_num)}
+
+    \CommentTok{\# Get all model files in this directory}
+\NormalTok{    model\_files }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(dir, }\AttributeTok{pattern =} \StringTok{"model\_block\_.*}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.rds"}\NormalTok{, }\AttributeTok{full.names =} \ConstantTok{TRUE}\NormalTok{)}
+
+    \CommentTok{\# Extract block number and coefficients from each model}
+    \FunctionTok{map\_dfr}\NormalTok{(model\_files, }\ControlFlowTok{function}\NormalTok{(file) \{}
+\NormalTok{        block\_num }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{".*model\_block\_(}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d+)}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.rds"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, file))}
+
+        \CommentTok{\# Load model and extract fixed effects}
+\NormalTok{        m }\OtherTok{\textless{}{-}} \FunctionTok{readRDS}\NormalTok{(file)}
+\NormalTok{        coefs }\OtherTok{\textless{}{-}} \FunctionTok{fixef}\NormalTok{(m)}
+
+        \CommentTok{\# Return as a row}
+        \FunctionTok{data.frame}\NormalTok{(}
+            \AttributeTok{matrix\_size =}\NormalTok{ matrix\_size,}
+            \AttributeTok{matrix\_size\_num =} \FunctionTok{as.numeric}\NormalTok{(condition\_num),}
+            \AttributeTok{matrix\_size\_c =} \FunctionTok{as.numeric}\NormalTok{(condition\_num) }\SpecialCharTok{{-}} \DecValTok{6}\NormalTok{,}
+            \AttributeTok{block =}\NormalTok{ block\_num,}
+            \AttributeTok{block\_c =}\NormalTok{ block\_num }\SpecialCharTok{{-}} \FloatTok{9.5}\NormalTok{,}
+            \AttributeTok{intercept =}\NormalTok{ coefs[}\StringTok{"(Intercept)"}\NormalTok{],}
+            \AttributeTok{surprisal =}\NormalTok{ coefs[}\StringTok{"surprisal\_c"}\NormalTok{],}
+            \AttributeTok{prev\_entropy =}\NormalTok{ coefs[}\StringTok{"prev\_entropy\_c"}\NormalTok{],}
+            \AttributeTok{interaction =}\NormalTok{ coefs[}\StringTok{"surprisal\_c:prev\_entropy\_c"}\NormalTok{],}
+            \AttributeTok{is\_repetition =}\NormalTok{ coefs[}\StringTok{"is\_repetitionTRUE"}\NormalTok{]}
+\NormalTok{        )}
+\NormalTok{    \})}
 \NormalTok{\})}
 
-\NormalTok{\# View structure}
-\NormalTok{head(coef\_df)}
-\NormalTok{summary(coef\_df)}
+\CommentTok{\# View structure}
+\FunctionTok{names}\NormalTok{(coef\_df)}
+\FunctionTok{head}\NormalTok{(coef\_df)}
+\FunctionTok{summary}\NormalTok{(coef\_df)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: H3 models {-} matrix size moderation}
-\NormalTok{\#| echo: true}
-\NormalTok{\#| include: true}
+\CommentTok{\# H3: Test whether surprisal, entropy, and interaction effects}
+\CommentTok{\# are moderated by matrix\_size and block}
 
-\NormalTok{\# H3: Test whether surprisal, entropy, and interaction effects}
-\NormalTok{\# are moderated by matrix\_size and block}
+\CommentTok{\# Model 1: Surprisal effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_surprisal }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(surprisal }\SpecialCharTok{\textasciitilde{}}\NormalTok{ matrix\_size\_num }\SpecialCharTok{*}\NormalTok{ block\_c, }\AttributeTok{data =}\NormalTok{ coef\_df)}
+\FunctionTok{summary}\NormalTok{(m\_h3\_surprisal)}
 
-\NormalTok{\# Model 1: Surprisal effect \textasciitilde{} matrix\_size * block}
-\NormalTok{m\_h3\_surprisal \textless{}{-} lm(surprisal \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
-\NormalTok{summary(m\_h3\_surprisal)}
+\CommentTok{\# Model 2: Previous entropy effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_entropy }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(prev\_entropy }\SpecialCharTok{\textasciitilde{}}\NormalTok{ matrix\_size\_num }\SpecialCharTok{*}\NormalTok{ block\_c, }\AttributeTok{data =}\NormalTok{ coef\_df)}
+\FunctionTok{summary}\NormalTok{(m\_h3\_entropy)}
 
-\NormalTok{\# Model 2: Previous entropy effect \textasciitilde{} matrix\_size * block}
-\NormalTok{m\_h3\_entropy \textless{}{-} lm(prev\_entropy \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
-\NormalTok{summary(m\_h3\_entropy)}
+\CommentTok{\# Model 3: Interaction effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_interaction }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(interaction }\SpecialCharTok{\textasciitilde{}}\NormalTok{ matrix\_size\_num }\SpecialCharTok{*}\NormalTok{ block\_c, }\AttributeTok{data =}\NormalTok{ coef\_df)}
+\FunctionTok{summary}\NormalTok{(m\_h3\_interaction)}
 
-\NormalTok{\# Model 3: Interaction effect \textasciitilde{} matrix\_size * block}
-\NormalTok{m\_h3\_interaction \textless{}{-} lm(interaction \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
-\NormalTok{summary(m\_h3\_interaction)}
-
-\NormalTok{\# Model 4: Repetition effect \textasciitilde{} matrix\_size * block}
-\NormalTok{m\_h3\_repetition \textless{}{-} lm(is\_repetition \textasciitilde{} matrix\_size\_num * block, data = coef\_df)}
-\NormalTok{summary(m\_h3\_repetition)}
+\CommentTok{\# Model 4: Repetition effect \textasciitilde{} matrix\_size * block}
+\NormalTok{m\_h3\_repetition }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(is\_repetition }\SpecialCharTok{\textasciitilde{}}\NormalTok{ matrix\_size\_num }\SpecialCharTok{*}\NormalTok{ block\_c, }\AttributeTok{data =}\NormalTok{ coef\_df)}
+\FunctionTok{summary}\NormalTok{(m\_h3\_repetition)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{\#| label: H3 visualization}
-\NormalTok{\#| echo: false}
-\NormalTok{\#| include: true}
+\CommentTok{\# Create plots directory if it doesn\textquotesingle{}t exist}
+\FunctionTok{dir.create}\NormalTok{(}\StringTok{"plots"}\NormalTok{, }\AttributeTok{showWarnings =} \ConstantTok{FALSE}\NormalTok{)}
 
-\NormalTok{\# Create plots directory if it doesn\textquotesingle{}t exist}
-\NormalTok{dir.create("plots", showWarnings = FALSE)}
+\CommentTok{\# Visualize how effects change across matrix size and block}
 
-\NormalTok{\# Visualize how effects change across matrix size and block}
+\CommentTok{\# Plot surprisal effect}
+\NormalTok{p1 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(coef\_df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ block\_c, }\AttributeTok{y =}\NormalTok{ surprisal, }\AttributeTok{color =}\NormalTok{ matrix\_size\_c, }\AttributeTok{group =}\NormalTok{ matrix\_size\_c)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.2}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}
+        \AttributeTok{title =} \StringTok{"H1: Surprisal Effect Across Learning"}\NormalTok{,}
+        \AttributeTok{x =} \StringTok{"Block (zero{-}centered)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Surprisal Coefficient"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Matrix Size (zero{-}centered)"}
+\NormalTok{    ) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{()}
+\FunctionTok{ggsave}\NormalTok{(}\StringTok{"../plots/h3\_surprisal\_by\_block.png"}\NormalTok{, p1, }\AttributeTok{width =} \DecValTok{8}\NormalTok{, }\AttributeTok{height =} \DecValTok{6}\NormalTok{, }\AttributeTok{dpi =} \DecValTok{300}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(p1)}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{\# Plot surprisal effect}
-\NormalTok{p1 \textless{}{-} ggplot(coef\_df, aes(x = block, y = surprisal, color = matrix\_size, group = matrix\_size)) +}
-\NormalTok{  geom\_smooth(method = "lm", se = TRUE, alpha = 0.2) +}
-\NormalTok{  geom\_point(alpha = 0.3) +}
-\NormalTok{  labs(title = "H1: Surprisal Effect Across Learning",}
-\NormalTok{       x = "Block", y = "Surprisal Coefficient", color = "Matrix Size") +}
-\NormalTok{  theme\_minimal()}
-\NormalTok{ggsave("plots/h3\_surprisal\_by\_block.png", p1, width = 8, height = 6, dpi = 300)}
-\NormalTok{print(p1)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Plot entropy effect}
+\NormalTok{p2 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(coef\_df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ block\_c, }\AttributeTok{y =}\NormalTok{ prev\_entropy, }\AttributeTok{color =}\NormalTok{ matrix\_size\_c, }\AttributeTok{group =}\NormalTok{ matrix\_size\_c)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.2}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}
+        \AttributeTok{title =} \StringTok{"H2: Entropy Effect Across Learning"}\NormalTok{,}
+        \AttributeTok{x =} \StringTok{"Block (zero{-}centered)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Previous Entropy Coefficient"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Matrix Size (zero{-}centered)"}
+\NormalTok{    ) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{()}
+\FunctionTok{ggsave}\NormalTok{(}\StringTok{"../plots/h3\_entropy\_by\_block.png"}\NormalTok{, p2, }\AttributeTok{width =} \DecValTok{8}\NormalTok{, }\AttributeTok{height =} \DecValTok{6}\NormalTok{, }\AttributeTok{dpi =} \DecValTok{300}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(p2)}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{\# Plot entropy effect}
-\NormalTok{p2 \textless{}{-} ggplot(coef\_df, aes(x = block, y = prev\_entropy, color = matrix\_size, group = matrix\_size)) +}
-\NormalTok{  geom\_smooth(method = "lm", se = TRUE, alpha = 0.2) +}
-\NormalTok{  geom\_point(alpha = 0.3) +}
-\NormalTok{  labs(title = "H2: Entropy Effect Across Learning",}
-\NormalTok{       x = "Block", y = "Previous Entropy Coefficient", color = "Matrix Size") +}
-\NormalTok{  theme\_minimal()}
-\NormalTok{ggsave("plots/h3\_entropy\_by\_block.png", p2, width = 8, height = 6, dpi = 300)}
-\NormalTok{print(p2)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Plot interaction effect}
+\NormalTok{p3 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(coef\_df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ block\_c, }\AttributeTok{y =}\NormalTok{ interaction, }\AttributeTok{color =}\NormalTok{ matrix\_size\_c, }\AttributeTok{group =}\NormalTok{ matrix\_size\_c)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.2}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}
+        \AttributeTok{title =} \StringTok{"H2: Surprisal × Entropy Interaction Across Learning"}\NormalTok{,}
+        \AttributeTok{x =} \StringTok{"Block (zero{-}centered)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Interaction Coefficient"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Matrix Size (zero{-}centered)"}
+\NormalTok{    ) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{()}
+\FunctionTok{ggsave}\NormalTok{(}\StringTok{"../plots/h3\_interaction\_by\_block.png"}\NormalTok{, p3, }\AttributeTok{width =} \DecValTok{8}\NormalTok{, }\AttributeTok{height =} \DecValTok{6}\NormalTok{, }\AttributeTok{dpi =} \DecValTok{300}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(p3)}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{\# Plot interaction effect}
-\NormalTok{p3 \textless{}{-} ggplot(coef\_df, aes(x = block, y = interaction, color = matrix\_size, group = matrix\_size)) +}
-\NormalTok{  geom\_smooth(method = "lm", se = TRUE, alpha = 0.2) +}
-\NormalTok{  geom\_point(alpha = 0.3) +}
-\NormalTok{  labs(title = "H2: Surprisal × Entropy Interaction Across Learning",}
-\NormalTok{       x = "Block", y = "Interaction Coefficient", color = "Matrix Size") +}
-\NormalTok{  theme\_minimal()}
-\NormalTok{ggsave("plots/h3\_interaction\_by\_block.png", p3, width = 8, height = 6, dpi = 300)}
-\NormalTok{print(p3)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Plot matrix size effect (averaging across blocks)}
+\NormalTok{coef\_summary }\OtherTok{\textless{}{-}}\NormalTok{ coef\_df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(matrix\_size\_c, matrix\_size\_num) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{summarize}\NormalTok{(}
+        \AttributeTok{surprisal\_mean =} \FunctionTok{mean}\NormalTok{(surprisal, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+        \AttributeTok{surprisal\_se =} \FunctionTok{sd}\NormalTok{(surprisal, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{n}\NormalTok{()),}
+        \AttributeTok{entropy\_mean =} \FunctionTok{mean}\NormalTok{(prev\_entropy, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+        \AttributeTok{entropy\_se =} \FunctionTok{sd}\NormalTok{(prev\_entropy, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{n}\NormalTok{()),}
+        \AttributeTok{interaction\_mean =} \FunctionTok{mean}\NormalTok{(interaction, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+        \AttributeTok{interaction\_se =} \FunctionTok{sd}\NormalTok{(interaction, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{n}\NormalTok{())}
+\NormalTok{    )}
 
-\NormalTok{\# Plot matrix size effect (averaging across blocks)}
-\NormalTok{coef\_summary \textless{}{-} coef\_df \%\textgreater{}\%}
-\NormalTok{  group\_by(matrix\_size, matrix\_size\_num) \%\textgreater{}\%}
-\NormalTok{  summarize(}
-\NormalTok{    surprisal\_mean = mean(surprisal, na.rm = TRUE),}
-\NormalTok{    surprisal\_se = sd(surprisal, na.rm = TRUE) / sqrt(n()),}
-\NormalTok{    entropy\_mean = mean(prev\_entropy, na.rm = TRUE),}
-\NormalTok{    entropy\_se = sd(prev\_entropy, na.rm = TRUE) / sqrt(n()),}
-\NormalTok{    interaction\_mean = mean(interaction, na.rm = TRUE),}
-\NormalTok{    interaction\_se = sd(interaction, na.rm = TRUE) / sqrt(n())}
-\NormalTok{  )}
-
-\NormalTok{p4 \textless{}{-} ggplot(coef\_summary, aes(x = matrix\_size\_num)) +}
-\NormalTok{  geom\_line(aes(y = surprisal\_mean, color = "Surprisal")) +}
-\NormalTok{  geom\_point(aes(y = surprisal\_mean, color = "Surprisal")) +}
-\NormalTok{  geom\_errorbar(aes(ymin = surprisal\_mean {-} surprisal\_se,}
-\NormalTok{                    ymax = surprisal\_mean + surprisal\_se, color = "Surprisal"),}
-\NormalTok{                width = 0.2) +}
-\NormalTok{  geom\_line(aes(y = entropy\_mean, color = "Entropy")) +}
-\NormalTok{  geom\_point(aes(y = entropy\_mean, color = "Entropy")) +}
-\NormalTok{  geom\_errorbar(aes(ymin = entropy\_mean {-} entropy\_se,}
-\NormalTok{                    ymax = entropy\_mean + entropy\_se, color = "Entropy"),}
-\NormalTok{                width = 0.2) +}
-\NormalTok{  labs(title = "H3: Effect Size by Matrix Size (Averaged Across Blocks)",}
-\NormalTok{       x = "Matrix Size", y = "Coefficient Estimate", color = "Effect") +}
-\NormalTok{  theme\_minimal()}
-\NormalTok{ggsave("plots/h3\_effects\_by\_matrix\_size.png", p4, width = 8, height = 6, dpi = 300)}
-\NormalTok{print(p4)}
+\NormalTok{p4 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(coef\_summary, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ matrix\_size\_num)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ surprisal\_mean, }\AttributeTok{color =} \StringTok{"Surprisal"}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ surprisal\_mean, }\AttributeTok{color =} \StringTok{"Surprisal"}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_errorbar}\NormalTok{(}
+        \FunctionTok{aes}\NormalTok{(}
+            \AttributeTok{ymin =}\NormalTok{ surprisal\_mean }\SpecialCharTok{{-}}\NormalTok{ surprisal\_se,}
+            \AttributeTok{ymax =}\NormalTok{ surprisal\_mean }\SpecialCharTok{+}\NormalTok{ surprisal\_se, }\AttributeTok{color =} \StringTok{"Surprisal"}
+\NormalTok{        ),}
+        \AttributeTok{width =} \FloatTok{0.2}
+\NormalTok{    ) }\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ entropy\_mean, }\AttributeTok{color =} \StringTok{"Entropy"}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ entropy\_mean, }\AttributeTok{color =} \StringTok{"Entropy"}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_errorbar}\NormalTok{(}
+        \FunctionTok{aes}\NormalTok{(}
+            \AttributeTok{ymin =}\NormalTok{ entropy\_mean }\SpecialCharTok{{-}}\NormalTok{ entropy\_se,}
+            \AttributeTok{ymax =}\NormalTok{ entropy\_mean }\SpecialCharTok{+}\NormalTok{ entropy\_se, }\AttributeTok{color =} \StringTok{"Entropy"}
+\NormalTok{        ),}
+        \AttributeTok{width =} \FloatTok{0.2}
+\NormalTok{    ) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}
+        \AttributeTok{title =} \StringTok{"H3: Effect Size by Matrix Size (Averaged Across Blocks)"}\NormalTok{,}
+        \AttributeTok{x =} \StringTok{"Matrix Size (zero{-}centered)"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Coefficient Estimate"}\NormalTok{, }\AttributeTok{color =} \StringTok{"Effect"}
+\NormalTok{    ) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{()}
+\FunctionTok{ggsave}\NormalTok{(}\StringTok{"../plots/h3\_effects\_by\_matrix\_size.png"}\NormalTok{, p4, }\AttributeTok{width =} \DecValTok{8}\NormalTok{, }\AttributeTok{height =} \DecValTok{6}\NormalTok{, }\AttributeTok{dpi =} \DecValTok{300}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(p4)}
 \end{Highlighting}
 \end{Shaded}
 
