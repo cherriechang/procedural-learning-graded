@@ -748,7 +748,7 @@ ggplot(effects_df, aes(x = matrix_size_c, y = estimate, color = term, group = te
 ```{r echo:false, include:false}
 #| label: H1H2 Learning trajectories per block per condition
 
-cur_condition <- 4
+cur_condition <- 7
 data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
 
 data_list_block <- split(data_m4, data_m4$block)
@@ -903,37 +903,96 @@ summary(m_h3_repetition)
 ```{r echo:false, include:false}
 #| label: H3 visualization
 
+library(ggrepel)
+
 # Plot surprisal effect
 p1 <- ggplot(coef_df, aes(x = block, y = surprisal, color = matrix_size, group = matrix_size)) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
     geom_point(alpha = 0.3) +
+    geom_text_repel(
+      data = coef_df %>%
+        group_by(matrix_size) %>%
+        summarise(
+          label_x = max(block),
+          y = coef(lm(surprisal ~ block))[1] + 
+              coef(lm(surprisal ~ block))[2] * label_x
+        ),
+      mapping = aes(x = label_x, y = y, label = matrix_size, color = matrix_size),
+      size = 4,
+      hjust = 0,
+      nudge_x = 0.5,
+      direction = "y",
+      segment.size = 0.3,
+      show.legend = FALSE
+    ) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
+    scale_y_continuous(limits = c(-0.05, 0.11)) + 
     labs(
-        title = "H1: Surprisal Effect Across Learning",
+        title = "Surprisal Effect Across Learning",
         x = "Block", y = "Surprisal Coefficient", color = "Matrix Size"
     ) +
-    theme_minimal()
+    theme_minimal() + 
+    theme(legend.position = "none")
 ggsave(here("plots", "h3_surprisal_by_block.png"), p1, width = 8, height = 6, dpi = 300)
 
 # Plot entropy effect
 p2 <- ggplot(coef_df, aes(x = block, y = prev_entropy, color = matrix_size, group = matrix_size)) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
     geom_point(alpha = 0.3) +
+    geom_text_repel(
+      data = coef_df %>%
+        group_by(matrix_size) %>%
+        summarise(
+          label_x = max(block),
+          y = coef(lm(prev_entropy ~ block))[1] + 
+              coef(lm(prev_entropy ~ block))[2] * label_x
+        ),
+      mapping = aes(x = label_x, y = y, label = matrix_size, color = matrix_size),
+      size = 4,
+      hjust = 0,
+      nudge_x = 0.5,
+      direction = "y",
+      segment.size = 0.3,
+      show.legend = FALSE
+    ) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
+    scale_y_continuous(limits = c(-0.05, 0.11)) +
     labs(
-        title = "H2: Entropy Effect Across Learning",
+        title = "Effect Across Learning",
         x = "Block", y = "Previous Entropy Coefficient", color = "Matrix Size"
     ) +
-    theme_minimal()
+    theme_minimal() + 
+    theme(legend.position = "none")
 ggsave(here("plots", "h3_entropy_by_block.png"), p2, width = 8, height = 6, dpi = 300)
 
 # Plot interaction effect
 p3 <- ggplot(coef_df, aes(x = block, y = interaction, color = matrix_size, group = matrix_size)) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
     geom_point(alpha = 0.3) +
+    geom_text_repel(
+      data = coef_df %>%
+        group_by(matrix_size) %>%
+        summarise(
+          label_x = max(block),
+          y = coef(lm(interaction ~ block))[1] + 
+              coef(lm(interaction ~ block))[2] * label_x
+        ),
+      mapping = aes(x = label_x, y = y, label = matrix_size, color = matrix_size),
+      size = 4,
+      hjust = 0,
+      nudge_x = 0.5,
+      direction = "y",
+      segment.size = 0.3,
+      show.legend = FALSE
+    ) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
+    scale_y_continuous(limits = c(-0.05, 0.11)) +
     labs(
-        title = "H2: Surprisal × Entropy Interaction Across Learning",
+        title = "Surprisal × Entropy Interaction Across Learning",
         x = "Block", y = "Interaction Coefficient", color = "Matrix Size"
     ) +
-    theme_minimal()
+    theme_minimal() + 
+    theme(legend.position = "none")
 ggsave(here("plots", "h3_interaction_by_block.png"), p3, width = 8, height = 6, dpi = 300)
 
 # Plot matrix size effect (averaging across blocks)
@@ -968,7 +1027,7 @@ p4 <- ggplot(coef_summary, aes(x = matrix_size_num)) +
         width = 0.2
     ) +
     labs(
-        title = "H3: Effect Size by Matrix Size (Averaged Across Blocks)",
+        title = "Effect Size by Matrix Size (Averaged Across Blocks)",
         x = "Matrix Size", y = "Coefficient Estimate", color = "Effect"
     ) +
     theme_minimal()
