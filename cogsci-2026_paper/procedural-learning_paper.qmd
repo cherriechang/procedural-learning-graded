@@ -164,7 +164,7 @@ EXPERIMENT_CONFIG <- list(
 
 ![An example trial screen in the 8-position condition of the experiment]("../assets/example-trial-screen.png"){#fig-example-trial-screen width=100%}
 
-Like other serial reaction time task designs, our experiment tasks participants to respond to a visual stimulus that appears in one of several evenly-spaced positions on screen as quickly and accurately as possible by pressing a corresponding key on the keyboard. In our implementation, this visual stimulus is a mole garbed in a bright red bib and matching sunglasses (@fig-example-trial-screen). Participants were evenly divided into 5 groups of `r group_N` per condition, with the conditions differing in the number of positions (4, 5, 6, 7, 8) the mole can appear in. @tab:key-mapping shows the position-to-key mapping for each condition.
+Like other serial reaction time task designs, our experiment tasks participants to respond to a visual stimulus that appears in one of several evenly-spaced positions on screen as quickly and accurately as possible by pressing a corresponding key on the keyboard. In our implementation, this visual stimulus is a mole garbed in a bright red bib and matching sunglasses (@fig-example-trial-screen). Participants were evenly divided into 5 groups of `r group_N` per condition, with the conditions differing in the number of positions (4, 5, 6, 7, 8) the mole can appear in. (@tab:key-mapping) shows the position-to-key mapping for each condition.
 
 A participant is first given a text-based tutorial accompanied by an animated demonstration on which key to press in response to each position, then instructed to work through a set of practice trials where each position is visited twice in random order. After the practice section, the participant moves on to complete `r EXPERIMENT_CONFIG$n_blocks` blocks of trials, each separated with a self-paced break. Each block consists of 10 trials per position. This design choice results in longer blocks for conditions with more positions, but ensures each position is visited an equal number of times on average across conditions. In both practice and main trials, participants are given feedback on correctness via a pop-up short message (a checkmark vs. "Try again!" + an error tone), and allowed to retry each failed trial until they respond correctly. Following standard SRTT protocol, there is also a 120ms response-stimulus interval (RSI) between trials (@nissen_attentional_1987, @janacsek_best_2012, @howard_implicit_2004). We find during piloting that allowing retries, combined with the `r EXPERIMENT_CONFIG$rsi`ms RSI, prevents participants from making compensatory errors, where they unintentionally press the wrong key in the next trial in an attempt to correct their current trial. We record response time, keyboard response and correctness for each trial. After each block, participants are given adaptive feedback based on their accuracy and speed. At the end of the experiment, participants complete a brief questionnaire probing their explicit awareness of any patterns in the mole's appearances (Table).
 
@@ -526,22 +526,21 @@ if (file.exists(df_correct_cache)) {
 ```
 
 ## Variables and Exclusion Criteria
-The main independent variables are surprisal and previous positional entropy. Surprisal is defined as the negative log probability of the actual next-position given the current position [TODO: math], derived from the transition matrix used to generate the sequence for that participant. Previous positional entropy is defined as the Shannon entropy of the transition probabilities from the previous position, also derived from the transition matrix [TODO: math]. Both surprisal and previous positional entropy are mean-centered within each matrix size condition to facilitate interpretation of main effects and interactions in subsequent models. We also create a binary variable indicating whether the current position is a repetition of the previous position (i.e. self-transition). This variable is included as a covariate in subsequent models to control for potential motor effects from repeating the same keystroke.
+The main independent variables are surprisal and previous positional entropy. Surprisal is defined as the negative log probability of the actual next-position given the current position [TODO: math], derived from the transition matrix used to generate the sequence for that participant. Previous positional entropy is defined as the Shannon entropy of the transition probabilities from the previous position, also derived from the transition matrix [TODO: math]. Both surprisal and previous positional entropy are mean-centered within each matrix size condition (`surprisal_c` and `prev_entropy_c`, respectively) to facilitate interpretation of main effects and interactions in subsequent models. We also create a binary variable indicating whether the current position is a repetition of the previous position (i.e. self-transition). This variable is included as a covariate in subsequent models to control for potential motor effects from repeating the same keystroke.
 
 The main dependent variables are response time (RT) and accuracy (proportion of correct responses) on non-practice/main trials. Incorrect trials, trials with RT >1000ms, and trials with RTs greater than 3 median absolute deviations above the participant's median RT (outliers) are excluded. On the participant level, participants with overall accuracy below 85%, median RT >1000ms, or with outliers making up more than 30% of total trials are excluded from analysis. We also discard data from the first trial of each block to account for blocks being implicitly treated as "restarts" and not following an existing probability distribution by participants. RTs are log-transformed to reduce skewness.
 
 ## Modeling Approach
-We use linear mixed effects regression (LMER) to model log-transformed RTs and generalized linear mixed effects regression (GLMER) with a binomial link function to model accuracy. Models are fit using the `lmerTest` package in R. We first determine the optimal random and fixed effects structure using the final block of trials in each condition. We test candidate structrues by fitting them to each of the five matrix size conditions separately and selecting the structure with the lowest summed AIC across all conditions. [FUBAR - THE NEXT TWO SUBSECTIONS DESCRIBE HOW YOU DO WHAT IS DESCRIBED IN THE LAST FEW SENTENCES. THEN YOU USE THAT TO DO WHAT IS IN THE NEXT TWO SENTENCES. THAT OUT-OF-ORDER INFO WILL OCNFUSE PEOPLE> RECOMMEND YOU DISCUSS SELECTION AND THEN APPLICATION TO THE OTHER BLOCKS.]Using this selected structure, we then fit separate models to each individual block within each matrix size condition to examine learning trajectories. Finally, we extract the effect size estimates from each model and test whether they are moderated by matrix size and block using linear regression without random effects, as the data are aggregated coefficients.
+We use linear mixed effects regression (LMER) to model log-transformed RTs and generalized linear mixed effects regression (GLMER) with a binomial link function to model accuracy. Models are fit using the `lmerTest` package in R.P-values were obtained using the Satterthwaite approximation for degrees of freedom, as implemented in the `lmerTest` package (@kuznetsova_lmertest_2017).
 
-**Random effects selection.** Models are initially fit with the maximal random effects structure supported by the design: random intercepts for participant and position, and random slopes by participant for surprisal, previous positional entropy, their interaction, and whether the current position is a repetition of the previous position. Where maximal models fail to converge, we use bounded linear mixed models (`blmer`/`bglmer`) as a first remedy. If singularity persists, we iteratively simplify the random effects structure, removing random slopes one at a time and retaining the most complex structure that converges without singularity. Among these converging models, we do further AIC-based selection to find the most simple effects structure without increasing AIC
+We first determine the optimal random and fixed effects structure using the final block of trials in each condition, fitting candidate models to each of the five matrix size conditions separately and selecting the structure with the lowest summed AIC across all conditions. Models are initially fit with the maximal random effects structure supported by the design (@barr_random_2013): random intercepts for participant and position, and random slopes by participant for surprisal, previous positional entropy, their interaction, and whether the current position is a repetition of the previous position. Where maximal models fail to converge, we use bounded linear mixed models (`blmer`/`bglmer`) as a first remedy. If singularity persists, we iteratively simplify the random effects structure, removing random slopes one at a time and retaining the most complex structure that converges without singularity. Among these converging models, we select the simplest structure without increasing AIC. For fixed effects, starting with the full model including surprisal, previous positional entropy, their interaction, and repetition, we use AIC-based stepwise backward selection. An effect is retained if removing it increases AIC.
 
-**Fixed effects selection.** Starting with the selected random effects structure and a full fixed effects model including surprisal, previous positional entropy, their interaction, and repetition, we similarly use AIC-based stepwise backward selection to prune the fixed effects. We first test whether repetition can be removed without increasing AIC. We then test the interaction term between surprisal and previous position entropy, followed by individual main effects if the interaction is not retained. An effect is retained if removing it increases AIC.
+Using this selected structure, we then fit separate models to each individual block within each matrix size condition to examine learning trajectories. Finally, we extract the effect size estimates from each model and test whether they are moderated by matrix size and block using linear regression without random effects, as the data are aggregated coefficients.
 
 # Results
 <!-- H0 -->
 ```{r echo:false, include:false}
 #| label: Prepare data for H0 models
-#| eval: true
 
 df.m_h0 <- df
 df.m_h0.correct <- df.correct
@@ -549,31 +548,46 @@ df.m_h0.correct <- df.correct
 
 ```{r echo:false, include:false}
 #| label: H0 Learning effect lmer models
-#| eval: false
 
-m_h0_rt <-
-    lmer(log_rt ~ block_c * is_repetition + (block_c * is_repetition | subject_id) + (1 | position),
-        data = df.m_h0.correct,
-        REML = FALSE,
-        control = lmerControl(optimizer = "bobyqa")
-    ) # can change
+m_h0_rt_cache <- here("models/H0/m_h0_rt.rds")
+
+if (file.exists(m_h0_rt_cache)) {
+    m_h0_rt <- readRDS(m_h0_rt_cache)
+} else {
+    m_h0_rt <-
+        lmer(log_rt ~ block_c * is_repetition + (block_c * is_repetition | subject_id) + (1 | position),
+            data = df.m_h0.correct,
+            REML = FALSE,
+            control = lmerControl(optimizer = "bobyqa")
+        ) # can change
+
+    saveRDS(m_h0_rt, m_h0_rt_cache)
+}
 
 summary(m_h0_rt)
+m_h0_rt_ci <- confint(m_h0_rt, method = "Wald")
 
-df.m_h0.correct <- df.correct %>%
-    group_by(matrix_size)
 
-m_h0_acc <-
+m_h0_acc_cache <- here("models/H0/m_h0_acc.rds")
+
+if (file.exists(m_h0_acc_cache)) {
+    m_h0_acc <- readRDS(m_h0_acc_cache)
+} else {
+    m_h0_acc <-
     glmer(correct ~ block_c_ * is_repetition + (block_c_ * is_repetition | subject_id) + (1 | position),
         data = df.m_h0,
         family = binomial,
         control = glmerControl(optimizer = "bobyqa")
     ) # can change
 
+    saveRDS(m_h0_acc, m_h0_acc_cache)
+}
+
 summary(m_h0_acc)
+m_h0_acc_ci <- confint(m_h0_acc, method = "Wald")
 ```
 
-As a preliminary sanity check, we confirmed that RTs decreased across blocks ($\beta$ = -X.XX, p < .001), establishing that performance improvement occurred. 
+As a preliminary sanity check, we confirmed that RTs decreased across blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h0_rt))["block_c", "Estimate"])`, $t$ = `r sprintf("%.2f", coef(summary(m_h0_rt))["block_c", "t value"])`, $p$ < .001, 95% CI [`r sprintf("%.3f", m_h0_rt_ci["block_c", 1])`, `r sprintf("%.3f", m_h0_rt_ci["block_c", 2])`]), establishing that performance improvement occurred. 
 
 ## Surprisal and Previous Position Entropy Effects
 <!-- H1 & H2: final block only; base model -->
@@ -715,6 +729,7 @@ aic_table_fixed_effect %>%
 <!-- H1 & H2: final block only; pruning fixed effects plots-->
 ```{r echo:false, include:false}
 #| label: H1H2 Fixed effects plots
+#| eval: false
 
 theme_set(theme_minimal())
 
@@ -722,7 +737,7 @@ effects_df <- map_dfr(
     names(models),
     ~ broom.mixed::tidy(models[[.x]]) %>%
         filter(effect == "fixed" & term != "(Intercept)") %>%
-        mutate(matrix_size_c = .x)
+        mutate(matrix_size = as.numeric(.x))
 ) %>%
     mutate(
         sig_label = case_when(
@@ -733,13 +748,11 @@ effects_df <- map_dfr(
         )
     )
 
-# effects_df$matrix_size <- as.numeric(effects_df$matrix_size)
-
-ggplot(effects_df, aes(x = matrix_size_c, y = estimate, color = term, group = term)) +
+ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term)) +
   geom_line() +
   geom_point() +
   geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
-  geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE)
+  geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE) +
   labs(x = "Matrix Size", y = "Effect Estimate", color = "Parameter") + 
   theme_minimal()
 ```
@@ -749,7 +762,7 @@ ggplot(effects_df, aes(x = matrix_size_c, y = estimate, color = term, group = te
 #| label: H1H2 Learning trajectories per block per condition
 
 cur_condition <- 4
-data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
+data_m4 <- subset(df, matrix_size == cur_condition) # can change
 
 data_list_block <- split(data_m4, data_m4$block)
 
@@ -809,23 +822,16 @@ effects_block <- map_dfr(
       TRUE ~ ""
     ))
 
-p_h1h2_fixed_effects <- ggplot(effects_block, aes(x = block_c, y = estimate, color = term, group = term)) +
+p_h1h2_fixed_effects <- ggplot(effects_block, aes(x = block, y = estimate, color = term, group = term)) +
     geom_line() +
     geom_point() +
     geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
     geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE) +
-    labs(x = "Block (zero-centered)", y = "Effect Estimate", color = "Parameter") +
+    labs(x = "Block", y = "Effect Estimate", color = "Matrix Size") +
     theme_minimal()
 
-ggsave(p_h1h2_fixed_effects, file = "../plots/h1h2_fixed_effects.png")
+ggsave(p_h1h2_fixed_effects, file = here("plots", "h1h2_fixed_effects.png"))
 ```
-
-
-## State Space Size Effect
-
-We first determined the optimal effects structure using final-block data, comparing candidate models by summing AIC values across all five matrix sizes. This comparison favored the maximal random effects structure `(surprisal × prev_entropy || subject) + (1 | position)` over simpler alternatives, and the full fixed effects model `surprisal × prev_entropy + is_repetition` over nested versions. This structure converged without singularity across all 100 models (20 blocks × 5 conditions), and is therefore used for all subsequent analyses.
-
-To examine learning trajectories, we fit this selected model structure separately to each block within each matrix size condition, yielding 100 models total (20 blocks × 5 conditions). This approach allows us to track how sensitivity to surprisal and entropy emerges and changes over the course of learning, and whether these trajectories differ across state space sizes. 
 
 ```{r echo:false, include:false}
 #| label: Extract coefficients from per-block models
@@ -835,26 +841,16 @@ To examine learning trajectories, we fit this selected model structure separatel
 
 library(broom.mixed)
 
-# Get all per-block model directories
 condition_dirs <- list.files("models/", pattern = "per_block_condition_", full.names = TRUE)
 
-# Extract coefficients from each condition's per-block models
 coef_df <- map_dfr(condition_dirs, function(dir) {
     condition_num <- gsub(".*per_block_condition_(\\d+)", "\\1", dir)
     matrix_size <- paste0(condition_num, "x", condition_num)
-
-    # Get all model files in this directory
     model_files <- list.files(dir, pattern = "model_block_.*\\.rds", full.names = TRUE)
-
-    # Extract block number and coefficients from each model
     map_dfr(model_files, function(file) {
         block_num <- as.numeric(gsub(".*model_block_(\\d+)\\.rds", "\\1", file))
-
-        # Load model and extract fixed effects
         m <- readRDS(file)
         coefs <- fixef(m)
-
-        # Return as a row
         data.frame(
             matrix_size = matrix_size,
             matrix_size_num = as.numeric(condition_num),
@@ -870,11 +866,97 @@ coef_df <- map_dfr(condition_dirs, function(dir) {
     })
 })
 
-# View structure
-names(coef_df)
-head(coef_df)
-summary(coef_df)
+# Extract statistics from ALL per-block models (100 models total)
+h1h2_all_stats <- map_dfr(condition_dirs, function(dir) {
+    condition_num <- gsub(".*per_block_condition_(\\d+)", "\\1", dir)
+    matrix_size <- paste0(condition_num, "x", condition_num)
+    model_files <- list.files(dir, pattern = "model_block_.*\\.rds", full.names = TRUE)
+    map_dfr(model_files, function(file) {
+        block_num <- as.numeric(gsub(".*model_block_(\\d+)\\.rds", "\\1", file))
+        m <- readRDS(file)
+        coef_summary <- summary(m)$coefficients
+        ci <- confint(m, method = "Wald")
+        
+        data.frame(
+            matrix_size = matrix_size,
+            block = block_num,
+            term = rownames(coef_summary),
+            estimate = coef_summary[, "Estimate"],
+            std_error = coef_summary[, "Std. Error"],
+            t_value = coef_summary[, "t value"],
+            p_value = coef_summary[, "Pr(>|t|)"],
+            ci_lower = ci[rownames(coef_summary), 1],
+            ci_upper = ci[rownames(coef_summary), 2]
+        ) %>%
+            filter(term %in% c("surprisal_c", "prev_entropy_c", "surprisal_c:prev_entropy_c", "is_repetitionTRUE"))
+    })
+})
+
+# Summary across all 100 models (all blocks, all matrix sizes)
+h1h2_summary <- h1h2_all_stats %>%
+    group_by(term) %>%
+    summarise(
+        mean_estimate = mean(estimate),
+        min_estimate = min(estimate),
+        max_estimate = max(estimate),
+        mean_t = mean(t_value),
+        min_t = min(t_value),
+        max_t = max(t_value),
+        mean_p = mean(p_value),
+        min_p = min(p_value),
+        max_p = max(p_value)
+    )
 ```
+
+We first determined the optimal effects structure using final-block data, comparing candidate models by summing AIC values across all five matrix sizes. This comparison favored the model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)`
+
+We then fit this model structure each block in each matrix size condition separately, further pruning the random effets structure until all models converge. This pruning favored a simpler random effects structure, resulting in the following final model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (prev_entropy_c| subject_id) + (1 | position)`
+
+In all blocks across all matrix sizes, this model revealed significant effects for all predictors (Table \ref{tab:h1h2-results}). This structure converged without singularity across all 100 models (20 blocks × 5 conditions) and is therefore used for all subsequent analyses.
+
+```{r}
+#| echo: false
+#| include: true
+#| results: asis
+
+cat("\\begin{table}[t]\n")
+cat("\\centering\n")
+cat("\\caption{Fixed effects from all per-block models (100 total: 20 blocks × 5 matrix sizes)}\n")
+cat("\\label{tab:h1h2-results}\n\n")
+cat("\\begin{tabular*}{\\columnwidth}{@{} l @{\\extracolsep{\\fill}} r r r @{}}\n")
+cat("\\toprule\n")
+cat("Predictor & Mean $\\beta$ & Mean \\textit{t} & \\textit{p} \\\\\n")
+cat("\\midrule\n")
+
+h1h2_latex_rows <- h1h2_summary %>%
+    mutate(
+        term_label = case_when(
+            term == "surprisal_c" ~ "Surprisal",
+            term == "prev_entropy_c" ~ "Previous Entropy",
+            term == "surprisal_c:prev_entropy_c" ~ "Surprisal $\\times$ Entropy",
+            term == "is_repetitionTRUE" ~ "Repetition"
+        ),
+        sig_label = case_when(
+            mean_p < 0.001 ~ "***",
+            mean_p < 0.01 ~ "**",
+            mean_p < 0.05 ~ "*",
+            TRUE ~ ""
+        )
+    ) %>%
+    arrange(match(term, c("surprisal_c", "prev_entropy_c", "surprisal_c:prev_entropy_c", "is_repetitionTRUE"))) %>%
+    transmute(
+        row = paste0(term_label, " & ", sprintf("%.3f", mean_estimate), " & ", sprintf("%.2f", mean_t), " & ", sig_label, " \\\\")
+    )
+
+cat(h1h2_latex_rows$row, sep = "\n")
+
+cat("\\bottomrule\n")
+cat("\\end{tabular*}\n\n")
+cat("\\end{table}\n")
+```
+
+## State Space Size Effect
+To examine learning trajectories, we fit this selected model structure separately to each block within each matrix size condition, yielding 100 models total (20 blocks × 5 conditions). This approach allows us to track how sensitivity to surprisal and entropy emerges and changes over the course of learning, and whether these trajectories differ across state space sizes.
 
 ```{r echo:false, include:false}
 #| label: H3 models - matrix size moderation

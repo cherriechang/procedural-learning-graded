@@ -384,7 +384,7 @@ implementation, this visual stimulus is a mole garbed in a bright red
 bib and matching sunglasses (Figure~\ref{fig-example-trial-screen}).
 Participants were evenly divided into 5 groups of 50 per condition, with
 the conditions differing in the number of positions (4, 5, 6, 7, 8) the
-mole can appear in. (\textbf{tab:key-mapping?}) shows the
+mole can appear in. ((\textbf{tab:key-mapping?})) shows the
 position-to-key mapping for each condition.
 
 A participant is first given a text-based tutorial accompanied by an
@@ -534,12 +534,13 @@ that participant. Previous positional entropy is defined as the Shannon
 entropy of the transition probabilities from the previous position, also
 derived from the transition matrix {[}TODO: math{]}. Both surprisal and
 previous positional entropy are mean-centered within each matrix size
-condition to facilitate interpretation of main effects and interactions
-in subsequent models. We also create a binary variable indicating
-whether the current position is a repetition of the previous position
-(i.e.~self-transition). This variable is included as a covariate in
-subsequent models to control for potential motor effects from repeating
-the same keystroke.
+condition (\texttt{surprisal\_c} and \texttt{prev\_entropy\_c},
+respectively) to facilitate interpretation of main effects and
+interactions in subsequent models. We also create a binary variable
+indicating whether the current position is a repetition of the previous
+position (i.e.~self-transition). This variable is included as a
+covariate in subsequent models to control for potential motor effects
+from repeating the same keystroke.
 
 The main dependent variables are response time (RT) and accuracy
 (proportion of correct responses) on non-practice/main trials. Incorrect
@@ -558,61 +559,81 @@ log-transformed to reduce skewness.
 We use linear mixed effects regression (LMER) to model log-transformed
 RTs and generalized linear mixed effects regression (GLMER) with a
 binomial link function to model accuracy. Models are fit using the
-\texttt{lmerTest} package in R. We first determine the optimal random
-and fixed effects structure using the final block of trials in each
-condition. We test candidate structrues by fitting them to each of the
-five matrix size conditions separately and selecting the structure with
-the lowest summed AIC across all conditions. Using this selected
-structure, we then fit separate models to each individual block within
-each matrix size condition to examine learning trajectories. Finally, we
-extract the effect size estimates from each model and test whether they
-are moderated by matrix size and block using linear regression without
-random effects, as the data are aggregated coefficients.
+\texttt{lmerTest} package in R.P-values were obtained using the
+Satterthwaite approximation for degrees of freedom, as implemented in
+the \texttt{lmerTest} package (Kuznetsova et al. (2017)).
 
-\textbf{Random effects selection.} Models are initially fit with the
-maximal random effects structure supported by the design: random
-intercepts for participant and position, and random slopes by
-participant for surprisal, previous positional entropy, their
-interaction, and whether the current position is a repetition of the
-previous position. Where maximal models fail to converge, we use bounded
-linear mixed models (\texttt{blmer}/\texttt{bglmer}) as a first remedy.
-If singularity persists, we iteratively simplify the random effects
-structure, removing random slopes one at a time and retaining the most
-complex structure that converges without singularity. Among these
-converging models, we do further AIC-based selection to find the most
-simple effects structure without increasing AIC
+We first determine the optimal random and fixed effects structure using
+the final block of trials in each condition, fitting candidate models to
+each of the five matrix size conditions separately and selecting the
+structure with the lowest summed AIC across all conditions. Models are
+initially fit with the maximal random effects structure supported by the
+design (Barr et al. (2013)): random intercepts for participant and
+position, and random slopes by participant for surprisal, previous
+positional entropy, their interaction, and whether the current position
+is a repetition of the previous position. Where maximal models fail to
+converge, we use bounded linear mixed models
+(\texttt{blmer}/\texttt{bglmer}) as a first remedy. If singularity
+persists, we iteratively simplify the random effects structure, removing
+random slopes one at a time and retaining the most complex structure
+that converges without singularity. Among these converging models, we
+select the simplest structure without increasing AIC. For fixed effects,
+starting with the full model including surprisal, previous positional
+entropy, their interaction, and repetition, we use AIC-based stepwise
+backward selection. An effect is retained if removing it increases AIC.
 
-\textbf{Fixed effects selection.} Starting with the selected random
-effects structure and a full fixed effects model including surprisal,
-previous positional entropy, their interaction, and repetition, we
-similarly use AIC-based stepwise backward selection to prune the fixed
-effects. We first test whether repetition can be removed without
-increasing AIC. We then test the interaction term between surprisal and
-previous position entropy, followed by individual main effects if the
-interaction is not retained. An effect is retained if removing it
-increases AIC.
+Using this selected structure, we then fit separate models to each
+individual block within each matrix size condition to examine learning
+trajectories. Finally, we extract the effect size estimates from each
+model and test whether they are moderated by matrix size and block using
+linear regression without random effects, as the data are aggregated
+coefficients.
 
 \section{Results}\label{results}
 
 As a preliminary sanity check, we confirmed that RTs decreased across
-blocks (\(\beta\) = -X.XX, p \textless{} .001), establishing that
-performance improvement occurred.
+blocks (\(\beta\) = -0.01, \(t\) = -11.72, \(p\) \textless{} .001, 95\%
+CI {[}-0.007, -0.005{]}), establishing that performance improvement
+occurred.
 
 \subsection{Surprisal and Previous Position Entropy
 Effects}\label{surprisal-and-previous-position-entropy-effects}
 
-\subsection{State Space Size Effect}\label{state-space-size-effect}
-
 We first determined the optimal effects structure using final-block
 data, comparing candidate models by summing AIC values across all five
-matrix sizes. This comparison favored the maximal random effects
-structure
-\texttt{(surprisal\ ×\ prev\_entropy\ \textbar{}\textbar{}\ subject)\ +\ (1\ \textbar{}\ position)}
-over simpler alternatives, and the full fixed effects model
-\texttt{surprisal\ ×\ prev\_entropy\ +\ is\_repetition} over nested
-versions. This structure converged without singularity across all 100
-models (20 blocks × 5 conditions), and is therefore used for all
-subsequent analyses.
+matrix sizes. This comparison favored the model:
+\texttt{log\_rt\ \textasciitilde{}\ surprisal\_c\ *\ prev\_entropy\_c\ +\ is\_repetition\ +\ (surprisal\_c\ *\ prev\_entropy\_c\ \textbar{}\textbar{}\ subject\_id)\ +\ (1\ \textbar{}\ position)}
+
+We then fit this model structure each block in each matrix size
+condition separately, further pruning the random effets structure until
+all models converge. This pruning favored a simpler random effects
+structure, resulting in the following final model:
+\texttt{log\_rt\ \textasciitilde{}\ surprisal\_c\ *\ prev\_entropy\_c\ +\ is\_repetition\ +\ (prev\_entropy\_c\textbar{}\ subject\_id)\ +\ (1\ \textbar{}\ position)}
+
+In all blocks across all matrix sizes, this model revealed significant
+effects for all predictors (Table \ref{tab:h1h2-results}). This
+structure converged without singularity across all 100 models (20 blocks
+× 5 conditions) and is therefore used for all subsequent analyses.
+
+\begin{table}[t]
+\centering
+\caption{Fixed effects from all per-block models (100 total: 20 blocks × 5 matrix sizes)}
+\label{tab:h1h2-results}
+
+\begin{tabular*}{\columnwidth}{@{} l @{\extracolsep{\fill}} r r r @{}}
+\toprule
+Predictor & Mean $\beta$ & Mean \textit{t} & \textit{p} \\
+\midrule
+Surprisal & 0.025 & 3.16 & $< .001$ \\
+Previous Entropy & 0.044 & 2.41 & $< .001$ \\
+Surprisal $\times$ Entropy & -0.001 & -0.15 & $< .001$ \\
+Repetition & -0.185 & -10.18 & $< .001$ \\
+\bottomrule
+\end{tabular*}
+
+\end{table}
+
+\subsection{State Space Size Effect}\label{state-space-size-effect}
 
 To examine learning trajectories, we fit this selected model structure
 separately to each block within each matrix size condition, yielding 100
@@ -627,6 +648,12 @@ state space sizes.
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-barr_random_2013}
+Barr, D. J., Levy, R., Scheepers, C., \& Tily, H. J. (2013). Random
+effects structure for confirmatory hypothesis testing: {Keep} it
+maximal. \emph{Journal of Memory and Language}, \emph{68}(3), 255--278.
+\url{https://doi.org/10.1016/j.jml.2012.11.001}
+
 \bibitem[\citeproctext]{ref-farkas_complexity_2024}
 Farkas, B. C., Krajcsi, A., Janacsek, K., \& Nemeth, D. (2024). The
 complexity of measuring reliability in learning tasks: {An} illustration
@@ -673,6 +700,12 @@ Kidd, E., \& Arciuli, J. (2016). Individual {Differences} in
 {Statistical} {Learning} {Predict} {Children}'s {Comprehension} of
 {Syntax}. \emph{Child Development}, \emph{87}(1), 184--193.
 \url{https://doi.org/10.1111/cdev.12461}
+
+\bibitem[\citeproctext]{ref-kuznetsova_lmertest_2017}
+Kuznetsova, A., Brockhoff, P. B., \& Christensen, R. H. B. (2017).
+{lmerTest} {Package}: {Tests} in {Linear} {Mixed} {Effects} {Models}.
+\emph{Journal of Statistical Software}, \emph{82}(13), 1--26.
+\url{https://doi.org/10.18637/jss.v082.i13}
 
 \bibitem[\citeproctext]{ref-lammertink_statistical_2017}
 Lammertink, I., Boersma, P., Wijnen, F., \& Rispens, J. (2017).
