@@ -990,7 +990,25 @@ cat("\\end{table}\n")
 ```
 
 ## State Space Size Effect
-To examine learning trajectories, we fit this selected model structure separately to each block within each matrix size condition, yielding 100 models total (20 blocks × 5 conditions). This approach allows us to track how sensitivity to surprisal and entropy emerges and changes over the course of learning, and whether these trajectories differ across state space sizes.
+To examine learning trajectories, we fit this selected model structure separately to each block within each matrix size condition, yielding 100 models total (20 blocks × 5 conditions). To test whether the effects of surprisal, previous position entropy, and their interaction were moderated by matrix size and block, we first extracted the fixed effect estimates from the 100 models. We then fit linear models predicting each effect size as a function of matrix size, block, and their interaction. This approach allows us to assess how sensitivity to surprisal and entropy emerges and changes over the course of learning, and whether these trajectories differ across state space sizes.
+  
+The results (@fig-h3-surprisal-by-block) shows an increasing trend for surprisal effect on learning over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_surprisal))["block_c", "Estimate"])`, p<0.001), with smaller matrix sizes having a significant larger effect compared to larger matrix sizes ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_surprisal))["matrix_size_c", "Estimate"])`, p<0.001). 
+
+Similarly, as @fig-h3-entropy-by-block shows, previous entropy has an increasing trend over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["block_c", "Estimate"])`, p<0.001), with smaller matrix sizes showing a larger effect ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["matrix_size_c", "Estimate"])`, p<0.001). The interaction between matrix size and block is also significant for previous entropy effects, indicating that the increase in previous entropy effect over blocks is more pronounced for smaller matrix sizes ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["matrix_size_c:block_c", "Estimate"])`, p<0.01).
+
+The interaction effect between surprisal and previous entropy (@fig-h3-interaction-by-block) shows a decreasing trend over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_interaction))["block_c", "Estimate"])`, p<0.01), indicating that the modulation of surprisal effects by previous entropy becomes less pronounced with learning. However, neither matrix size nor the interaction between matrix size and block significantly predicted the interaction effect, suggesting that this trend is consistent across different state space sizes.
+
+To learn about the effect of repetition is also moderated by matrix size and learning blocks, we also ran a model predicting repetition effects from matrix size, block, and their interaction. The results indicate that repetition effects do not significantly change over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_repetition))["block_c", "Estimate"])`), but differ by matrix size ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_repetition))["matrix_size_c", "Estimate"])`), and the interactions of them ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_repetition))["matrix_size_c:block_c", "Estimate"])`), suggesting that the effect of repetition is stable over learning but varies across different state space sizes.
+
+<!-- TODO: make sure the figures can render -->
+>
+
+![The interaction between surprisal and previous entropy effect across learning blocks]("../plots/h3_surprisal_by_block_2.png"){#fig-h3-suprprisal-by-block width=100%}
+
+![Previous entropy effect across learning blocks]("../plots/h3_entropy_by_block_2.png"){#fig-h3-entropy-by-block width=100%}
+
+![Surprisal effect across learning blocks]("../plots/h3_interaction_by_block_2.png"){#fig-h3-interaction-by-block width=100%}
+
 
 ```{r echo:false, include:false}
 #| label: H3 models - matrix size moderation
