@@ -21,10 +21,14 @@ format:
     csl: apa.csl
 bibliography: procedural-learning_bibliography.bib
 editor: source
+execute:
+    echo: false
+    warning: false
+    message: false
+    include: false
 ---
 ```{r echo:false, include:false}
 #| label: Load R libraries
-#| output: false
 
 library(here)
 library(osfr)
@@ -114,7 +118,6 @@ We recruited `r overall_N` participants (`r n_female` female, `r n_male` male) t
 ## Experiment Design
 ```{r echo:false, include:false}
 #| label: Experiment configs that stay constant across participants
-#| output: false
 
 EXPERIMENT_CONFIG <- list(
     osf_id_4x4 = "Emfhw",
@@ -257,7 +260,6 @@ The five original matrices we constructed using this algorithm had these propert
 # Statistical Analysis
 ```{r echo:false, include:false}
 #| label: Retrieve data from OSF
-#| output: false
 #| eval: false
 
 # NOTE: Set eval=true only when you need to download data from OSF for the first time.
@@ -286,7 +288,6 @@ files_8x8 <- osf_retrieve_node(EXPERIMENT_CONFIG$osf_id_8x8) %>%
 
 ```{r echo:false, include:false}
 #| label: List local data files
-#| output: false
 
 # But there is some bug in osfr that causes one file name to be duplicated and one file name to be skipped, so alternatively just download manually from OSF and put in data/ folder:
 files_4x4 <- list.files("data/4x4-data")
@@ -295,14 +296,8 @@ files_6x6 <- list.files("data/6x6-data")
 files_7x7 <- list.files("data/7x7-data")
 files_8x8 <- list.files("data/8x8-data")
 ```
-<<<<<<< Updated upstream
 ```{r echo:false, include:false}
-=======
-
-```{r}
->>>>>>> Stashed changes
 #| label: Bind all data together
-#| output: false
 
 # Cache df.raw to speed up rendering
 df_raw_cache <- here("data/processed/df_raw.rds")
@@ -323,14 +318,12 @@ if (file.exists(df_raw_cache)) {
 
 ```{r echo:false, include:false}
 #| label: Filter out unnecessary columns
-#| output: false
 
 df <- subset(df.raw, select = c(trial_index, subject_id, matrix_size, trials_per_block, total_trials, practice_trials, transition_matrix, conditional_entropies, phase, block, experiment_trial_type, trial_in_block, overall_trial, position, correct_key, response, correct, rt, conditional_entropy, surprisal, questionnaire_item))
 ```
 
 ```{r echo:false, include:false}
 #| label: Clean up data formatting
-#| output: false
 
 # Convert NA values
 df <- df %>%
@@ -362,7 +355,6 @@ df <- df %>%
 
 ```{r echo:false, include:false}
 #| label: Center matrix_size and block
-#| output: false
 
 df <- df %>%
     mutate(
@@ -373,7 +365,6 @@ df <- df %>%
 
 ```{r echo:false, include:false}
 #| label: Fill down overall_trial, trial_in_block, block
-#| output: false
 
 df <- df %>%
     group_by(subject_id) %>%
@@ -405,7 +396,6 @@ df <- df %>%
 
 ```{r echo:false, include:false}
 #| label: Sanity check for unique subject_ids, matrix size, total number of trials, practice trials, transition matrices, conditional entropies and sequences across subjects and conditions
-#| output: false
 
 unique_subjects <- unique(df$subject_id)
 
@@ -441,7 +431,6 @@ df <- df[, !(names(df) %in% c("transition_matrix", "conditional_entropies"))]
 
 ```{r echo:false, include:false}
 #| label: Separate practice, main and questionnaire sections
-#| output: false
 
 df.practice <- df[df$phase == "practice", ]
 df.questionnaire <- df[df$phase == "questionnaire", ]
@@ -450,10 +439,9 @@ df <- df[df$phase == "main", ]
 
 ```{r echo:false, include:false}
 #| label: exclude-subjects
-#| output: false
 
 # Exclude subjects that
-# 1. Made too many mistakes (more than 15%)
+# 1. Made too many mistakes (more than 10%)
 # 2. Have too long response time (look at mean, median and spread)
 # -> exclude if too slow--the subject's median_rt > 1000ms
 # -> or if too noisy--more than 20% of their trials are 3*mad higher than the subject's median_rt
@@ -484,7 +472,6 @@ df <- df %>%
 
 ```{r echo:false, include:false}
 #| label: Filter df down to only stimulus, non-retry trials
-#| output: false
 
 df <- df %>%
     filter(experiment_trial_type == "stimulus" & !is.na(rt) & rt != 0)
@@ -492,7 +479,6 @@ df <- df %>%
 
 ```{r echo:false, include:false}
 #| label: Remove first trial of each block
-#| output: false
 
 df <- df %>%
     group_by(block, subject_id) %>%
@@ -501,7 +487,6 @@ df <- df %>%
 
 ```{r echo:false, include:false}
 #| label: Make a new column for log(rt), previous position entropy, prev_entropy_c, surprisal_c, is_repetition
-#| output: false
 
 # Cache fully processed df
 df_processed_cache <- here("data/processed/df_processed.rds")
@@ -526,7 +511,6 @@ if (file.exists(df_processed_cache)) {
 
 ```{r echo:false, include:false}
 #| label: Make subset of df with only correct trials
-#| output: false
 
 # Cache correct trials df
 df_correct_cache <- here("data/processed/df_correct.rds")
@@ -565,24 +549,6 @@ df.m_h0.correct <- df.correct
 
 ```{r echo:false, include:false}
 #| label: H0 Learning effect lmer models
-<<<<<<< Updated upstream
-#| echo: false
-# (filter for correct trials and group by matrix_size)
-m_h0_rt_model_cache <- here("models/H0/m_h0_rt.rds")
-m_h0_acc_model_cache <- here("models/H0/m_h0_acc.rds")
-
-if (file.exists(m_h0_rt_model_cache)) {
-  m_h0_rt <- readRDS(m_h0_rt_model_cache)
-} else {
-  m_h0_rt <- 
-    lmer(log_rt ~ block_c * is_repetition + (block_c * is_repetition| subject_id) + (1 | position),
-                  data=df.m_h0.correct,
-                  REML=FALSE, 
-                  control=lmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_h0_rt, m_h0_rt_model_cache)
-}
-=======
-#| output: false
 #| eval: false
 
 m_h0_rt <-
@@ -591,25 +557,10 @@ m_h0_rt <-
         REML = FALSE,
         control = lmerControl(optimizer = "bobyqa")
     ) # can change
->>>>>>> Stashed changes
 
 summary(m_h0_rt)
 
 df.m_h0.correct <- df.correct %>%
-<<<<<<< Updated upstream
-  group_by(matrix_size)
-
-if (file.exists(m_h0_acc_model_cache)) {
-  m_h0_acc <- readRDS(m_h0_acc_model_cache)
-} else {  
-  m_h0_acc <- 
-    glmer(correct ~ block_c + is_repetition + (block_c | subject_id) + (1 | position),  
-          data=df.m_h0,  
-          family=binomial, 
-          control=glmerControl(optimizer="bobyqa")) # can change
-  saveRDS(m_h0_acc, m_h0_acc_model_cache)
-}
-=======
     group_by(matrix_size)
 
 m_h0_acc <-
@@ -618,7 +569,6 @@ m_h0_acc <-
         family = binomial,
         control = glmerControl(optimizer = "bobyqa")
     ) # can change
->>>>>>> Stashed changes
 
 summary(m_h0_acc)
 ```
@@ -629,9 +579,6 @@ As a preliminary sanity check, we confirmed that RTs decreased across blocks ($\
 <!-- H1 & H2: final block only; base model -->
 ```{r echo:false, include:false}
 #| label: H1H2 Effect lmer models
-#| output: false
-
-# (filter for last block only, for each matrix_size)
 
 df.m_h1h2.finalblock <- df %>%
     filter(block == EXPERIMENT_CONFIG[["n_blocks"]] - 1)
@@ -651,14 +598,9 @@ model_summaries[2]
 ```
 
 <!-- H1 & H2: final block only; pruning random effects -->
-<<<<<<< Updated upstream
 ```{r echo:false, include:false}
-=======
-```{r}
-#| label: H1H2 Effect lmer models - random effects pruning
-#| output: false
+#| label: H1H2 Prune random effects
 
->>>>>>> Stashed changes
 model_structures_random_slope <- list(
     base = "(surprisal_c * prev_entropy_c || subject_id) + (1 | position)",
     main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
@@ -699,7 +641,6 @@ aic_table_random_slope <- map_dfr(
     }
 )
 
-<<<<<<< Updated upstream
 # need to check isSingular first, if there is any, we exclude the model formula for all conditions
 # aic_table_random_slope %>% 
 #  filter(aic_table_random_slope$isSingular == TRUE)
@@ -715,22 +656,8 @@ aic_table_random_slope %>%
 
 <!-- H1 & H2: final block only; pruning fixed effects -->
 ```{r echo:false, include:false}
-=======
-aic_table_random_slope %>%
-    filter(aic_table_random_slope$isSingular == FALSE) %>%
-    group_by(model) %>%
-    summarise(total_AIC = sum(AIC)) %>%
-    arrange(total_AIC)
-# group_by(matrix_size) %>%
-# arrange(matrix_size, AIC)
-```
+#| label: H1H2 Prune fixed effects
 
-<!-- H1 & H2: final block only; pruning fixed effects -->
-```{r}
-#| label: H1H2 Effect lmer models - fixed effects pruning
-#| output: false
-
->>>>>>> Stashed changes
 model_structures_fixed_effect <- list(
     base = "surprisal_c * prev_entropy_c + is_repetition",
     no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
@@ -772,7 +699,6 @@ aic_table_fixed_effect <- map_dfr(
     }
 )
 
-<<<<<<< Updated upstream
 # need to check isSingular first, if there is any, we exclude the model formula for all conditions
 # aic_table_fixed_effect %>% 
 #  filter(aic_table_fixed_effect$isSingular == TRUE)
@@ -784,24 +710,12 @@ aic_table_fixed_effect %>%
   arrange(total_AIC)
   #group_by(matrix_size) %>% 
   #arrange(matrix_size, AIC)
-=======
-aic_table_fixed_effect %>%
-    filter(aic_table_fixed_effect$isSingular == FALSE) %>%
-    group_by(model) %>%
-    summarise(total_AIC = sum(AIC)) %>%
-    arrange(total_AIC) 
->>>>>>> Stashed changes
 ```
-    
-<!-- H1 & H2: final block only; fixed effects plots -->
-<<<<<<< Updated upstream
-```{r echo:false, include:false}
-=======
-```{r}
-#| label: H1H2 Effect lmer models - fixed effects plots
-#| output: false
 
->>>>>>> Stashed changes
+<!-- H1 & H2: final block only; pruning fixed effects plots-->
+```{r echo:false, include:false}
+#| label: H1H2 Fixed effects plots
+
 theme_set(theme_minimal())
 
 effects_df <- map_dfr(
@@ -821,8 +735,7 @@ effects_df <- map_dfr(
 
 # effects_df$matrix_size <- as.numeric(effects_df$matrix_size)
 
-<<<<<<< Updated upstream
-ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term)) +
+ggplot(effects_df, aes(x = matrix_size_c, y = estimate, color = term, group = term)) +
   geom_line() +
   geom_point() +
   geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
@@ -831,81 +744,16 @@ ggplot(effects_df, aes(x = matrix_size, y = estimate, color = term, group = term
   theme_minimal()
 ```
 
-<!-- H1 & H2: learning trajectories; across blocks per condition -->
-```{r echo:false, include:false}
-data.m_h1h2_all_blocks <- df %>% filter(!is.infinite(log_rt))
-
-data_list_all_blocks <- split(data.m_h1h2_all_blocks, data.m_h1h2_all_blocks$matrix_size)
-
-models_all <- map(data_list_all_blocks, ~ lmer(
-  log_rt ~ surprisal_c * prev_entropy_c * block_c + block_c * is_repetition +
-    (surprisal_c + prev_entropy_c + is_repetition + block_c | subject_id) + (1 | position),
-  data = .x, 
-  REML=FALSE,
-  control=lmerControl(optimizer="bobyqa")))
-
-# to save
-iwalk(models_all, function(model, name) {
-  saveRDS(model, paste0("../models/all_block_per_condition/all_block_models_", name, ".rds"))
-})
-
-# to read
-# model_names <- c("4", "5", "6", "7", "8")
-# models_all <- map(model_names, ~ readRDS(paste0("../models/all_block_per_condition/all_block_models_", .x, ".rds")))
-# names(models_all) <- model_names
-
-model_summaries_all_blocks <- map(models_all, summary)
-model_summaries_all_blocks[5]
-```
-
 <!-- H1 & H2: learning trajectories; per block per condition -->
 ```{r echo:false, include:false}
+#| label: H1H2 Learning trajectories per block per condition
+
 cur_condition <- 4
 data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
-=======
-p_h1h2_fixed_effects_finalblock <- ggplot(effects_df, aes(x = matrix_size_c, y = estimate, color = term, group = term)) +
-    geom_line() +
-    geom_point() +
-    geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.2) +
-    geom_text(aes(label = sig_label), vjust = -1.2, size = 5, show.legend = FALSE)
-labs(x = "Matrix Size (zero-centered)", y = "Effect Estimate", color = "Parameter") +
-    theme_minimal()
-ggsave(p_h1h2_fixed_effects_finalblock, file = "../plots/h1h2_finalblock.png")
-```
-
-<!-- H1 & H2: learning trajectories; per block per condition -->
-```{r}
-cur_condition <- 8
-data_m4 <- subset(df, matrix_size == cur_condition) # can change
->>>>>>> Stashed changes
 
 data_list_block <- split(data_m4, data_m4$block)
 
 # random effects: (prev_entropy_c | subject_id) + (1 | position) no singular fit for all conditions
-<<<<<<< Updated upstream
-models_block <- map2(names(data_list_block),
-  data_list_block,
-  function(name, dat) {
-      model_path <- paste0("../models/per_block_condition_", cur_condition, "/model_block_", name, ".rds") 
-    dir_path <- dirname(model_path)
-    if (!dir.exists(dir_path)) dir.create(dir_path, recursive = TRUE)
-    if (file.exists(model_path)) {
-        readRDS(model_path)
-    } else {
-        m <- lmer(
-          log_rt ~ surprisal_c * prev_entropy_c + is_repetition + 
-          (prev_entropy_c | subject_id) + (1 | position),
-        data = dat, 
-        REML = FALSE,
-        control = lmerControl(optimizer = "bobyqa")
-      )
-      saveRDS(m, model_path)
-      m
-    }
-  }
-) %>% set_names(names(data_list_block))
-  
-=======
 models_block <- map2(
     names(data_list_block),
     data_list_block,
@@ -929,171 +777,14 @@ models_block <- map2(
     }
 )
 
->>>>>>> Stashed changes
 model_summaries_block <- map(models_block, summary)
 model_summaries_block[10]
 ```
 
-<!-- H1 & H2: learning trajectories; per block per condition; pruning random effects -->
-```{r echo:false, include:false}
-model_structures_random_slope <- list(
-<<<<<<< Updated upstream
-  base = "(prev_entropy_c | subject_id) + (1 | position)",
-  s_only = "(surprisal_c | subject_id) + (1 | position)",
-  rep_only = "(is_repetition | subject_id) + (1 | position)",
-  intercept = "(1 | subject_id) + (1 | position)"
-=======
-    base = "(prev_entropy_c | subject_id) + (1 | position)",
-    main = "(surprisal_c + prev_entropy_c || subject_id) + (1 | position)",
-    s_only = "(surprisal_c | subject_id) + (1 | position)",
-    e_only = "(prev_entropy_c | subject_id) + (1 | position)",
-    intercept = "(1 | subject_id) + (1 | position)"
->>>>>>> Stashed changes
-)
-
-# 4: base, 5: base, 6: base, 7: base, 8: base
-cur_condition <- 4
-data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
-data_list_block <- split(data_m4, data_m4$block)
-
-all_models_random_slope <- map(
-<<<<<<< Updated upstream
-  model_structures_random_slope,
-  ~ map(data_list_block, function(dat) {
-    lmer(
-      as.formula(
-        paste0("log_rt ~ surprisal_c * prev_entropy_c + is_repetition + ", .x)
-      ),
-      data = dat,
-      REML = FALSE,
-      control = lmerControl(optimizer = "bobyqa")
-    )
-  })
-=======
-    model_structures_random_slope,
-    ~ map(data_list, function(dat) {
-        lmer(
-            as.formula(
-                paste0("log_rt ~ surprisal_c * prev_entropy_c + is_repetition + ", .x)
-            ),
-            data = dat,
-            REML = FALSE,
-            control = lmerControl(optimizer = "bobyqa")
-        )
-    })
->>>>>>> Stashed changes
-)
-
-aic_table_random_slope <- map_dfr(
-    names(all_models_random_slope),
-    function(model_name) {
-        map_dfr(
-            names(all_models_random_slope[[model_name]]),
-            function(cond) {
-                m <- all_models_random_slope[[model_name]][[cond]]
-                data.frame(
-                    model = model_name,
-                    matrix_size = cond,
-                    AIC = AIC(m),
-                    isSingular = isSingular(m)
-                )
-            }
-        )
-    }
-)
-
-<<<<<<< Updated upstream
-aic_table_random_slope %>% 
-  filter(aic_table_random_slope$isSingular == TRUE)
-
-aic_table_random_slope %>% 
-  filter(aic_table_random_slope$isSingular == FALSE) %>% 
-  group_by(model) %>%
-  summarise(total_AIC = sum(AIC)) %>%
-  arrange(total_AIC)
-  #group_by(matrix_size) %>% 
-  #arrange(matrix_size, AIC)
-=======
-aic_table_random_slope %>%
-    filter(aic_table_random_slope$isSingular == FALSE) %>%
-    group_by(model) %>%
-    summarise(total_AIC = sum(AIC)) %>%
-    arrange(total_AIC)
-# group_by(matrix_size) %>%
-# arrange(matrix_size, AIC)
->>>>>>> Stashed changes
-```
-
-<!-- H1 & H2: learning trajectories; per block per condition; pruning fixed effects -->
-```{r echo:false, include:false}
-model_structures_fixed_effect <- list(
-  base = "surprisal_c * prev_entropy_c + is_repetition",
-  no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
-  no_is_repetition = "surprisal_c * prev_entropy_c",
-  only_main = "surprisal_c + prev_entropy_c",
-  surprisal_is_repetition = "surprisal_c + is_repetition",
-  entropy_is_repetition = "prev_entropy_c + is_repetition"
-)
-
-# 4: no_interaction < base, 5: base < no_interaction, 6: no_interaction < base, 7: base < no_interaction, 8: no_interaction < base
-cur_condition <- 8
-data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
-data_list_block <- split(data_m4, data_m4$block)
-
-all_models_fixed_effect <- map(
-  model_structures_fixed_effect,
-  ~ map(data_list_block, function(dat) {
-    lmer(
-      as.formula(
-        paste0("log_rt ~ ", .x, " + (prev_entropy_c | subject_id) + (1 | position)")
-      ),
-      data = dat,
-      REML = FALSE,
-      control = lmerControl(optimizer = "bobyqa")
-    )
-  })
-)
-
-aic_table_fixed_effect <- map_dfr(
-  names(all_models_fixed_effect),
-  function(model_name) {
-    map_dfr(
-      names(all_models_fixed_effect[[model_name]]),
-      function(cond) {
-        m <- all_models_fixed_effect[[model_name]][[cond]]
-        data.frame(
-          model = model_name,
-          matrix_size = cond,
-          AIC = AIC(m),
-          isSingular = isSingular(m)
-        )
-      }
-    )
-  }
-)
-
-# need to check isSingular first, if there is any, we exclude the model formula for all conditions
-aic_table_fixed_effect %>% 
-  filter(aic_table_fixed_effect$isSingular == TRUE)
-
-aic_table_fixed_effect %>% 
-  filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
-  group_by(model) %>%
-  summarise(total_AIC = sum(AIC)) %>%
-  arrange(total_AIC)
-  #group_by(matrix_size) %>% 
-  #arrange(matrix_size, AIC)
-```
-
 <!-- H1 & H2: learning trajectories; fixed effects plots per block per condition-->
-<<<<<<< Updated upstream
 ```{r echo:false, include:false}
-=======
-```{r}
+#| label: H1H2 Fixed effects plots per block per condition
 
-theme(set=theme_minimal())
-
->>>>>>> Stashed changes
 effects_block <- map_dfr(
   seq_along(models_block),
   ~ {
@@ -1129,27 +820,15 @@ p_h1h2_fixed_effects <- ggplot(effects_block, aes(x = block_c, y = estimate, col
 ggsave(p_h1h2_fixed_effects, file = "../plots/h1h2_fixed_effects.png")
 ```
 
-<<<<<<< Updated upstream
-## H3
-```{r echo:false, include:false}
-#| label: Num positions effect lmer models
-#| echo: true
-#| include: true
-# (filter for correct trials and group by matrix_size and block)
-=======
+
+## State Space Size Effect
+
 We first determined the optimal effects structure using final-block data, comparing candidate models by summing AIC values across all five matrix sizes. This comparison favored the maximal random effects structure `(surprisal × prev_entropy || subject) + (1 | position)` over simpler alternatives, and the full fixed effects model `surprisal × prev_entropy + is_repetition` over nested versions. This structure converged without singularity across all 100 models (20 blocks × 5 conditions), and is therefore used for all subsequent analyses.
->>>>>>> Stashed changes
 
 To examine learning trajectories, we fit this selected model structure separately to each block within each matrix size condition, yielding 100 models total (20 blocks × 5 conditions). This approach allows us to track how sensitivity to surprisal and entropy emerges and changes over the course of learning, and whether these trajectories differ across state space sizes. 
 
-<<<<<<< Updated upstream
 ```{r echo:false, include:false}
-=======
-## State Space Size Effect
-```{r}
->>>>>>> Stashed changes
 #| label: Extract coefficients from per-block models
-#| output: false
 
 # Extract coefficients from all per-block models across all conditions
 # This creates a dataframe with: matrix_size, block, and coefficient estimates
@@ -1223,49 +902,43 @@ summary(m_h3_repetition)
 
 ```{r echo:false, include:false}
 #| label: H3 visualization
-#| output: false
-
-# Create plots directory if it doesn't exist
-dir.create("plots", showWarnings = FALSE)
-
-# Visualize how effects change across matrix size and block
 
 # Plot surprisal effect
-p1 <- ggplot(coef_df, aes(x = block_c, y = surprisal, color = matrix_size_c, group = matrix_size_c)) +
+p1 <- ggplot(coef_df, aes(x = block, y = surprisal, color = matrix_size, group = matrix_size)) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
     geom_point(alpha = 0.3) +
     labs(
         title = "H1: Surprisal Effect Across Learning",
-        x = "Block (zero-centered)", y = "Surprisal Coefficient", color = "Matrix Size (zero-centered)"
+        x = "Block", y = "Surprisal Coefficient", color = "Matrix Size"
     ) +
     theme_minimal()
-ggsave("../plots/h3_surprisal_by_block.png", p1, width = 8, height = 6, dpi = 300)
+ggsave(here("plots", "h3_surprisal_by_block.png"), p1, width = 8, height = 6, dpi = 300)
 
 # Plot entropy effect
-p2 <- ggplot(coef_df, aes(x = block_c, y = prev_entropy, color = matrix_size_c, group = matrix_size_c)) +
+p2 <- ggplot(coef_df, aes(x = block, y = prev_entropy, color = matrix_size, group = matrix_size)) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
     geom_point(alpha = 0.3) +
     labs(
         title = "H2: Entropy Effect Across Learning",
-        x = "Block (zero-centered)", y = "Previous Entropy Coefficient", color = "Matrix Size (zero-centered)"
+        x = "Block", y = "Previous Entropy Coefficient", color = "Matrix Size"
     ) +
     theme_minimal()
-ggsave("../plots/h3_entropy_by_block.png", p2, width = 8, height = 6, dpi = 300)
+ggsave(here("plots", "h3_entropy_by_block.png"), p2, width = 8, height = 6, dpi = 300)
 
 # Plot interaction effect
-p3 <- ggplot(coef_df, aes(x = block_c, y = interaction, color = matrix_size_c, group = matrix_size_c)) +
+p3 <- ggplot(coef_df, aes(x = block, y = interaction, color = matrix_size, group = matrix_size)) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
     geom_point(alpha = 0.3) +
     labs(
         title = "H2: Surprisal × Entropy Interaction Across Learning",
-        x = "Block (zero-centered)", y = "Interaction Coefficient", color = "Matrix Size (zero-centered)"
+        x = "Block", y = "Interaction Coefficient", color = "Matrix Size"
     ) +
     theme_minimal()
-ggsave("../plots/h3_interaction_by_block.png", p3, width = 8, height = 6, dpi = 300)
+ggsave(here("plots", "h3_interaction_by_block.png"), p3, width = 8, height = 6, dpi = 300)
 
 # Plot matrix size effect (averaging across blocks)
 coef_summary <- coef_df %>%
-    group_by(matrix_size_c, matrix_size_num) %>%
+    group_by(matrix_size, matrix_size_num) %>%
     summarize(
         surprisal_mean = mean(surprisal, na.rm = TRUE),
         surprisal_se = sd(surprisal, na.rm = TRUE) / sqrt(n()),
@@ -1296,10 +969,10 @@ p4 <- ggplot(coef_summary, aes(x = matrix_size_num)) +
     ) +
     labs(
         title = "H3: Effect Size by Matrix Size (Averaged Across Blocks)",
-        x = "Matrix Size (zero-centered)", y = "Coefficient Estimate", color = "Effect"
+        x = "Matrix Size", y = "Coefficient Estimate", color = "Effect"
     ) +
     theme_minimal()
-ggsave("../plots/h3_effects_by_matrix_size.png", p4, width = 8, height = 6, dpi = 300)
+ggsave(here("plots", "h3_effects_by_matrix_size.png"), p4, width = 8, height = 6, dpi = 300)
 ```
 
 
