@@ -875,67 +875,6 @@ aic_table_random_slope %>%
 ```
 
 <!-- H1 & H2: learning trajectories; per block per condition; pruning fixed effects -->
-```{r}
-model_structures_fixed_effect <- list(
-  base = "surprisal_c * prev_entropy_c + is_repetition",
-  no_interaction = "surprisal_c + prev_entropy_c + is_repetition",
-  no_is_repetition = "surprisal_c * prev_entropy_c",
-  only_main = "surprisal_c + prev_entropy_c",
-  surprisal_is_repetition = "surprisal_c + is_repetition",
-  entropy_is_repetition = "prev_entropy_c + is_repetition"
-)
-
-# 4: no_interaction < base, 5: base < no_interaction, 6: no_interaction < base, 7: base < no_interaction, 8: no_interaction < base
-cur_condition <- 8
-data_m4 <- subset(df, matrix_size == cur_condition & !is.infinite(log_rt)) # can change
-data_list_block <- split(data_m4, data_m4$block)
-
-all_models_fixed_effect <- map(
-  model_structures_fixed_effect,
-  ~ map(data_list_block, function(dat) {
-    lmer(
-      as.formula(
-        paste0("log_rt ~ ", .x, " + (prev_entropy_c | subject_id) + (1 | position)")
-      ),
-      data = dat,
-      REML = FALSE,
-      control = lmerControl(optimizer = "bobyqa")
-    )
-  })
-)
-
-aic_table_fixed_effect <- map_dfr(
-  names(all_models_fixed_effect),
-  function(model_name) {
-    map_dfr(
-      names(all_models_fixed_effect[[model_name]]),
-      function(cond) {
-        m <- all_models_fixed_effect[[model_name]][[cond]]
-        data.frame(
-          model = model_name,
-          matrix_size = cond,
-          AIC = AIC(m),
-          isSingular = isSingular(m)
-        )
-      }
-    )
-  }
-)
-
-# need to check isSingular first, if there is any, we exclude the model formula for all conditions
-aic_table_fixed_effect %>% 
-  filter(aic_table_fixed_effect$isSingular == TRUE)
-
-aic_table_fixed_effect %>% 
-  filter(aic_table_fixed_effect$isSingular == FALSE) %>% 
-  group_by(model) %>%
-  summarise(total_AIC = sum(AIC)) %>%
-  arrange(total_AIC)
-  #group_by(matrix_size) %>% 
-  #arrange(matrix_size, AIC)
-```
-
-<!-- H1 & H2: learning trajectories; per block per condition; pruning fixed effects -->
 ```{r echo:false, include:false}
 model_structures_fixed_effect <- list(
   base = "surprisal_c * prev_entropy_c + is_repetition",
