@@ -606,27 +606,36 @@ all models converge. This pruning favored a simpler random effects
 structure, resulting in the following final model:
 \texttt{log\_rt\ \textasciitilde{}\ surprisal\_c\ *\ prev\_entropy\_c\ +\ is\_repetition\ +\ (prev\_entropy\_c\textbar{}\ subject\_id)\ +\ (1\ \textbar{}\ position)}
 
-In all blocks across all matrix sizes, this model revealed significant
-effects for all predictors (Table \ref{tab:h1h2-results}). This
-structure converged without singularity across all 100 models (20 blocks
-× 5 conditions) and is therefore used for all subsequent analyses.
+In the final block, all predicted effects were significant across all
+five matrix size conditions (Table \ref{tab:h1h2-results}). Higher
+surprisal transitions elicited slower responses, as did transitions
+following higher-entropy positions. The negative interaction indicates
+that surprisal effects were stronger following low-entropy (more
+predictable) positions, consistent with prediction-based learning.
+Repetitions showed faster responses, likely reflecting motor
+facilitation. This structure converged without singularity across all
+100 models (20 blocks × 5 conditions) and is therefore used for all
+subsequent analyses.
 
 \begin{table}[t]
 \centering
-\caption{Fixed effects from all per-block models (100 total: 20 blocks × 5 matrix sizes)}
+\caption{Fixed effects from final-block models across all matrix size conditions}
 \label{tab:h1h2-results}
 
 \begin{tabular*}{\columnwidth}{@{} l @{\extracolsep{\fill}} r r r @{}}
 \toprule
-Predictor & Mean $\beta$ & Mean \textit{t} & \textit{p} \\
+Predictor & Mean $\beta$ & Range & Sig. \\
 \midrule
-Surprisal & 0.024 & 3.28 &  \\
-Previous Entropy & 0.040 & 2.14 &  \\
-Surprisal $\times$ Entropy & -0.008 & -1.01 &  \\
-Repetition & -0.180 & -9.37 & *** \\
+Surprisal & 0.034 & [0.018, 0.046] & 5/5*** \\
+Previous Entropy & 0.056 & [0.027, 0.103] & 4/5 \\
+Surprisal $\times$ Entropy & -0.016 & [-0.033, -0.001] & 2/5 \\
+Repetition & -0.179 & [-0.278, -0.106] & 5/5*** \\
 \bottomrule
 \end{tabular*}
 
+\footnotesize
+\textit{Note.} Mean $\beta$ averaged across 5 matrix size conditions (4×4, 5×5, 6×6, 7×7, 8×8). \\
+Sig. = number of conditions with $p$ < .05; *** = all conditions $p$ < .001.
 \end{table}
 
 \subsection{State Space Size Effect}\label{state-space-size-effect}

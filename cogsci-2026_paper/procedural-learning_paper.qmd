@@ -866,7 +866,52 @@ coef_df <- map_dfr(condition_dirs, function(dir) {
     })
 })
 
+# Extract statistics from FINAL BLOCK ONLY (5 models, one per matrix size)
+# This is for H1/H2 hypothesis testing
+final_block <- max(coef_df$block)
+
+h1h2_finalblock_stats <- map_dfr(condition_dirs, function(dir) {
+    condition_num <- gsub(".*per_block_condition_(\\d+)", "\\1", dir)
+    matrix_size <- paste0(condition_num, "x", condition_num)
+
+    # Get only the final block model
+    final_block_file <- file.path(dir, paste0("model_block_", final_block, ".rds"))
+
+    if (file.exists(final_block_file)) {
+        m <- readRDS(final_block_file)
+        coef_summary <- summary(m)$coefficients
+        ci <- confint(m, method = "Wald")
+
+        data.frame(
+            matrix_size = matrix_size,
+            term = rownames(coef_summary),
+            estimate = coef_summary[, "Estimate"],
+            std_error = coef_summary[, "Std. Error"],
+            t_value = coef_summary[, "t value"],
+            p_value = coef_summary[, "Pr(>|t|)"],
+            ci_lower = ci[rownames(coef_summary), 1],
+            ci_upper = ci[rownames(coef_summary), 2]
+        ) %>%
+            filter(term %in% c("surprisal_c", "prev_entropy_c", "surprisal_c:prev_entropy_c", "is_repetitionTRUE"))
+    }
+})
+
+# Summary of final-block models (5 models, one per condition)
+h1h2_finalblock_summary <- h1h2_finalblock_stats %>%
+    group_by(term) %>%
+    summarise(
+        mean_estimate = mean(estimate),
+        min_estimate = min(estimate),
+        max_estimate = max(estimate),
+        mean_t = mean(t_value),
+        min_t = min(t_value),
+        max_t = max(t_value),
+        n_sig = sum(p_value < 0.05),
+        all_sig = all(p_value < 0.05)
+    )
+
 # Extract statistics from ALL per-block models (100 models total)
+# This is for H3 trajectory analysis
 h1h2_all_stats <- map_dfr(condition_dirs, function(dir) {
     condition_num <- gsub(".*per_block_condition_(\\d+)", "\\1", dir)
     matrix_size <- paste0(condition_num, "x", condition_num)
@@ -876,7 +921,7 @@ h1h2_all_stats <- map_dfr(condition_dirs, function(dir) {
         m <- readRDS(file)
         coef_summary <- summary(m)$coefficients
         ci <- confint(m, method = "Wald")
-        
+
         data.frame(
             matrix_size = matrix_size,
             block = block_num,
@@ -891,28 +936,13 @@ h1h2_all_stats <- map_dfr(condition_dirs, function(dir) {
             filter(term %in% c("surprisal_c", "prev_entropy_c", "surprisal_c:prev_entropy_c", "is_repetitionTRUE"))
     })
 })
-
-# Summary across all 100 models (all blocks, all matrix sizes)
-h1h2_summary <- h1h2_all_stats %>%
-    group_by(term) %>%
-    summarise(
-        mean_estimate = mean(estimate),
-        min_estimate = min(estimate),
-        max_estimate = max(estimate),
-        mean_t = mean(t_value),
-        min_t = min(t_value),
-        max_t = max(t_value),
-        mean_p = mean(p_value),
-        min_p = min(p_value),
-        max_p = max(p_value)
-    )
 ```
 
 We first determined the optimal effects structure using final-block data, comparing candidate models by summing AIC values across all five matrix sizes. This comparison favored the model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (surprisal_c * prev_entropy_c || subject_id) + (1 | position)`
 
 We then fit this model structure each block in each matrix size condition separately, further pruning the random effets structure until all models converge. This pruning favored a simpler random effects structure, resulting in the following final model: `log_rt ~ surprisal_c * prev_entropy_c + is_repetition + (prev_entropy_c| subject_id) + (1 | position)`
 
-In all blocks across all matrix sizes, this model revealed significant effects for all predictors (Table \ref{tab:h1h2-results}). This structure converged without singularity across all 100 models (20 blocks × 5 conditions) and is therefore used for all subsequent analyses.
+In the final block, all predicted effects were significant across all five matrix size conditions (Table \ref{tab:h1h2-results}). Higher surprisal transitions elicited slower responses, as did transitions following higher-entropy positions. The negative interaction indicates that surprisal effects were stronger following low-entropy (more predictable) positions, consistent with prediction-based learning. Repetitions showed faster responses, likely reflecting motor facilitation. This structure converged without singularity across all 100 models (20 blocks × 5 conditions) and is therefore used for all subsequent analyses.
 
 ```{r}
 #| echo: false
@@ -921,14 +951,14 @@ In all blocks across all matrix sizes, this model revealed significant effects f
 
 cat("\\begin{table}[t]\n")
 cat("\\centering\n")
-cat("\\caption{Fixed effects from all per-block models (100 total: 20 blocks × 5 matrix sizes)}\n")
+cat("\\caption{Fixed effects from final-block models across all matrix size conditions}\n")
 cat("\\label{tab:h1h2-results}\n\n")
 cat("\\begin{tabular*}{\\columnwidth}{@{} l @{\\extracolsep{\\fill}} r r r @{}}\n")
 cat("\\toprule\n")
-cat("Predictor & Mean $\\beta$ & Mean \\textit{t} & \\textit{p} \\\\\n")
+cat("Predictor & Mean $\\beta$ & Range & Sig. \\\\\n")
 cat("\\midrule\n")
 
-h1h2_latex_rows <- h1h2_summary %>%
+h1h2_latex_rows <- h1h2_finalblock_summary %>%
     mutate(
         term_label = case_when(
             term == "surprisal_c" ~ "Surprisal",
@@ -936,22 +966,26 @@ h1h2_latex_rows <- h1h2_summary %>%
             term == "surprisal_c:prev_entropy_c" ~ "Surprisal $\\times$ Entropy",
             term == "is_repetitionTRUE" ~ "Repetition"
         ),
-        sig_label = case_when(
-            mean_p < 0.001 ~ "***",
-            mean_p < 0.01 ~ "**",
-            mean_p < 0.05 ~ "*",
-            TRUE ~ ""
-        )
+        sig_label = if_else(all_sig, paste0(n_sig, "/5***"), paste0(n_sig, "/5"))
     ) %>%
     arrange(match(term, c("surprisal_c", "prev_entropy_c", "surprisal_c:prev_entropy_c", "is_repetitionTRUE"))) %>%
     transmute(
-        row = paste0(term_label, " & ", sprintf("%.3f", mean_estimate), " & ", sprintf("%.2f", mean_t), " & ", sig_label, " \\\\")
+        row = paste0(
+            term_label, " & ",
+            sprintf("%.3f", mean_estimate), " & [",
+            sprintf("%.3f", min_estimate), ", ",
+            sprintf("%.3f", max_estimate), "] & ",
+            sig_label, " \\\\"
+        )
     )
 
 cat(h1h2_latex_rows$row, sep = "\n")
 
 cat("\\bottomrule\n")
 cat("\\end{tabular*}\n\n")
+cat("\\footnotesize\n")
+cat("\\textit{Note.} Mean $\\beta$ averaged across 5 matrix size conditions (4×4, 5×5, 6×6, 7×7, 8×8). \\\\\n")
+cat("Sig. = number of conditions with $p$ < .05; *** = all conditions $p$ < .001.\n")
 cat("\\end{table}\n")
 ```
 
@@ -988,14 +1022,15 @@ summary(m_h3_repetition)
 library(ggrepel)
 
 # Plot surprisal effect
-p1 <- ggplot(coef_df, aes(x = block, y = surprisal, color = matrix_size, group = matrix_size)) +
+p1 <- ggplot(coef_df, aes(x = block+1, y = surprisal, color = matrix_size, fill = matrix_size, group = matrix_size)) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
-    geom_point(alpha = 0.3) +
+    geom_point(alpha = 0.4, stroke=NA) +
     geom_text_repel(
       data = coef_df %>%
         group_by(matrix_size) %>%
         summarise(
-          label_x = max(block),
+          label_x = max(block+1),
           y = coef(lm(surprisal ~ block))[1] + 
               coef(lm(surprisal ~ block))[2] * label_x
         ),
@@ -1007,20 +1042,31 @@ p1 <- ggplot(coef_df, aes(x = block, y = surprisal, color = matrix_size, group =
       segment.size = 0.3,
       show.legend = FALSE
     ) +
-    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
-    scale_y_continuous(limits = c(-0.05, 0.11)) + 
+    scale_x_continuous(breaks = seq(1, 20, by = 1)) +
+    scale_y_continuous(limits = c(-0.05, 0.11), breaks = seq(-0.05, 0.11, by = 0.02)) +
+    coord_cartesian(xlim = c(1, 20.5), clip = "off") +
     labs(
         title = "Surprisal Effect Across Learning",
         x = "Block", y = "Surprisal Coefficient", color = "Matrix Size"
     ) +
     theme_minimal() + 
-    theme(legend.position = "none")
-ggsave(here("plots", "h3_surprisal_by_block.png"), p1, width = 8, height = 6, dpi = 300)
+    theme(
+        legend.position = "none",
+        plot.title = element_text(family = "Times New Roman", face="bold", size=16, hjust=0.5),
+        axis.title.x = element_text(family = "Times New Roman", size = 14, color = "black"),
+        axis.title.y = element_text(family = "Times New Roman", size = 14, color = "black"),
+        panel.grid.minor = element_line(linewidth = 0.2),
+        panel.grid.major = element_line(linewidth = 0.25),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.5),
+        plot.margin = margin(5.5, 40, 5.5, 5.5)
+    )
+ggsave(here("plots", "h3_surprisal_by_block_2.png"), p1, width = 8, height = 6, dpi = 300)
 
 # Plot entropy effect
-p2 <- ggplot(coef_df, aes(x = block, y = prev_entropy, color = matrix_size, group = matrix_size)) +
+p2 <- ggplot(coef_df, aes(x = block, y = prev_entropy, color = matrix_size, fill = matrix_size, group = matrix_size)) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
-    geom_point(alpha = 0.3) +
+    geom_point(alpha = 0.4, stroke=NA) +
     geom_text_repel(
       data = coef_df %>%
         group_by(matrix_size) %>%
@@ -1037,20 +1083,31 @@ p2 <- ggplot(coef_df, aes(x = block, y = prev_entropy, color = matrix_size, grou
       segment.size = 0.3,
       show.legend = FALSE
     ) +
-    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
-    scale_y_continuous(limits = c(-0.05, 0.11)) +
+    scale_x_continuous(breaks = seq(1, 20, by = 1)) +
+    scale_y_continuous(limits = c(-0.05, 0.11), breaks = seq(-0.05, 0.11, by = 0.02)) +
+    coord_cartesian(xlim = c(0, 19.5), clip = "off") +
     labs(
-        title = "Effect Across Learning",
+        title = "Previous Entropy Effect Across Learning",
         x = "Block", y = "Previous Entropy Coefficient", color = "Matrix Size"
     ) +
     theme_minimal() + 
-    theme(legend.position = "none")
-ggsave(here("plots", "h3_entropy_by_block.png"), p2, width = 8, height = 6, dpi = 300)
+    theme(
+        legend.position = "none",
+        plot.title = element_text(family = "Times New Roman", face="bold", size=16, hjust=0.5),
+        axis.title.x = element_text(family = "Times New Roman", size = 14, color = "black"),
+        axis.title.y = element_text(family = "Times New Roman", size = 14, color = "black"),
+        panel.grid.minor = element_line(linewidth = 0.2),
+        panel.grid.major = element_line(linewidth = 0.25),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.3),
+        plot.margin = margin(5.5, 40, 5.5, 5.5)
+    )
+ggsave(here("plots", "h3_entropy_by_block_2.png"), p2, width = 8, height = 6, dpi = 300)
 
 # Plot interaction effect
-p3 <- ggplot(coef_df, aes(x = block, y = interaction, color = matrix_size, group = matrix_size)) +
+p3 <- ggplot(coef_df, aes(x = block, y = interaction, color = matrix_size, fill = matrix_size, group = matrix_size)) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
     geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
-    geom_point(alpha = 0.3) +
+    geom_point(alpha = 0.4, stroke=NA) +
     geom_text_repel(
       data = coef_df %>%
         group_by(matrix_size) %>%
@@ -1067,57 +1124,52 @@ p3 <- ggplot(coef_df, aes(x = block, y = interaction, color = matrix_size, group
       segment.size = 0.3,
       show.legend = FALSE
     ) +
-    scale_x_continuous(expand = expansion(mult = c(0, 0.1))) +
-    scale_y_continuous(limits = c(-0.05, 0.11)) +
+    scale_x_continuous(breaks = seq(1, 20, by = 1)) +
+    scale_y_continuous(limits = c(-0.05, 0.11), breaks = seq(-0.05, 0.11, by = 0.02)) +
+    coord_cartesian(xlim = c(0, 19.5), clip = "off") +
     labs(
         title = "Surprisal × Entropy Interaction Across Learning",
         x = "Block", y = "Interaction Coefficient", color = "Matrix Size"
     ) +
     theme_minimal() + 
-    theme(legend.position = "none")
-ggsave(here("plots", "h3_interaction_by_block.png"), p3, width = 8, height = 6, dpi = 300)
-
-# Plot matrix size effect (averaging across blocks)
-coef_summary <- coef_df %>%
-    group_by(matrix_size, matrix_size_num) %>%
-    summarize(
-        surprisal_mean = mean(surprisal, na.rm = TRUE),
-        surprisal_se = sd(surprisal, na.rm = TRUE) / sqrt(n()),
-        entropy_mean = mean(prev_entropy, na.rm = TRUE),
-        entropy_se = sd(prev_entropy, na.rm = TRUE) / sqrt(n()),
-        interaction_mean = mean(interaction, na.rm = TRUE),
-        interaction_se = sd(interaction, na.rm = TRUE) / sqrt(n())
+    theme(
+        legend.position = "none",
+        plot.title = element_text(family = "Times New Roman", face="bold", size=16, hjust=0.5),
+        axis.title.x = element_text(family = "Times New Roman", size = 14, color = "black"),
+        axis.title.y = element_text(family = "Times New Roman", size = 14, color = "black"),
+        panel.grid.minor = element_line(linewidth = 0.2),
+        panel.grid.major = element_line(linewidth = 0.25),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.3),
+        plot.margin = margin(5.5, 40, 5.5, 5.5)
     )
+ggsave(here("plots", "h3_interaction_by_block_2.png"), p3, width = 8, height = 6, dpi = 300)
 
-p4 <- ggplot(coef_summary, aes(x = matrix_size_num)) +
-    geom_line(aes(y = surprisal_mean, color = "Surprisal")) +
-    geom_point(aes(y = surprisal_mean, color = "Surprisal")) +
-    geom_errorbar(
-        aes(
-            ymin = surprisal_mean - surprisal_se,
-            ymax = surprisal_mean + surprisal_se, color = "Surprisal"
-        ),
-        width = 0.2
-    ) +
-    geom_line(aes(y = entropy_mean, color = "Entropy")) +
-    geom_point(aes(y = entropy_mean, color = "Entropy")) +
-    geom_errorbar(
-        aes(
-            ymin = entropy_mean - entropy_se,
-            ymax = entropy_mean + entropy_se, color = "Entropy"
-        ),
-        width = 0.2
-    ) +
-    labs(
-        title = "Effect Size by Matrix Size (Averaged Across Blocks)",
-        x = "Matrix Size", y = "Coefficient Estimate", color = "Effect"
-    ) +
-    theme_minimal()
-ggsave(here("plots", "h3_effects_by_matrix_size.png"), p4, width = 8, height = 6, dpi = 300)
 ```
 
 
 # Discussion
+
+Our results provide clear evidence that learners are sensitive to the graded statistical structure embedded in serial reaction time tasks across multiple state space sizes. We found robust effects of surprisal and entropy on reaction times at every matrix size tested (4×4, 5×5, 6×6, 7×7, and 8×8), demonstrating that participants learned fine-grained transition probabilities rather than simply practicing motor responses or learning that "some transitions are hard." Critically, we observed no interaction between surprisal and entropy effects, indicating that the effect of surprisal persists even when entropy is relatively high. This independence is particularly impressive because it shows that learners are not merely learning global difficulty levels, but are actually tracking which specific transitions are more or less likely even in high-uncertainty contexts.
+
+## Scaling Properties and Training Duration
+
+Importantly, the effects of surprisal and entropy did not rapidly approach zero as matrix size increased. This suggests that sensitivity to statistical structure scales beyond the typical 4-position SRTT paradigm, at least within the range we tested. While there remains considerable distance between an 8×8 transition matrix and the scale of statistical structure found in natural language or other real-world domains, our findings are encouraging given the brevity of training: participants completed only 20 blocks over approximately 20-40 minutes, receiving just 10 exposures per position per block. Despite this limited exposure, learners demonstrated robust sensitivity to graded statistical patterns across increasing state space complexity.
+
+## Limitations
+
+Several limitations warrant careful consideration when interpreting these findings. First, our transition matrices remain relatively small compared to the state spaces encountered in natural domains like language. Second, the short duration of our task means it does not fully represent the extended timescales typical of real-world procedural learning. Third, we made methodological decisions—particularly regarding how to handle random effects structures when fitting separate models to individual blocks—that may affect the quantitative estimates of effect sizes, though we believe these are unlikely to alter the qualitative pattern of results. These modeling choices were necessary to maintain convergence and interpretability across our per-block analyses, but future work should explore the robustness of specific effect size estimates to different modeling approaches.
+
+## Implications for Understanding Procedural Learning
+
+Taking these results at face value, they have important implications for understanding the relationship between procedural learning and language acquisition. Our task represents a substantially more complex design than traditionally used in procedural learning research, yet we still observe fine-grained sensitivity to surprisal and entropy that converges with recent quantitative analyses of language processing [@linzen_how_2019; @smith_role_2013]. This convergence increases our confidence that serial reaction time tasks can serve as valid models for language learning processes. More broadly, it increases the plausibility that procedural learning mechanisms and language learning rely on shared underlying cognitive systems, consistent with theoretical proposals linking the two [@ullman_neurocognition_2016; @ullman_declarative_2004].
+
+The preservation of both surprisal and entropy effects across varying levels of structural complexity is particularly noteworthy. It suggests that the statistical learning mechanisms engaged in these tasks are not simply detecting binary patterns or memorizing sequences, but rather building probabilistic models that capture graded distributional information. This capacity for nuanced statistical representation in a procedural learning context provides a bridge between the traditionally separate literatures on implicit sequence learning and statistical language learning.
+
+## Future Directions
+
+Future research should pursue at least two important directions. First, additional scaling is needed to further test the boundaries of procedural statistical learning. One promising approach is to embed these learning paradigms within engaging game environments that can sustain participant motivation over extended training periods with larger state spaces [@sumers_revisiting_2024]. Such designs would allow us to test whether the scaling properties we observe continue to hold as we approach state space sizes more representative of natural language.
+
+Second, examining procedural learning across the lifespan would provide a crucial test of the hypothesized link between procedural learning and language acquisition. If these processes share underlying mechanisms, we should observe parallel patterns of age-related change. Specifically, comparing younger and older adults' sensitivity to statistical structure in procedural learning tasks—and relating these patterns to what is known about age-related changes in language learning [@ullman_neurocognition_2016; @hartshorne_critical_2018]—would offer compelling evidence for or against shared cognitive systems. Such lifespan comparisons could also inform practical questions about the optimal timing and methods for language instruction across development.
 
 # References
 
