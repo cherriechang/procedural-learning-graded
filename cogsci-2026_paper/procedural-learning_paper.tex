@@ -221,7 +221,7 @@ statistical structures: deterministic sequences or binary probability
 contrasts. We introduce a novel serial reaction time paradigm where
 participants respond to stimuli appearing in sequences generated from
 transition matrices with graded entropy levels across positions,
-creating a continuous gradient of transition probabilities. Across 219
+creating a continuous gradient of transition probabilities. Across 203
 participants and five conditions (4-8 positions), we found robust
 effects of both surprisal (transition probability) and entropy
 (positional uncertainty) on reaction times. These effects emerged within
@@ -249,10 +249,10 @@ perform them so quickly they slip up, like in the case of ``-tino''. Yet
 typists cannot consciously report these probabilities or articulate
 their finger movements at the speed of execution---this knowledge is
 expressed in the automatic motor performance of typing, not in conscious
-awareness. This implicit form of learning, where statistical
-regularities are unconsciously acquired and expressed as behavior rather
-than declared knowledge, is called procedural learning (Nissen \&
-Bullemer, 1987; Squire, 2004).
+awareness (Rumelhart \& Norman, 1982). This implicit form of learning,
+where statistical regularities are unconsciously acquired and expressed
+as behavior rather than declared knowledge, is called procedural
+learning (Nissen \& Bullemer, 1987; Squire, 2004).
 
 Procedural learning is not limited to typing. It underlies skill
 acquisition across many domains, from proprioceptive skills like riding
@@ -270,7 +270,7 @@ touch typing through procedural learning, Chinese typewriters (trays of
 eventually abandoned (for QWERTY keyboards, among others!) (Mullaney,
 2017). This raises a fundamental question: does procedural learning fail
 beyond a certain level of statistical complexity and state space size?
-As a first step toward answering these questions, we examine whether
+As a first step toward answering the question, we examine whether
 procedural learning tracks fine-grained statistical patterns---both the
 predictability of individual transitions and the uncertainty of
 different states---and how it scales across state space sizes from 4 to
@@ -318,7 +318,7 @@ size. This allows us to ask: (1) Are learners sensitive to fine-grained
 differences in transition probabilities (surprisal) and state-level
 uncertainty (entropy), beyond simple high vs.~low frequency contrasts?
 (2) Do learning trajectories change as the number of positions
-increases? Across 219 participants, we find evidence that procedural
+increases? Across 203 participants, we find evidence that procedural
 learning is sensitive to graded statistical structure, and that this
 sensitivity emerges early and strengthens over time. These results
 suggest that procedural learning is more flexible than prior paradigms
@@ -329,11 +329,11 @@ operates in naturalistic environments.
 
 We make the following predictions: First, if participants are learning
 the statistical structure and not merely practicing motor responses,
-trial-level RT will be predicted by surprisal-----the negative log
-probability of the observed transition-----such that higher-surprisal
+trial-level RT will be predicted by surprisal---the negative log
+probability of the observed transition---such that higher-surprisal
 (less predictable) transitions elicit slower responses (surprisal
-effect). Second, previous positional entropy-----the entropy of the
-transition distribution from the previous position-----will modulate
+effect). Second, previous positional entropy---the entropy of the
+transition distribution from the previous position---will modulate
 performance independently, with higher-entropy (more uncertain) previous
 positions leading to slower responses (entropy effect). We further
 predict that surprisal effects will be stronger following low-entropy
@@ -398,8 +398,8 @@ short message (a checkmark vs.~``Try again!'' + an error tone), and
 allowed to retry each failed trial until they respond correctly.
 Following standard SRTT protocol, there is also a 120ms
 response-stimulus interval (RSI) between trials Howard et al. (2004). We
-find during piloting that allowing retries, combined with the 120ms RSI,
-prevents participants from making compensatory errors, where they
+found during piloting that allowing retries, combined with the 120ms
+RSI, prevents participants from making compensatory errors, where they
 unintentionally press the wrong key in the next trial in an attempt to
 correct their current trial. We record response time, keyboard response
 and correctness for each trial. After each block, participants are given
@@ -566,7 +566,7 @@ fine-grained, distributed levels of transition probabilities is our
 experiment's key distinction from other SRTT tasks, such as the ASRT
 paradigm which only has 2 levels of trigram probability. Fourth, the
 increase in entropy across positions (i.e.~rows) should be significant
-between one another and as linear as possible to ensure smooth a smooth
+between one another and as linear as possible to ensure a smooth
 gradient with meaningfully distinct levels in predictability across
 positions.
 
@@ -579,10 +579,10 @@ constraint violation, balancing trade-offs among the competing
 constraints.
 
 The five original matrices we constructed using this algorithm had these
-properties: 1) near fully doubly stochastic---all row and column sums
-sum to 1 (±0.0001); 2) approach a uniform stationary distribution after
-7 timesteps where the stationary visitation for each state (position)
-are within 0.001 of each other; 3) had a graded entropy structure across
+properties: 1) near fully doubly stochastic---all row and column sums to
+1 (±0.0001); 2) approach a uniform stationary distribution after 7
+timesteps where the stationary visitation for each state (position) are
+within 0.001 of each other; 3) had a graded entropy structure across
 states---each matrix had a positional entropy range of 0.061-0.181 bits
 for position 1 (\(\mu\)=0.107, \(\sigma\)=0.048), and 1.695-2.835 bits
 for position n (\(\mu\)=2.319, \(\sigma\)=0.451). Within a matrix each
@@ -620,39 +620,44 @@ a repetition of the previous position (i.e.~self-transition). This
 variable is included as a covariate in subsequent models to control for
 potential motor effects from repeating the same keystroke.
 
-The main dependent variable are response time (RT)---log-transformed to
+The main dependent variables are response time (RT)---log-transformed to
 reduce skewness---and accuracy (proportion of correct responses) on
 non-practice/main trials. Incorrect trials, trials with RT
 \textgreater1000ms, and trials with RTs greater than 3 median absolute
 deviations above the participant's median RT (outliers) are excluded. On
 the participant level, participants with overall accuracy below 90\%,
-median RT \textgreater1000ms, or with outliers making up more than 30\%
+median RT \textgreater1000ms, or with outliers making up more than 20\%
 of total trials are excluded from analysis. We also screened for
 explicit awareness of the underlying structure by filtering for
 participants who reported noticing patterns in their questionnaire
 responses, but found no participant who could describe the structure
-accurately. Lastly, we discard data from the first trial of each block
-to account for blocks being implicitly treated as ``restarts'' and not
-following an existing probability distribution by participants.
+accurately. Due to technical issues in data collection and these
+exclusions, 48 participants were removed, leaving a final sample of 203
+participants: n = 44 (4-position), 44 (5-position), 40 (6-position), 43
+(7-position), and 32 (8-position). Lastly, we discard data from the
+first trial of each block to account for blocks being implicitly treated
+as ``restarts'' and not following an existing probability distribution
+by participants.
 
 \subsection{Modeling Approach}\label{modeling-approach}
 
 We use linear mixed effects regression (LMER) to model the
 log-transformed RTs. Models are fit using the \texttt{lmerTest} package
-in R.P-values were obtained using the Satterthwaite approximation for
+in R. P-values were obtained using the Satterthwaite approximation for
 degrees of freedom, as implemented in the \texttt{lmerTest} package
 (Kuznetsova et al., 2017).
 
 We first determine the optimal random and fixed effects structure using
 the final block of trials in each condition, fitting candidate models to
 each of the five matrix size conditions separately and selecting the
-structure with the lowest summed AIC across all conditions. Models are
-initially fit with the maximal random effects structure supported by the
-design (Barr et al., 2013): random intercepts for participant and
-position, and random slopes by participant for surprisal, previous
-positional entropy, their interaction, and whether the current position
-is a repetition of the previous position. Where maximal models fail to
-converge, we use bounded linear mixed models
+structure with the lowest summed Akaike information criterion (AIC; a
+measure of model fit penalized for model complexity) across all
+conditions. Models are initially fit with the maximal random effects
+structure supported by the design (Barr et al., 2013): random intercepts
+for participant and position, and random slopes by participant for
+surprisal, previous positional entropy, their interaction, and whether
+the current position is a repetition of the previous position. Where
+maximal models fail to converge, we use bounded linear mixed models
 (\texttt{blmer}/\texttt{bglmer}) as a first remedy. If singularity
 persists, we iteratively simplify the random effects structure, removing
 random slopes one at a time and retaining the most complex structure
@@ -704,7 +709,7 @@ across matrix size conditions, with significance in at least 4 out of 5
 conditions for all fixed effects (Table \ref{tab:h1h2-results}).
 Higher-surprisal transitions elicited slower responses, as did
 transitions following higher-entropy positions. The negative interaction
-indicates that surprisal effects were stronger following low-entropy
+indicated that surprisal effects were stronger following low-entropy
 (i.e., more predictable) positions, consistent with prediction-based
 learning. Repetition trials showed faster responses, likely reflecting
 motor facilitation. This model structure converged without singular fits
@@ -773,10 +778,10 @@ learning blocks}
 
 \end{figure}%
 
-The results (Figure~\ref{fig-h3-surprisal-by-block}) shows an increasing
-trend for surprisal effect on learning over blocks (\(\beta\) = 0.00,
-p\textless0.001), with smaller matrix sizes having a significant larger
-effect compared to larger matrix sizes (\(\beta\) = -0.01,
+The results (Figure~\ref{fig-h3-surprisal-by-block}) showed an
+increasing trend for surprisal effect on learning over blocks (\(\beta\)
+= 0.00, p\textless0.001), with smaller matrix sizes having a significant
+larger effect compared to larger matrix sizes (\(\beta\) = -0.01,
 p\textless0.001).
 
 Similarly, as (Figure~\ref{fig-h3-entropy-by-block}) shows, previous
@@ -797,17 +802,14 @@ interaction between matrix size and block significantly predicted the
 interaction effect, suggesting that this trend is consistent across
 different state space sizes.
 
-To learn about the effect of repetition is also moderated by matrix size
-and learning blocks, we also ran a model predicting repetition effects
-from matrix size, block, and their interaction. The results indicate
-that repetition effects do not significantly change over blocks
-(\(\beta\) = 0.00), but differ by matrix size (\(\beta\) = -0.05), and
-the interactions of them (\(\beta\) = 0.00), suggesting that the effect
-of repetition is stable over learning but varies across different state
-space sizes.
-
-\begin{quote}
-\end{quote}
+To examine whether the effect of repetition is also moderated by matrix
+size and learning blocks, we also ran a model predicting repetition
+effects from matrix size, block, and their interaction. The results
+indicate that repetition effects did not significantly change over
+blocks (\(\beta\) = 0.00), but differed by matrix size (\(\beta\) =
+-0.05), and the interactions of them (\(\beta\) = 0.00), suggesting that
+the effect of repetition was stable over learning but varied across
+different state space sizes.
 
 \begin{figure}
 
@@ -1021,6 +1023,12 @@ Oliveira, C. M., Hayiou-Thomas, M. E., \& Henderson, L. M. (2023). The
 reliability of the serial reaction time task: Meta-analysis of
 test--retest correlations. \emph{Royal Society Open Science},
 \emph{10}(7), 221542. \url{https://doi.org/10.1098/rsos.221542}
+
+\bibitem[\citeproctext]{ref-rumelhart_simulating_1982}
+Rumelhart, D. E., \& Norman, D. A. (1982). Simulating a skilled typist:
+A study of skilled cognitive-motor performance. \emph{Cognitive
+Science}, \emph{6}(1), 1--36.
+\url{https://api.semanticscholar.org/CorpusID:18037595}
 
 \bibitem[\citeproctext]{ref-song_perceptual_2008}
 Song, S., Howard, J. H., \& Howard, D. V. (2008). Perceptual sequence
