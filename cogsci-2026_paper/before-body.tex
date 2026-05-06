@@ -1,12 +1,20 @@
 $if(has-frontmatter)$
 \frontmatter
 $endif$
+\author{%
+  {\large\bfseries Cherrie Chang (cherriechang15@gmail.com)\textsuperscript{1} \& Tianyi Li\textsuperscript{2} \& Joshua Hartshorne\textsuperscript{1}} \\
+  {\normalsize\normalfont
+    \textsuperscript{1}Department of Communication Sciences \& Disorders, MGH Institute of Health Professions \\
+    \textsuperscript{2}Department of Psychology \& Neuroscience, Boston College
+  }%
+}
 $if(title)$
 \maketitle
 $endif$
 $if(abstract)$
 \begin{abstract}
-\fontsize{9}{10.8}\selectfont
 $abstract$
+
+\noindent{\small\textbf{Keywords:} $keywords$}
 \end{abstract}
 $endif$
