@@ -30,16 +30,6 @@
   \usepackage[]{microtype}
   \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\makeatletter
-\@ifundefined{KOMAClassName}{% if non-KOMA class
-  \IfFileExists{parskip.sty}{%
-    \usepackage{parskip}
-  }{% else
-    \setlength{\parindent}{0pt}
-    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
-}{% if KOMA class
-  \KOMAoptions{parskip=half}}
-\makeatother
 % Make \paragraph and \subparagraph free-standing
 \makeatletter
 \ifx\paragraph\undefined\else
@@ -188,8 +178,8 @@
 \urlstyle{same}
 \hypersetup{
   pdftitle={The Role of Holes in Whack-a-Mole: Investigating Procedural Learning with Graded Statistical Structures Across State Space Sizes},
-  pdfkeywords={procedural learning, implicit learning, statistical
-learning, surprisal, entropy},
+  pdfkeywords={procedural learning; implicit learning; statistical
+learning; procedural memory; surprisal; entropy},
   colorlinks=true,
   linkcolor={blue},
   filecolor={Maroon},
@@ -212,27 +202,27 @@ Learning with Graded Statistical Structures Across State Space Sizes}
 }
 \maketitle
 \begin{abstract}
-Procedural learning--the implicit acquisition of motor and cognitive
-skills through repeated practice--has been proposed to support abilities
-from typing to language acquisition. Traditional serial reaction time
-paradigms study procedural learning using stimulus sequences with simple
-underlying statistical structures: deterministic or with binary
-probability levels; involving only 4 possible states. We introduce a
-novel paradigm where participants learn sequences with graded
-probability levels, generated from transition matrices with a continuous
-gradient of transition probabilities. We found robust effects of both
-surprisal (transition probability from previous state) and entropy
-(uncertainty of next state) on reaction times across 5 state space sizes
-(4-8), with no interaction between surprisal and entropy, indicating
-learners tracked specific transition probabilities even at
+Procedural learning---the implicit acquisition of motor and cognitive
+skills through repeated practice---has been proposed to support
+abilities from typing to language acquisition. Traditional serial
+reaction time paradigms study procedural learning using stimulus
+sequences with simple underlying statistical structures: deterministic
+or with binary probability levels; involving only 4 possible states. We
+introduce a novel paradigm where participants learn sequences with
+graded probability levels, generated from transition matrices with a
+continuous gradient of transition probabilities. We found robust effects
+of both surprisal (transition probability from previous state) and
+entropy (uncertainty of next state) on reaction times across 5 state
+space sizes (4-8), with no interaction between surprisal and entropy,
+indicating learners tracked specific transition probabilities even at
 high-uncertainty states. These findings demonstrate that procedural
 learning is sensitive to fine-grained statistical structure and scales
 beyond traditional 4-state paradigms, supporting theoretical proposals
 linking procedural learning mechanisms to skill acquisition in complex
 domains like language.
 
-\noindent{\small\textbf{Keywords:} procedural learning, implicit
-learning, statistical learning, surprisal, entropy}
+\noindent{\small\textbf{Keywords:} procedural learning; implicit
+learning; statistical learning; procedural memory; surprisal; entropy}
 \end{abstract}
 
 
@@ -240,18 +230,18 @@ learning, statistical learning, surprisal, entropy}
 
 How many times have you typed ``form'' instead of ``from''? Or ended a
 word with ``-tino'' instead of ``-tion'', perhaps even in an important,
-embarrassingly glaring context? The typos we make are not random; they
-reflect the statistical patterns in the language we use. Experienced
-typists learn that some keystroke sequences are highly probable, causing
-their fingers to automatically perform ones like ``for'' mistakenly, or
-perform them so quickly they slip up, like in the case of ``-tino''. Yet
-typists cannot consciously report these probabilities or articulate
-their finger movements at the speed of execution---this knowledge is
-expressed in the automatic motor performance of typing, not in conscious
-awareness. This implicit form of learning, where statistical
-regularities are unconsciously acquired and expressed as behavior rather
-than declared knowledge, is called procedural learning (Nissen \&
-Bullemer, 1987; Squire, 2004).
+embarrassingly glaring context like a conference paper? The typos we
+make are not random; they reflect the statistical patterns in the
+language we use. Experienced typists learn that some keystroke sequences
+are highly probable, causing their fingers to automatically perform ones
+like ``for'' mistakenly, or perform them so quickly they slip up, like
+in the case of ``-tino''. Yet typists cannot consciously report these
+probabilities or articulate their finger movements at the speed of
+execution---this knowledge is expressed in the automatic motor
+performance of typing, not in conscious awareness. This implicit form of
+learning, where statistical patterns are unconsciously acquired and
+expressed as behavior rather than declared knowledge, is called
+procedural learning (Nissen \& Bullemer, 1987; Squire, 2004).
 
 Procedural learning is not limited to typing. It underlies skill
 acquisition across many domains, from proprioceptive skills like riding
@@ -265,64 +255,61 @@ procedural learning system handle the large-scale, complex statistical
 structures that characterize domains like grammar? Consider a suggestive
 historical case: while QWERTY keyboards (26 letter keys) enabled fluent
 touch typing through procedural learning, Chinese typewriters (trays of
-2,000+ characters) never achieved comparable automaticity and were
+2,000+ character keys) never achieved comparable automaticity and were
 eventually abandoned (for QWERTY keyboards, among others!) (Mullaney,
-2017). This raises a fundamental question: does procedural learning fail
-beyond a certain level of statistical complexity and state space size?
-As a first step toward answering these questions, we examine whether
-procedural learning tracks fine-grained statistical patterns---both the
-predictability of individual transitions and the uncertainty of
-different states---and how it scales across state space sizes from 4 to
-8 positions.
+2017). If the Chinese typewriter wasn't adopted due to typists having to
+learn complex statistical patterns involving many more states (number of
+keys), its failure raises a fundamental question: does procedural
+learning fail beyond a certain level of statistical complexity and state
+space size?
 
-The primary method for measuring procedural learning has been the Serial
-Reaction Time Task (SRTT) (Nissen \& Bullemer, 1987). In the SRTT,
-participants respond to stimuli appearing in one of four positions on
-screen using key presses. Unbeknownst to them, the sequence of positions
-follows a deterministic pattern. Over time, reaction times (RT) decrease
-for patterned trials relative to random trials, demonstrating procedural
-learning of the key press sequence corresponding to the positional
-sequence's deterministic pattern. While the SRTT provided early evidence
-for procedural learning, it suffers from a critical confound:
-participants often develop explicit awareness of the sequence, making it
-difficult to isolate implicit procedural learning effects (Lustig, 2022;
-Song et al., 2008). This has contributed to low test-retest reliability
-of the task (Oliveira et al., 2023; West et al., 2018).
+Traditional paradigms for studying procedural learning are ill-suited to
+answering this question. The primary method for measuring procedural
+learning has been the Serial Reaction Time Task (SRTT) (Nissen \&
+Bullemer, 1987). In the SRTT, participants respond to stimuli appearing
+in one of four positions on screen using corresponding keystrokes.
+Unbeknownst to them, the sequence of stimulus positions follows a
+deterministic pattern. Over time, reaction times (RT) decrease,
+demonstrating motor procedural learning of the keystroke sequence in
+correspondence to the position sequence's deterministic pattern. While
+the SRTT provided early evidence for procedural learning, it suffers
+from a critical confound: participants often develop explicit awareness
+of the sequence pattern, making it difficult to isolate implicit
+procedural learning effects (Lustig, 2022; Song et al., 2008). This has
+contributed to low test-retest reliability of the task (Oliveira et al.,
+2023; West et al., 2018).
 
 The Alternating Serial Reaction Time Task (ASRT) addressed these issues
 by introducing a probabilistic design. In ASRT, deterministic (d) and
-random (r) trials alternate (e.g., d-r-d-r), resulting in positional
-sequences with two levels of frequency (high vs.~low) (Howard Jr. \&
-Howard, 1997). This probabilistic design minimizes explicit awareness
-and dramatically improves reliability (Farkas et al., 2024; Oliveira et
-al., 2023). However, a key limitation of ASRT is that its bimodal
-frequency distribution represents an overtly simplistic statistical
-structure, lacking the graded frequency distributions found in
-real-world domains like language. Finally, across both SRTT and ASRT,
-experiment designs have mostly tested sequences with four possible
-positions (Hedenius et al., 2011; Janacsek et al., 2012), despite
-real-world domains where procedural learning is implicated often
-involving far larger state spaces. Whether procedural learning can track
-graded statistical structures, and whether it scales to larger state
-spaces, remains untested.
+random (r) trials alternate (e.g., d-r-d-r), resulting in sequences with
+binary probability levels for transitioning from one position to the
+next: high (e.g.~\(p_{d \rightarrow r \rightarrow d}\)) vs.~low
+(e.g.~\(p_{r \rightarrow d \rightarrow r}\)) (Howard Jr. \& Howard,
+1997). This probabilistic design minimizes explicit awareness and
+dramatically improves reliability (Farkas et al., 2024; Oliveira et al.,
+2023). However, a key limitation of ASRT is that its bimodal
+distribution of transition probabilities represents an overtly
+simplistic statistical structure, lacking the graded probability
+distributions found in real-world domains like natural language.
+Finally, in both SRTT and ASRT, experiment designs have mostly tested
+sequences with four possible positions (Hedenius et al., 2011; Janacsek
+et al., 2012), despite real-world domains where procedural learning is
+implicated often involving far larger state spaces. Whether procedural
+learning can track graded statistical structures, and whether it scales
+to larger state spaces, remains untested.
 
-Here, we introduce a new paradigm that retains ASRT's probabilistic
-design but introduces a graded statistical structure with a smooth
-continuum of transition probabilities. We construct transition matrices
-to generate positional sequences where each position has a different
-entropy, ranging from deterministic (low entropy) to uniformly
-distributed (high entropy). We also vary the number of positions (4, 5,
-6, 7, 8) to test whether procedural learning scales with state space
-size. This allows us to ask: (1) Are learners sensitive to fine-grained
-differences in transition probabilities (surprisal) and state-level
-uncertainty (entropy), beyond simple high vs.~low frequency contrasts?
-(2) Do learning trajectories change as the number of positions
-increases? Across 219 participants, we find evidence that procedural
-learning is sensitive to graded statistical structure, and that this
-sensitivity emerges early and strengthens over time. These results
-suggest that procedural learning is more flexible than prior paradigms
-can reveal, with implications for understanding how procedural learning
-operates in naturalistic environments.
+Here, we introduce a new serial reaction time paradigm that retains
+ASRT's probabilistic design but introduces a graded statistical
+structure via having a smooth continuum of transition probabilities
+between positions. We construct transition matrices to generate stimulus
+position sequences where positions differ in their transition
+probability distributions, ranging from deterministic to uniformly
+distributed (Figure). We also vary the number of positions (4, 5, 6, 7,
+8) to test whether procedural learning scales with state space size.
+This allows us to ask: (1) Are learners sensitive to fine-grained
+differences in transition probabilities, beyond simple high vs.~low
+probability contrasts? (2) Do learning trajectories change as the number
+of states increases?
 
 \subsection{Hypotheses}\label{hypotheses}
 
@@ -822,6 +809,13 @@ effect across learning blocks}
 \end{figure}%
 
 \section{Discussion}\label{discussion}
+
+Across 219 participants, we find evidence that procedural learning is
+sensitive to graded statistical structure, and that this sensitivity
+emerges early and strengthens over time. These results suggest that
+procedural learning is more flexible than prior paradigms can reveal,
+with implications for understanding how procedural learning operates in
+naturalistic environments.
 
 Our study provides clear evidence that procedural learning is sensitive
 to graded statistical structure in motor sequences. Across all five
