@@ -1,13 +1,13 @@
 # Introduction
 - [x] There is a typo in the title of the Introduction (if intentional, given the first example, this should be clarified).
 - [x] I appreciate the idea of using the same typo described in the title, but this should also be explicitly mentioned in the text.
-- [ ] I would recommend restructuring the Introduction to improve the conceptual flow. Some key concepts (e.g., predictability of individual transitions and uncertainty across different states) are introduced before being clearly defined, making it difficult to fully understand what is meant by “transitions”, “positions”, and “states”. It may be more effective to first introduce the relevant paradigms and provide clear definitions of the core concepts (including an explanation of the term “entropy”), and only then present the open research question and the specific aim of the study at the end of the Introduction.
+- [x] I would recommend restructuring the Introduction to improve the conceptual flow. Some key concepts (e.g., predictability of individual transitions and uncertainty across different states) are introduced before being clearly defined, making it difficult to fully understand what is meant by “transitions”, “positions”, and “states”. It may be more effective to first introduce the relevant paradigms and provide clear definitions of the core concepts (including an explanation of the term “entropy”), and only then present the open research question and the specific aim of the study at the end of the Introduction.
 - [x] The paragraph beginning with “Across 219…”, immediately before the hypotheses, may not be necessary in that position. I would suggest removing or relocating it.
 - [x] The final part of the Introduction already describes and interprets results; this content would be more appropriate in the Discussion section.
 
 ## Hypothesis
-- [ ] In their hypotheses, the authors state that previous positional entropy is expected to modulate performance independently of surprisal, yet an interaction between these two variables is also predicted. As currently framed, this appears conceptually inconsistent and would benefit from clarification or rephrasing.
-- [ ] Numbering the hypotheses would make them easier to follow in the results.
+- [x] In their hypotheses, the authors state that previous positional entropy is expected to modulate performance independently of surprisal, yet an interaction between these two variables is also predicted. As currently framed, this appears conceptually inconsistent and would benefit from clarification or rephrasing.
+- [x] Numbering the hypotheses would make them easier to follow in the results.
 
 # Method
 - [x] There is an inconsistency in the reported sample size: 251 participants are reported in the Methods section, whereas the Abstract mentions a sample of 219 participants. I assume this reduction is due to the application of exclusion criteria; however, in my opinion, this should be stated more explicitly. 
