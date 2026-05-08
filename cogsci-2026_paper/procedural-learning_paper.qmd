@@ -176,7 +176,7 @@ Q4b & How confident are you in your answer? \\
 \end{table}
 ```
 
-In addition to our dapper mole, several design choices were made to facilitate participant understanding and engagement. During the practice phase, each on-screen position is labelled with its corresponding key character (e.g. "A", "S", "D") to help familiarize participants with the keyboard mappings. These labels disappear in the main trials to prevent explicit sequence encoding via visual labels, but reappear during retry of failed trials. Key mappings followed conventional QWERTY finger layouts to minimize cognitive load (Table \ref{tab:key-mapping}). However, piloting revealed that the wider gap between keys "F" and "J" introduced a discrepancy between the evenly-spaced on-screen positions and the unevenly-spaced keyboard keys, causing more errors in the middle positions, particularly at larger $n$. Shifting either hand's placement to close the extra gap did not resolve this, as the positions were still corresponding half to one hand and half to the other. After testing different visual aids, we settled on adding two hand diagrams to the bottom of the screen, each finger aligned with its target position (@fig-example-trial-screen). We received feedback that this helped participants better map the spatial layout of the on-screen positions to their corresponding keys. Finally, on-screen positions were rendered as 3D keyboard keys that light up and visibly depress on keypress, reinforcing the diegetic link between screen and keyboard to encourage motor rather than visual-spatial encoding.
+In addition to our dapper mole, several design choices are made to facilitate participant understanding and engagement. During the practice phase, each on-screen position is labelled with its corresponding key character (e.g. "A", "S", "D") to help familiarize participants with the keyboard mappings. These labels disappear in the main trials to prevent explicit sequence encoding via visual labels, but reappear during retry of failed trials. Key mappings followed conventional QWERTY finger layouts to minimize cognitive load (Table \ref{tab:key-mapping}). However, piloting revealed that the wider gap between keys "F" and "J" introduced a discrepancy between the evenly-spaced on-screen positions and the unevenly-spaced keyboard keys, causing more errors in the middle positions, particularly at larger $n$. Shifting either hand's placement to close the extra gap did not resolve this, as the positions were still corresponding half to one hand and half to the other. After testing different visual aids, we settled on adding two hand diagrams to the bottom of the screen, each finger aligned with its target position (@fig-example-trial-screen). We received feedback that this helped participants better map the spatial layout of the on-screen positions to their corresponding keys. Finally, on-screen positions were rendered as 3D keyboard keys that light up and visibly depress on keypress, reinforcing the diegetic link between screen and keyboard to encourage motor rather than visual-spatial encoding.
 
 ```{r}
 #| label: Original transition matrices
@@ -291,7 +291,7 @@ entropy_gradient_summary <- all_positional_entropies_df %>%
 \label{fig:4x4-state-transition-graph}
 \end{figure}
 ```
-Our experiment deviates from other SRTT designs in how the position sequence and its probabilistic structure is constructed. In each experiment run, we use a first-order Markov process to generate the sequence of positions the mole appears in. This process is defined by a transition matrix, where each entry in the matrix defines the probability of transitioning from one position to another. Following the five conditions in our experiment, we designed five "original" transition matrices of sizes 4x4, 5x5, 6x6, 7x7, and 8x8 to describe the transition probabilities for each number of positions. These matrices were constructed to have graded and increasing levels of entropy across rows, such that position 1 has lowest entropy---having the most predictable next-position-transitions, followed by the second, with the last position, position $n$, having highest entropy. For example, in the 4×4 matrix (Figure \ref{fig:4x4-state-transition-graph}), position 1 has a high probability of transitioning to position 2 ($p_{1 \rightarrow 2}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[1,2] * 100) / 100)`), a low probability of transitioning to position 1 ($p_{1 \rightarrow 1}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[1,1] * 100) / 100)`), and never transitions to positions 3 or 4; while position 4 has a more uniform distribution of transition probabilities to all other positions ($p_{4 \rightarrow 1}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,1] * 100) / 100)`, $p_{4 \rightarrow 2}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,2] * 100) / 100)`, $p_{4 \rightarrow 3}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,3] * 100) / 100)`, $p_{4 \rightarrow 4}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,4] * 100) / 100)`). This gives rise to a gradient of entropy values across the positions, resulting in a more continuously distributed statistical structure underlying the sequence of positions the stimulus mole appears in, allowing us to investigate how the procedural learning system differentially picks up varying levels of probability in a given statistical structure.
+Our experiment deviates from other SRTT designs in how the position sequence and its probabilistic structure is constructed. In each experiment run, we use a first-order Markov process to generate the sequence of positions the mole appears in. This process is defined by a transition matrix, where each entry in the matrix defines the probability of transitioning from one position to another. Following the five conditions in our experiment, we designed five "original" transition matrices of sizes 4x4, 5x5, 6x6, 7x7, and 8x8 to describe the transition probabilities for each number of positions. These matrices were constructed to have graded and increasing levels of entropy across rows, such that position 1 has lowest entropy---having the most predictable next-position-transitions---followed by the second; with the last position, position $n$, having highest entropy. For example, in the 4×4 matrix (Figure \ref{fig:4x4-state-transition-graph}), position 1 has a high probability of transitioning to position 2 ($p_{1 \rightarrow 2}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[1,2] * 100) / 100)`), a low probability of transitioning to position 1 ($p_{1 \rightarrow 1}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[1,1] * 100) / 100)`), and never transitions to positions 3 or 4; while position 4 has a more uniform distribution of transition probabilities to all other positions ($p_{4 \rightarrow 1}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,1] * 100) / 100)`, $p_{4 \rightarrow 2}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,2] * 100) / 100)`, $p_{4 \rightarrow 3}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,3] * 100) / 100)`, $p_{4 \rightarrow 4}=$ `r sprintf("%.2f", floor(transition_matrix_4x4[4,4] * 100) / 100)`). This gives rise to a gradient of entropy values across the positions, resulting in a more continuously distributed statistical structure underlying the sequence of positions the stimulus mole appears in, allowing us to investigate how the procedural learning system differentially picks up varying levels of probability in a given statistical structure.
 
 ```{=latex}
 \begin{table}[t]
@@ -314,11 +314,11 @@ Our experiment deviates from other SRTT designs in how the position sequence and
 \end{table}
 ```
 
-Several design criteria/constraints were imposed on the construction of these original transition matrices. First, these matrices had to be doubly stochastic to ensure uniform visitation to each position over time, preventing confounding effects from position frequency on learning. Second, self-transitions (e.g. $1 \rightarrow 1$) should have near-zero probabilities to reduce data loss, as data from repeated trials have been historically thrown out from analysis in SRTT tasks to prevent confounding motor effects from repeating the same keystroke [@oliveira_reliability_2023; @janacsek_best_2012]. Third, the graded entropy levels across the positions should translate to graded probabilities across all pair-wise (bigram) transitions as well, as having more fine-grained, continuous levels of transition probabilities is our experiment's key distinction from other SRTT tasks, such as the ASRT paradigm, which only has 2 probability levels^[Transition probabilities are controlled at the trigram level (e.g. $1 \rightarrow 2 \rightarrow 3$) in ASRT]. Fourth, the increase in entropy across positions (i.e. rows) should be significant between one another and as linear as possible to ensure a smooth gradient with meaningfully distinct levels in predictability across positions.
+Several design criteria/constraints were imposed on the construction of these original transition matrices. First, these matrices had to be doubly stochastic to ensure uniform visitation to each position over time, preventing confounding effects from position frequency on learning. Second, self-transitions (e.g. $1 \rightarrow 1$) should have near-zero probabilities to reduce data loss, as data from repeated trials have been historically thrown out from analysis in SRTT tasks to prevent confounding motor effects from repeating the same keystroke [@oliveira_reliability_2023; @janacsek_best_2012]. Third, the graded entropy levels across the positions should translate to graded probabilities across all pair-wise (bigram) transitions as well, as having more fine-grained, continuous levels of transition probabilities is our experiment's key distinction from other SRTT tasks, such as the ASRT paradigm, which only has 2 probability levels^[Transition probabilities are controlled at the trigram level (e.g. $1 \rightarrow 2 \rightarrow 3$) in the ASRT.]. Fourth, the increase in entropy across positions (i.e. rows) should be significant between one another and as linear as possible to ensure a smooth gradient with meaningfully distinct levels in predictability across positions.
 
 Strictly satisfying all these constraints simultaneously proved mathematically impossible, so we constructed each matrix via numerical optimization. The search space consisted of all $n \times n$ non-negative matrices for each condition. Row sums equal to 1 were enforced as hard constraints; column sums equal to 1 (double stochasticity) were enforced as approximate equality constraints with tolerance $10^{-4}$, since exact double stochasticity proved incompatible with the entropy gradient objective. The remaining design goals were encoded as soft penalty terms in an objective function: (1) squared distance between the sorted per-row conditional entropies and a linearly-spaced target profile spanning 0 to $\log_2(n)$ bits; (2) a spread penalty encouraging the entropy range (max $-$ min) to approach its theoretical maximum; (3) variance of successive entropy gaps, penalizing non-linearity; and (4) a distinctness penalty for entropy pairs within 0.1 bits of each other. The weighted sum of these terms was minimized using Sequential Least Squares Programming (\texttt{scipy.optimize.minimize}) with 3--5 random restarts per matrix size, selecting the solution with the lowest final objective value.
 
-The five original matrices we constructed using this algorithm had these properties: 1) near fully doubly stochastic—all row and column sums to 1 (±0.0001); 2) approach a uniform stationary distribution after 7 state transitions, where the stationary visitation for each state (position) are within 0.001 of each other; 3) had a graded entropy structure across states—--each matrix had a position entropy range of `r round(pos_1_entropy$range[1], 3)`-`r round(pos_1_entropy$range[2], 3)` bits for position 1 ($\mu$=`r round(pos_1_entropy$mean[1], 3)`, $\sigma$=`r round(pos_1_entropy$sd[1], 3)`), and `r round(pos_n_entropy$range[1], 3)`-`r round(pos_n_entropy$range[2], 3)` bits for position n ($\mu$=`r round(pos_n_entropy$mean[1], 3)`, $\sigma$=`r round(pos_n_entropy$sd[1], 3)`). Within a matrix each position increases in entropy from the previous by `r round(entropy_gradient_summary$range_diff[[1]][1], 3)`-`r round(entropy_gradient_summary$range_diff[[1]][2], 3)` bits ($\mu$=`r round(entropy_gradient_summary$mean_diff[1], 3)`, $\sigma$=`r round(entropy_gradient_summary$sd_diff[1], 3)`); and 4) avoided self loops as much as possible—--all of the matrices had <0.08 probabilities in the left diagonal up until the last two positions. Within each matrix size condition, all participants experience the same underlying entropy gradient across positions, but the mapping between screen positions and entropy levels is randomized through a double permutation procedure that shuffles the original matrix (of that size) using the same random permutation to produce a new matrix of the same size. This preserves the statistical properties of the original matrix—--transition probabilities and entropy values—--but decouples entropy levels from specific screen positions to prevent confounding from position-specific effects. The position sequence for each participant is subsequently generated using their individual shuffled transition matrix, so the sequence each participant experiences is different both within and between matrix size conditions.
+The five original matrices we constructed using this algorithm has these properties: 1) near fully doubly stochastic—all row and column sums to 1 (±0.0001); 2) approach a uniform stationary distribution after 7 state transitions, where the stationary visitation for each state (position) are within 0.001 of each other; 3) had a graded entropy structure across states—--each matrix had a position entropy range of `r round(pos_1_entropy$range[1], 3)`--`r round(pos_1_entropy$range[2], 3)` bits for position 1 ($\mu$=`r round(pos_1_entropy$mean[1], 3)`, $\sigma$=`r round(pos_1_entropy$sd[1], 3)`), and `r round(pos_n_entropy$range[1], 3)`--`r round(pos_n_entropy$range[2], 3)` bits for position n ($\mu$=`r round(pos_n_entropy$mean[1], 3)`, $\sigma$=`r round(pos_n_entropy$sd[1], 3)`). Within a matrix each position increases in entropy from the previous by `r round(entropy_gradient_summary$range_diff[[1]][1], 3)`--`r round(entropy_gradient_summary$range_diff[[1]][2], 3)` bits ($\mu$=`r round(entropy_gradient_summary$mean_diff[1], 3)`, $\sigma$=`r round(entropy_gradient_summary$sd_diff[1], 3)`); and 4) avoided self loops as much as possible—--all of the matrices had <0.08 probabilities in the left diagonal up until the last two positions. Within each matrix size condition, all participants experience the same underlying entropy gradient across positions, but the mapping between screen positions and entropy levels is randomized through a double permutation procedure that shuffles the original matrix (of that size) using the same random permutation to produce a new matrix of the same size. This preserves the statistical properties of the original matrix—--transition probabilities and entropy values—--but decouples entropy levels from specific screen positions to prevent confounding from position-specific effects. The position sequence for each participant is subsequently generated using their individual shuffled transition matrix, so the sequence each participant experiences is different both within and between matrix size conditions.
 
 # Statistical Analysis
 ```{r echo:false, include:false}
@@ -599,10 +599,10 @@ if (file.exists(df_correct_cache)) {
 ## Variables & Exclusion Criteria
 The main independent variables are surprisal and previous position entropy. Surprisal is defined as the negative log probability of the actual next-position given the current position, derived from the transition matrix used to generate the sequence for that participant. Previous positional entropy is defined as the Shannon entropy of the transition probabilities from the previous position, also derived from the transition matrix. Both surprisal and previous positional entropy are mean-centered within each matrix size condition to facilitate interpretation of main effects and interactions in subsequent models. We also create a binary variable indicating whether the current position is a repetition of the previous position (i.e. self-transition). This variable is included as a covariate in subsequent models to control for potential motor effects from repeating the same keystroke.
 
-The main dependent variables are response time (RT)---log-transformed to reduce skewness---and accuracy (proportion of correct responses) on non-practice/main trials. Incorrect trials, trials with RT >1000ms, and trials with RTs greater than 3 median absolute deviations above the participant's median RT (outliers) are excluded. On the participant level, participants with overall accuracy below 90%, median RT >1000ms, or with outliers making up more than 20% of total trials are excluded from analysis. We also screened for explicit awareness of the underlying structure by filtering for participants who reported noticing patterns in their questionnaire responses, but found no participant who could describe the structure accurately. After these exclusions, 203 participants remained (80% of original sample): 44 in the 4-position condition, 44 in 5-position, 40 in 6-position, 43 in 7-position, and 32 in 8-position. Lastly, we discard data from the first trial of each block to account for blocks being implicitly treated as "restarts" and not following an existing probability distribution by participants. 
+The main dependent variables are reaction time (RT)---log-transformed to reduce skewness---and accuracy (proportion of correct responses) on non-practice/main trials. Incorrect trials, trials with RT >1000ms, and trials with RTs greater than 3 median absolute deviations above the participant's median RT (outliers) are excluded. On the participant level, participants with overall accuracy below 90%, median RT >1000ms, or with outliers making up more than 20% of total trials are excluded from analysis. We also screened for explicit awareness of the underlying structure by filtering for participants who reported noticing patterns in their questionnaire responses, but found no participant who could describe the structure accurately. After these exclusions, 203 participants remained (80% of original sample): 44 in the 4-position condition, 44 in 5-position, 40 in 6-position, 43 in 7-position, and 32 in 8-position. Lastly, we discarded data from the first trial of each block to account for blocks being implicitly treated as "restarts" and not following an existing probability distribution by participants. 
 
 ## Modeling Approach
-We use linear mixed effects regression (LMER) to model the log-transformed RTs. Models are fit using the `lmerTest` package in R. P-values were obtained using the Satterthwaite approximation for degrees of freedom, as implemented in the `lmerTest` package [@kuznetsova_lmertest_2017].
+We use linear mixed effects regression (LMER) to model the log-transformed RTs. Models are fit using the `lmerTest` package in R. P-values are obtained using the Satterthwaite approximation for degrees of freedom, as implemented in the `lmerTest` package [@kuznetsova_lmertest_2017].
 
 We first determine the optimal random and fixed effects structure using the final block of trials in each condition, fitting candidate models to each of the five matrix size conditions separately and selecting the structure with the lowest summed Akaike information criterion (AIC; a metric of model fit balancing goodness-of-fit against model complexity) across all conditions [@akaike1998information]. Models are initially fit with the maximal random effects structure supported by the design [@barr_random_2013]: random intercepts for participant and position, and random slopes by participant for surprisal, previous positional entropy, their interaction, and whether the current position is a repetition of the previous position. Where maximal models fail to converge, we use bounded linear mixed models (`blmer`/`bglmer`) as a first remedy. If singularity persists, we iteratively simplify the random effects structure, removing random slopes one at a time and retaining the most complex structure that converges without singularity. Among these converging models, we select the simplest structure without increasing AIC. For fixed effects, starting with the full model including surprisal, previous positional entropy, their interaction, and repetition, we use AIC-based stepwise backward selection. An effect is retained if removing it increases AIC.
 
@@ -660,7 +660,7 @@ m_h0_acc_ci <- confint(m_h0_acc, method = "Wald")
 
 As a preliminary sanity check, we confirmed that RTs decreased across blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h0_rt))["block_c", "Estimate"])`, $t$ = `r sprintf("%.2f", coef(summary(m_h0_rt))["block_c", "t value"])`, $p$ < .001, 95% CI [`r sprintf("%.3f", m_h0_rt_ci["block_c", 1])`, `r sprintf("%.3f", m_h0_rt_ci["block_c", 2])`]), establishing that performance improvement occurred. 
 
-## Surprisal and Previous Position Entropy Effects
+## Surprisal & Previous Position Entropy (H1, H2, H3)
 <!-- H1 & H2: final block only; base model -->
 ```{r echo:false, include:false}
 #| label: H1H2 Effect lmer models
@@ -1009,54 +1009,9 @@ h1h2_all_stats <- map_dfr(condition_dirs, function(dir) {
 })
 ```
 
-Following the model selection procedure described above, the final converged model included by-participant random intercepts and slopes for previous position entropy, random intercepts for position, and fixed effects for surprisal, previous position entropy, their interaction, and repetition. In the final blocks, all predicted effects were statistically reliable across matrix size conditions, with significance in at least 4 out of 5 conditions for all fixed effects (Table \ref{tab:h1h2-results}). Higher-surprisal transitions elicited slower responses, as did transitions following higher-entropy positions. The negative interaction indicated that surprisal effects were stronger following low-entropy (i.e., more predictable) positions, consistent with prediction-based learning. Repetition trials showed faster responses, likely reflecting motor facilitation. This model structure converged without singular fits across all 100 models (20 blocks × 5 conditions) and was therefore used for all subsequent analyses.
+Following the model selection procedure described above, the final converged model included by-participant random intercepts and slopes for previous position entropy, random intercepts for position, and fixed effects for surprisal, previous position entropy, their interaction, and repetition. In the final blocks, all predicted effects were statistically reliable across conditions, with significance in at least 4 out of 5 conditions for all fixed effects (Table \ref{tab:h1h2-results}). Higher-surprisal transitions elicited slower responses (H1), as did transitions following higher-entropy positions (H2). The negative interaction indicated that surprisal effects were stronger following low-entropy (i.e., more predictable) positions, consistent with prediction-based learning (H3). Repetition trials showed faster responses, likely reflecting motor facilitation. This model structure converged without singular fits across all 100 models (20 blocks × 5 conditions) and so was used for all subsequent analyses.
 
-```{r}
-#| echo: false
-#| include: true
-#| results: asis
-
-cat("\\begin{table}[t]\n")
-cat("\\centering\n")
-cat("\\caption{Fixed effects from final-block models across all matrix size conditions}\n")
-cat("\\label{tab:h1h2-results}\n\n")
-cat("\\begin{tabular*}{\\columnwidth}{@{} l @{\\extracolsep{\\fill}} r r r @{}}\n")
-cat("\\toprule\n")
-cat("Predictor & Mean $\\beta$ & Range & Prop. Sig. \\\\\n")
-cat("\\midrule\n")
-
-h1h2_latex_rows <- h1h2_finalblock_summary %>%
-    mutate(
-        term_label = case_when(
-            term == "surprisal_c" ~ "Surprisal",
-            term == "prev_entropy_c" ~ "Previous Entropy",
-            term == "surprisal_c:prev_entropy_c" ~ "Surprisal $\\times$ Entropy",
-            term == "is_repetitionTRUE" ~ "Repetition"
-        ),
-        sig_label = if_else(all_sig, paste0(n_sig, "/5***"), paste0(n_sig, "/5"))
-    ) %>%
-    arrange(match(term, c("surprisal_c", "prev_entropy_c", "surprisal_c:prev_entropy_c", "is_repetitionTRUE"))) %>%
-    transmute(
-        row = paste0(
-            term_label, " & ",
-            sprintf("%.3f", mean_estimate), " & [",
-            sprintf("%.3f", min_estimate), ", ",
-            sprintf("%.3f", max_estimate), "] & ",
-            sig_label, " \\\\"
-        )
-    )
-
-cat(h1h2_latex_rows$row, sep = "\n")
-
-cat("\\bottomrule\n")
-cat("\\end{tabular*}\n\n")
-cat("\\footnotesize\n")
-cat("\\textit{Note.} Mean $\\beta$ averaged across 5 matrix size conditions. \\\\\n")
-cat("Prop. Sig. = conditions with $p$ < .05;\n*** = all conditions $p$ < .001.\n")
-cat("\\end{table}\n")
-```
-
-## State Space Size Effect
+## State Space Size (H4)
 ```{r echo:false, include:false}
 #| label: H3 models - matrix size moderation
 #| output: false
@@ -1208,14 +1163,59 @@ ggsave(here("plots", "h3_interaction_by_block.png"), p3, width = 8, height = 6, 
 ```
 
 To examine learning trajectories, we fit this selected model structure separately to each block within each matrix size condition, yielding 100 models total (20 blocks × 5 conditions). To test whether the effects of surprisal, previous position entropy, and their interaction were moderated by matrix size and block, we first extracted the fixed effect estimates from the 100 models, then fit linear models predicting each effect size as a function of matrix size, block, and their interaction. This approach allows us to assess how sensitivity to surprisal and entropy emerges and changes over the course of learning, and whether these trajectories differ across state space sizes.
+
+```{r}
+#| echo: false
+#| include: true
+#| results: asis
+
+cat("\\begin{table}[t]\n")
+cat("\\centering\n")
+cat("\\caption{Fixed effects from final-block models across all matrix size conditions}\n")
+cat("\\label{tab:h1h2-results}\n\n")
+cat("\\begin{tabular*}{\\columnwidth}{@{} l @{\\extracolsep{\\fill}} r r r @{}}\n")
+cat("\\toprule\n")
+cat("Predictor & Mean $\\beta$ & Range & Prop. Sig. \\\\\n")
+cat("\\midrule\n")
+
+h1h2_latex_rows <- h1h2_finalblock_summary %>%
+    mutate(
+        term_label = case_when(
+            term == "surprisal_c" ~ "Surprisal",
+            term == "prev_entropy_c" ~ "Previous Entropy",
+            term == "surprisal_c:prev_entropy_c" ~ "Surprisal $\\times$ Entropy",
+            term == "is_repetitionTRUE" ~ "Repetition"
+        ),
+        sig_label = if_else(all_sig, paste0(n_sig, "/5***"), paste0(n_sig, "/5"))
+    ) %>%
+    arrange(match(term, c("surprisal_c", "prev_entropy_c", "surprisal_c:prev_entropy_c", "is_repetitionTRUE"))) %>%
+    transmute(
+        row = paste0(
+            term_label, " & ",
+            sprintf("%.3f", mean_estimate), " & [",
+            sprintf("%.3f", min_estimate), ", ",
+            sprintf("%.3f", max_estimate), "] & ",
+            sig_label, " \\\\"
+        )
+    )
+
+cat(h1h2_latex_rows$row, sep = "\n")
+
+cat("\\bottomrule\n")
+cat("\\end{tabular*}\n\n")
+cat("\\footnotesize\n")
+cat("\\textit{Note.} Mean $\\beta$ averaged across 5 matrix size conditions. \\\\\n")
+cat("Prop. Sig. = conditions with $p$ < .05;\n*** = all conditions $p$ < .001.\n")
+cat("\\end{table}\n")
+```
   
-The results (@fig-h3-surprisal-by-block) shows an increasing trend for surprisal effect on learning over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_surprisal))["block_c", "Estimate"])`, p<0.001), with smaller matrix sizes having a significant larger effect compared to larger matrix sizes ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_surprisal))["matrix_size_c", "Estimate"])`, p<0.001). 
+The results (@fig-h3-surprisal-by-block) shows an increasing trend for surprisal effect on learning over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_surprisal))["block_c", "Estimate"])`, p<0.001), with smaller matrix sizes having a significant larger effect compared to larger matrix sizes ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_surprisal))["matrix_size_c", "Estimate"])`, p<0.001; H4).
 
-![Surprisal effect across learning blocks per condition.]("../plots/h3_surprisal_by_block.png"){#fig-h3-surprisal-by-block width=100% fig-pos="!t"}
+![Surprisal effect across learning blocks per condition.]("../plots/h3_surprisal_by_block.png"){#fig-h3-surprisal-by-block width=100%}
 
-Similarly, as (@fig-h3-entropy-by-block) shows, previous position entropy has an increasing trend over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["block_c", "Estimate"])`, p<0.001), with smaller matrix sizes showing a larger effect ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["matrix_size_c", "Estimate"])`, p<0.001). The interaction between matrix size and block is also significant for previous position entropy effects, indicating that the increase in previous position entropy effect over blocks is more pronounced for smaller matrix sizes ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["matrix_size_c:block_c", "Estimate"])`, p<0.01).
+Similarly, as (@fig-h3-entropy-by-block) shows, previous position entropy has an increasing trend over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["block_c", "Estimate"])`, p<0.001), with smaller matrix sizes showing a larger effect ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["matrix_size_c", "Estimate"])`, p<0.001; H4). The interaction between matrix size and block is also significant for previous position entropy effects, indicating that the increase in previous position entropy effect over blocks is more pronounced for smaller matrix sizes ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_entropy))["matrix_size_c:block_c", "Estimate"])`, p<0.01).
 
-![Previous position entropy effect across learning blocks per condition.]("../plots/h3_entropy_by_block.png"){#fig-h3-entropy-by-block width=100% fig-pos="!t"}
+![Previous position entropy effect across learning blocks per condition.]("../plots/h3_entropy_by_block.png"){#fig-h3-entropy-by-block width=100% fig-pos="!b"}
 
 The interaction effect between surprisal and previous position entropy (@fig-h3-interaction-by-block) shows a decreasing trend over blocks ($\beta$ = `r sprintf("%.2f", coef(summary(m_h3_interaction))["block_c", "Estimate"])`, p<0.01), indicating that the modulation of surprisal effects by previous position entropy becomes less pronounced with learning. However, neither matrix size nor the interaction between matrix size and block significantly predicted the interaction effect, suggesting that this trend is consistent across different state space sizes.
 
@@ -1225,11 +1225,11 @@ To examine whether the effect of repetition is also moderated by matrix size and
 
 
 # Discussion
-Our study provides clear evidence that procedural learning is sensitive to graded statistical structure in motor sequences. Across all five state space sizes tested (4, 5, 6, 7, 8), we found robust effects of both surprisal and previous position entropy on reaction times. These effects demonstrate that participants tracked the fine-grained transition probabilities embedded in the sequence, rather than simply practicing motor responses. Our findings are particularly striking given the brevity of training: participants completed only 20 blocks over ~20-40 minutes, receiving just 10 exposures per position per block. Despite this limited exposure, the trajectory analyses revealed that sensitivity to both surprisal and previous position entropy emerged early and continued to develop throughout the experiment. This rapid learning suggests that the procedural learning system is capable of representing and responding to distributional information more nuanced and complex than simple binary patterns from limited exposure to a sequence.
+Our study provides clear evidence that procedural learning is sensitive to graded statistical structure in motor sequences. Across all five state space sizes tested (4, 5, 6, 7, 8), we found robust effects of both surprisal and previous position entropy on reaction times (H1, H2). These effects demonstrate that participants tracked the fine-grained transition probabilities embedded in the sequence, rather than simply practicing motor responses. Our findings are particularly striking given the brevity of training: participants completed only 20 blocks over ~20-40 minutes, receiving just 10 exposures per position per block. Despite this limited exposure, the trajectory analyses revealed that sensitivity to both surprisal and previous position entropy emerged early and continued to develop throughout the experiment. This rapid learning suggests that the procedural learning system is capable of representing and responding to distributional information more nuanced and complex than simple binary patterns from limited exposure to a sequence.
 
-The lack of an interaction between surprisal and previous position entropy offers converging evidence: even at high-entropy positions where the next position is less predictable, participants still exhibited sensitivity to the surprisal of specific transitions. This suggests that learners are not merely detecting a binary "some positions are harder" distinction, but are truly tracking the different probabilities of individual transitions regardless of overall uncertainty.
+The weak, partially significant interaction between surprisal and previous position entropy (H3) offers converging evidence: even at high-entropy positions where the next position is less predictable, participants still exhibited sensitivity to the surprisal of specific transitions. This suggests that learners are not merely detecting a binary "some positions are harder" distinction, but are truly tracking the different probabilities of individual transitions regardless of overall uncertainty.
 
-The persistence of surprisal and previous position entropy effects across matrix sizes offers compelling evidence for the robustness of procedural learning across state space sizes. While effect sizes were larger for smaller matrices, sensitivity to surprisal and previous position entropy remained statistically reliable even in the 8×8 condition. This scaling beyond the typical 4-position SRTT paradigm is encouraging for propositions that extend procedural learning as a supporting mechanism to skill acquisition in complex, naturalistic domains like language [@ullman_contributions_2004].
+The persistence of surprisal and previous position entropy effects across matrix sizes offers compelling evidence for the robustness of procedural learning across state space sizes (H4). While effect sizes were larger for smaller matrices, sensitivity to surprisal and previous position entropy remained statistically reliable even in the 8×8 condition. This scaling beyond the typical 4-position SRTT paradigm is encouraging for propositions that extend procedural learning as a supporting mechanism to skill acquisition in complex, naturalistic domains like language [@ullman_contributions_2004].
 
 ## Limitations
 Several limitations warrant careful consideration when interpreting these findings. First, our transition matrices remain relatively small compared to the state spaces encountered in natural domains like language. Second, the short duration of our task means it does not fully represent the extended timescales typical of real-world procedural learning. Third, we made methodological decisions such as how to handle random effects structures when fitting separate models to individual blocks that may affect the quantitative estimates of effect sizes, though we believe these are unlikely to alter the qualitative pattern of results. These modeling choices were necessary to maintain convergence and interpretability across our per-block analyses, but future work should explore the robustness of specific effect size estimates to different modeling approaches. Finally, we ran a post-hoc power analysis on the pilot data on each condition separately, and found that ~80 participants *per condition* was required to achieve 80% power for detecting learning effects. While this is probably due to the small pilot sample (~2 participants per condition), it suggests that our study may be underpowered to detect smaller effects, particularly in the larger matrix size conditions. Future work with larger samples will be important for confirming the robustness of these effects and further exploring how they scale with state space size.
