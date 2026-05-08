@@ -24,20 +24,12 @@
 - [x] Additional typos are present at the end of the second paragraph of Transition Matrices section.
 - [ ] For a non-expert reader, the methods, particularly the construction of the matrices, were difficult to follow. Additional clarification could help improve readability.
 - [ ] While I understand that word limits constrain the level of methodological detail, the statistical approach, and particularly the algorithm used to generate the matrices, may be difficult to follow for readers who are not highly familiar with these methods. In particular, point 2 would benefit from clarification, as the concept of “7 timesteps” is not fully clear.
-<<<<<<< HEAD
-- [x] The term “bigrams” should be clarified in the second paragraph of the Experimental Design section.
+- [x] The term “bigrams” should be clarified in the second paragraph of the section.
 ## Exclusion
 - [ ] It would also be helpful to report the percentages of trials and participants excluded from the analyses.
-=======
 - [x] Was there any procedure in place to ensure that participants completed the task using a QWERTY keyboard? If not, this potential source of variability should be addressed or acknowledged
 - [x] The number of practice trials should be specified.
 - [ ] If there is existing evidence that participants make compensatory errors, relevant literature should be cited.
-## Experiment Design
-- [x] Typos are present in the first two lines of the “Experimental Design” section.
-- [ ] The term “bigrams” should be clarified in the second paragraph of the Experimental Design section.
-## Transition Matrices
-- [x] Additional typos are present at the end of the second paragraph of Transition Matrices section.
->>>>>>> 0a6b37a0098ba40ce1bc807d75daa589e5d60899
 ## Modeling Approach
 - [x] “AIC” should be defined. --> defined it firstly shows, see if need more
 
@@ -56,7 +48,7 @@ If space is needed for additional references and discussion, the section subtitl
 
 # Throughout
 - [ ] Tense usage is inconsistent throughout the manuscript (past vs. present). I recommend standardizing tense usage across sections. --> fixed some, could be more
-- [ ] References should be added for the example involving experienced typists. --> rumelhart1982 added, add more?
+- [x] References should be added for the example involving experienced typists. --> rumelhart1982 added, add more?
 - [x] Typographical inconsistency: “This raises a fundamental question” (singular) followed by “to answer these questions” (plural).
 - [ ] While these findings are great at showing that procedural learning can extend to more complex relationships, the jump to how such procedural learning may contribute to language acquisition is still quite large
 - [ ] one suggestion in this context would be to bring back typing as an example in the discussion more explicitly

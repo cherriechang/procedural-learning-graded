@@ -233,23 +233,23 @@ learning; statistical learning; procedural memory; surprisal; entropy}
 \end{abstract}
 
 
-\section{Introduction}\label{introduction}
+\section{Introductino}\label{introductino}
 
 How often have you typed ``form'' instead of ``from''? Or ended a word
-with ``-tino'' instead of ``-tion'', perhaps even in an important,
-embarrassingly glaring context like a conference paper? The typos we
-make are not random; they reflect the statistical patterns in the
-language we use. Experienced typists learn that some keystroke sequences
-are highly probable, causing their fingers to automatically perform ones
-like ``for'' mistakenly, or perform them so quickly they slip up, like
-in the case of ``-tino''. Yet typists cannot consciously report these
-probabilities or articulate their finger movements at the speed of
-execution---this knowledge is expressed in the automatic motor
-performance of typing, not in conscious awareness (Rumelhart \& Norman,
-1982). This implicit form of learning, where statistical patterns are
-unconsciously acquired and expressed as behavior rather than declared
-knowledge, is called procedural learning (Nissen \& Bullemer, 1987;
-Squire, 2004).
+with ``-tino'' instead of ``-tion'', perhaps even in an embarrassingly
+glaring context like a conference paper? The typos we make are not
+random; they reflect the statistical patterns in the language we use.
+Experienced typists learn that some keystroke sequences are highly
+probable, causing their fingers to automatically perform ones like
+``for'' mistakenly, or perform them so quickly they slip up, like in the
+case of ``-tino'' (Grudin, 1983; Pinet et al., 2016; Rumelhart \&
+Norman, 1982). Yet typists cannot consciously report these probabilities
+or articulate their finger movements at the speed of execution---this
+knowledge is expressed in the automatic motor performance of typing, not
+in conscious awareness (Crump \& Logan, 2010). This implicit form of
+learning, where statistical patterns are unconsciously acquired and
+expressed as behavior rather than declared knowledge, is called
+procedural learning (Nissen \& Bullemer, 1987; Squire, 2004).
 
 Besides typing, procedural learning underlies skill acquisition across
 many domains, from proprioceptive skills like riding a bike to
@@ -260,14 +260,14 @@ acquisition in language (Kidd \& Arciuli, 2016; Lammertink et al., 2017;
 Lum et al., 2014; Ullman \& Pierpont, 2005). These proposals invite
 closer scrutiny of its scalability: can the procedural learning system
 handle the large-scale, complex statistical structures that characterize
-domains like grammar? Consider a suggestive historical case: while
+domains like language? Consider a suggestive historical case: while
 QWERTY keyboards (26 letter keys) enabled fluent touch typing through
 procedural learning, Chinese typewriters (2,000+ character keys) never
 achieved comparable automaticity and were eventually abandoned (for
 QWERTY keyboards!) (Mullaney, 2017). If the Chinese typewriter wasn't
 adopted because it required typists to learn complex motor sequences
-involving many keys, its failure raises a fundamental question: does
-procedural learning fail beyond a certain level of statistical
+involving many keys, then this failure raises a fundamental question:
+does procedural learning fail beyond a certain level of statistical
 complexity?
 
 Traditional paradigms for studying procedural learning are ill-suited to
@@ -285,9 +285,9 @@ difficult to isolate implicit procedural learning effects (Lustig, 2022;
 Song et al., 2008), resulting in low test-retest reliability of the task
 (Oliveira et al., 2023; West et al., 2018).
 
-The Alternating Serial Reaction Time Task (ASRT) addressed these issues
-by introducing a probabilistic design. In ASRT, deterministic (d) and
-random (r) trials alternate (e.g., d-r-d-r), resulting in sequences with
+The Alternating Serial Reaction Time Task (ASRT) addresses these issues
+by introducing a probabilistic design. In the ASRT, deterministic (d)
+and random (r) trials alternate (e.g., d-r-d-r), creating sequences with
 binary probability levels for transitioning from one position to the
 next: high (e.g.~\(p_{d \rightarrow r \rightarrow d}\)) vs.~low
 (e.g.~\(p_{r \rightarrow d \rightarrow r}\)) (Howard Jr. \& Howard,
@@ -296,14 +296,13 @@ improves reliability (Farkas et al., 2024; Oliveira et al., 2023).
 However, a key limitation of ASRT is that its bimodal distribution of
 transition probabilities represents an overtly simplistic statistical
 structure, lacking the continuous probability distributions found in
-real-world domains like natural language. Finally, in both SRTT and
-ASRT, experiment designs have mostly tested sequences with 4 possible
-positions (Hedenius et al., 2011; Janacsek et al., 2012), creating an
-sandbox domain with only 4 states, despite real-world domains where
-procedural learning is implicated often involving far larger state
-spaces. Whether procedural learning can track continuous statistical
-structures, and whether it scales to larger state spaces, remains
-untested.
+real-world domains like language. Finally, in both SRTT and ASRT,
+experiment designs have mostly tested sequences with 4 positions
+(Hedenius et al., 2011; Janacsek et al., 2012), creating an sandbox
+domain with only 4 states, despite real-world domains where procedural
+learning is implicated often involving far larger state spaces. Whether
+procedural learning can track continuous statistical structures, and
+whether it scales to larger state spaces, remains untested.
 
 Here, we introduce a new paradigm that retains ASRT's probabilistic
 design but introduces a graded statistical structure by having a smooth
@@ -372,11 +371,11 @@ Hospital Institute of Health Professions.
 
 \end{figure}%
 
-Like other SRTT designs, our experiment tasks participants to respond to
-a stimulus appearing in one of several evenly-spaced positions on screen
-as quickly and accurately as possible by pressing a corresponding key.
-In our implementation, this stimulus is a mole garbed in a bright red
-bib and matching sunglasses (Figure~\ref{fig-example-trial-screen}).
+Like other SRTT designs, our experiment tasked participants to respond
+to a stimulus appearing in one of several evenly-spaced positions on
+screen as quickly and accurately as possible by pressing a corresponding
+key. In our implementation, this stimulus was a mole garbed in a bright
+red bib and matching sunglasses (Figure~\ref{fig-example-trial-screen}).
 Participants were evenly divided into 5 groups of 50 per condition,
 differing in the number of positions (\(n\); 4, 5, 6, 7, 8) the mole can
 appear in\footnote{One extra participant in the 5-position condition.}.
@@ -396,7 +395,7 @@ tone), and allowed to retry each failed trial until they respond
 correctly. Following standard SRTT protocol, there is also a 120ms
 response-stimulus interval (RSI) between trials Howard et al. (2004). We
 found during piloting that allowing retries, combined with the 120ms
-RSI, prevents participants from making compensatory errors, where they
+RSI, prevented participants from making compensatory errors, where they
 unintentionally press the wrong key in the next trial in an attempt to
 correct their current trial (Rabbitt, 1966). We record response time,
 keyboard response and correctness for each trial. After each block,
@@ -900,12 +899,23 @@ effects structure for confirmatory hypothesis testing: {Keep} it
 maximal. \emph{Journal of Memory and Language}, \emph{68}(3), 255--278.
 \url{https://doi.org/10.1016/j.jml.2012.11.001}
 
+\bibitem[\citeproctext]{ref-crump2010episodic}
+Crump, M. J., \& Logan, G. D. (2010). Episodic contributions to
+sequential control: Learning from a typist's touch. \emph{Journal of
+Experimental Psychology: Human Perception and Performance},
+\emph{36}(3), 662.
+
 \bibitem[\citeproctext]{ref-farkas_complexity_2024}
 Farkas, B. C., Krajcsi, A., Janacsek, K., \& Nemeth, D. (2024). The
 complexity of measuring reliability in learning tasks: {An} illustration
 using the {Alternating} {Serial} {Reaction} {Time} {Task}.
 \emph{Behavior Research Methods}, \emph{56}(1), 301--317.
 \url{https://doi.org/10.3758/s13428-022-02038-5}
+
+\bibitem[\citeproctext]{ref-grudin1983error}
+Grudin, J. T. (1983). Error patterns in novice and skilled transcription
+typing. In \emph{Cognitive aspects of skilled typewriting} (pp.
+121--143). Springer.
 
 \bibitem[\citeproctext]{ref-hedenius_grammar_2011}
 Hedenius, M., Persson, J., Tremblay, A., Adi-Japha, E., Veríssimo, J.,
@@ -988,6 +998,11 @@ Oliveira, C. M., Hayiou-Thomas, M. E., \& Henderson, L. M. (2023). The
 reliability of the serial reaction time task: Meta-analysis of
 test--retest correlations. \emph{Royal Society Open Science},
 \emph{10}(7), 221542. \url{https://doi.org/10.1098/rsos.221542}
+
+\bibitem[\citeproctext]{ref-pinet2016typing}
+Pinet, S., Ziegler, J. C., \& Alario, F.-X. (2016). Typing is writing:
+Linguistic properties modulate typing execution. \emph{Psychonomic
+Bulletin \& Review}, \emph{23}(6), 1898--1906.
 
 \bibitem[\citeproctext]{ref-rabbitt1966errors}
 Rabbitt, P. A. (1966). Errors and error correction in choice-response
