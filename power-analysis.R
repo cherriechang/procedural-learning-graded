@@ -8,7 +8,7 @@
 #
 # RQs:
 # 1. Does learning occur? (RT ~ block)
-# 2. Does entropy predict RT? (RT ~ entropy)  
+# 2. Does entropy predict RT? (RT ~ entropy)
 # 3. Does entropy sensitivity change with learning? (RT ~ entropy × block)
 # 4. Does matrix size moderate effects? (RT ~ entropy × matrix_size)
 #
@@ -19,6 +19,9 @@ library(lme4)
 library(lmerTest)
 library(simr)      # For power simulations
 library(parallel)  # For faster computation
+library(here)
+
+filter <- dplyr::filter
 
 # ==============================================================================
 # 1. FIT PILOT MODELS
@@ -50,32 +53,32 @@ fit_pilot_models <- function(data) {
   
   # Model 2: Entropy effect
   cat("\nModel 2: Entropy (RT ~ entropy)\n")
-  m2 <- lmer(rt ~ entropy + (block | subject_id) + (1 | position),
-             data = df.correct,
+  m2 <- lmer(rt ~ conditional_entropy + (block | subject_id) + (1 | position),
+             data = data_correct,
              REML = FALSE,
              control = lmerControl(optimizer = "bobyqa"))
   
   cat("  Converged:", !any(grepl("failed to converge", m2@optinfo$conv$lme4$messages)), "\n")
-  beta_entropy <- fixef(m2)['entropy']
+  beta_entropy <- fixef(m2)['conditional_entropy']
   cat(sprintf("  β_entropy = %.2f ms/bit\n", beta_entropy))
   
   # Model 3: Combined
   cat("\nModel 3: Combined (RT ~ entropy + block)\n")
-  m3 <- lmer(rt ~ entropy + block + (block | subject_id),
+  m3 <- lmer(rt ~ conditional_entropy + block + (block | subject_id),
              data = data_correct,
              REML = FALSE,
              control = lmerControl(optimizer = "bobyqa"))
   
   cat("  Converged:", !any(grepl("failed to converge", m3@optinfo$conv$lme4$messages)), "\n")
-  cat(sprintf("  β_entropy = %.2f ms/bit\n", fixef(m3)['entropy']))
+  cat(sprintf("  β_entropy = %.2f ms/bit\n", fixef(m3)['conditional_entropy']))
   cat(sprintf("  β_block = %.2f ms/block\n", fixef(m3)['block']))
   
   
   # Model 4: Interaction
   cat("\nModel 4: Interaction (RT ~ entropy × block)\n")
   m4 <- tryCatch({
-    lmer(rt ~ entropy * block + (1 | subject_id) + (1 | position),
-         data = df.correct,
+    lmer(rt ~ conditional_entropy * block + (1 | subject_id) + (1 | position),
+         data = data_correct,
          REML = FALSE,
          control = lmerControl(optimizer = "bobyqa"),
          verbose = TRUE)
@@ -86,7 +89,7 @@ fit_pilot_models <- function(data) {
   
   if (!is.null(m4)) {
     cat("  Converged:", !any(grepl("failed to converge", m4@optinfo$conv$lme4$messages)), "\n")
-    cat(sprintf("  β_entropy:block = %.3f\n", fixef(m4)['entropy:block']))
+    cat(sprintf("  β_entropy:block = %.3f\n", fixef(m4)['conditional_entropy:block']))
   }
   
   return(list(
@@ -176,7 +179,7 @@ power_analysis_entropy <- function(pilot_model, target_n = c(20, 40, 60, 80, 100
   cat(strrep("=", 70), "\n\n")
   
   # Current effect size
-  beta_entropy <- fixef(pilot_model)['entropy']
+  beta_entropy <- fixef(pilot_model)['conditional_entropy']
   cat(sprintf("Pilot effect size: β_entropy = %.2f ms/bit\n", beta_entropy))
   
   # Extract current N
@@ -194,7 +197,7 @@ power_analysis_entropy <- function(pilot_model, target_n = c(20, 40, 60, 80, 100
     # Run power simulation
     power_sim <- powerSim(extended_model,
                           nsim = 100,
-                          test = fixed("entropy", "z"),
+                          test = fixed("conditional_entropy", "z"),
                           progress = FALSE,
                           seed = 12345)
     
@@ -278,7 +281,7 @@ plot_power_curve <- function(power_results, effect_name = "Effect") {
 # ==============================================================================
 
 power_analysis_sensitivity <- function(pilot_model, 
-                                       effect_name = "entropy",
+                                       effect_name = "conditional_entropy",
                                        multipliers = c(0.5, 0.75, 1.0, 1.25, 1.5),
                                        target_n = 60) {
   
@@ -439,7 +442,7 @@ run_complete_power_analysis <- function(pilot_df,
 # ==============================================================================
 
 # How much power do I have RIGHT NOW with pilot?
-check_current_power <- function(pilot_model, effect_name = "entropy") {
+check_current_power <- function(pilot_model, effect_name = "conditional_entropy") {
   current_n <- length(unique(pilot_model@frame$subject_id))
   cat(sprintf("Current N = %d\n", current_n))
   
@@ -453,7 +456,7 @@ check_current_power <- function(pilot_model, effect_name = "entropy") {
 
 # What N do I need for X% power?
 find_required_n <- function(pilot_model, 
-                            effect_name = "entropy",
+                            effect_name = "conditional_entropy",
                             target_power = 0.80,
                             max_n = 300) {
   
@@ -480,5 +483,14 @@ find_required_n <- function(pilot_model,
   
   return(pc)
 }
+
+df <- list.files(here('data/pilot-data/'), pattern = "*.csv", full.names = TRUE) %>%
+  lapply(read.csv) %>%
+  bind_rows() %>%
+  mutate(
+    correct = as.logical(tolower(correct)),
+    rt = as.numeric(rt)
+  ) %>%
+  filter(phase == "main", experiment_trial_type == "stimulus", !is.na(rt), rt > 0)
 
 power_analysis_results <- run_complete_power_analysis(pilot_df=df)
