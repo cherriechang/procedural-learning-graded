@@ -190,9 +190,10 @@ positional_entropy <- function(mat) {
 }
 
 load_npy_matrix <- function(path) {
-  x <- np$load(path)
-  lst <- x$tolist()          # Python → nested lists
-  do.call(rbind, lst)        # R-native matrix
+  #x <- np$load(path)
+  #lst <- x$tolist()          # Python → nested lists
+  #do.call(rbind, lst)        # R-native matrix
+  reticulate::py_to_r(np$load(path))
 }
 
 transition_matrix_4x4 <- load_npy_matrix(
